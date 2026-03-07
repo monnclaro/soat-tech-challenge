@@ -1,0 +1,73 @@
+﻿# =========================
+# Build results
+# =========================
+bin/
+obj/
+out/
+TestResults/
+
+# =========================
+# Rider / IntelliJ
+# =========================
+.idea/
+*.sln.iml
+*.DotSettings.user
+
+# =========================
+# User-specific files
+# =========================
+*.user
+*.userosscache
+*.suo
+*.rsuser
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# NuGet
+# =========================
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# =========================
+# .NET Core
+# =========================
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# =========================
+# Visual Studio (sometimes generated)
+# =========================
+.vs/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Rider caches
+# =========================
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# =========================
+# Environment files
+# =========================
+.env
+.env.*
+
+# =========================
+# Publish
+# =========================
+publish/
