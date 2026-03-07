@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SoatTechChallenge.Clientes.Veiculos;
+using SoatTechChallenge.Domain.Clientes.Veiculos;
 
 namespace SoatTechChallenge.Infrastructure.Database.Configurations;
 
@@ -10,19 +10,19 @@ public class VeiculoConfiguration : IEntityTypeConfiguration<ClienteVeiculo>
     {
         builder.ToTable("clienteveiculos");
 
-        builder.HasKey(v => v.Id);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(v => v.Id).HasColumnName("id");
-        builder.Property(v => v.IdCliente).HasColumnName("cliente_id");
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.IdCliente).HasColumnName("cliente_id");
 
-        builder.Property(v => v.Placa)
+        builder.Property(x => x.Placa)
             .HasColumnName("placa")
             .HasMaxLength(8)
             .IsRequired();
 
-        builder.HasIndex(v => v.Placa).IsUnique();
-        builder.Property(v => v.Marca).HasColumnName("marca").HasMaxLength(50).IsRequired();
-        builder.Property(v => v.Modelo).HasColumnName("modelo").HasMaxLength(80).IsRequired();
-        builder.Property(v => v.Ano).HasColumnName("ano").IsRequired();
+        builder.HasIndex(x => x.Placa).IsUnique();
+        builder.Property(x => x.Marca).HasColumnName("marca").HasMaxLength(50).IsRequired();
+        builder.Property(x => x.Modelo).HasColumnName("modelo").HasMaxLength(80).IsRequired();
+        builder.Property(x => x.Ano).HasColumnName("ano").IsRequired();
     }
 }

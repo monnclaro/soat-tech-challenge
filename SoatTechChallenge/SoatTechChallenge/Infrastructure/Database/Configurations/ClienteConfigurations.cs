@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SoatTechChallenge.Clientes;
+using SoatTechChallenge.Domain.Clientes;
 
 namespace SoatTechChallenge.Infrastructure.Database.Configurations;
 
@@ -10,31 +11,31 @@ public class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
     {
         builder.ToTable("clientes");
 
-        builder.HasKey(c => c.Id);
-        builder.Property(c => c.Id).HasColumnName("id");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).HasColumnName("id");
 
-        builder.Property(c => c.Nome)
+        builder.Property(x => x.Nome)
                .HasColumnName("nome")
                .HasMaxLength(150)
                .IsRequired();
         
-        builder.HasIndex(c => c.Documento).IsUnique();
-        builder.Property(c => c.Documento)
+        builder.HasIndex(x => x.Documento).IsUnique();
+        builder.Property(x => x.Documento)
                .HasColumnName("documento")
                .HasMaxLength(14)
                .IsRequired();
 
-        builder.Property(c => c.TipoDocumento)
+        builder.Property(x => x.TipoDocumento)
                .HasColumnName("tipo_documento")
                .HasConversion<string>()
                .HasMaxLength(4)
                .IsRequired();
 
-        builder.Property(c => c.DataCriacao)
+        builder.Property(x => x.DataCriacao)
                .HasColumnName("data_criacao")
                .IsRequired();
 
-        builder.HasMany(c => c.Veiculos)
+        builder.HasMany(x => x.Veiculos)
                .WithOne()
                .HasForeignKey(v => v.IdCliente)
                .OnDelete(DeleteBehavior.Cascade);
