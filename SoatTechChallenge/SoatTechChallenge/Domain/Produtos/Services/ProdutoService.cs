@@ -1,17 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SoatTechChallenge.Application.DTOs;
+using SoatTechChallenge.Host.Common.DTOs;
+using SoatTechChallenge.Host.Common.Services;
 using SoatTechChallenge.Host.Controllers.Produtos.DTOs;
-using SoatTechChallenge.Infrastructure.Common;
+using SoatTechChallenge.Host.Middlewares.Exceptions;
 using SoatTechChallenge.Infrastructure.Interfaces;
-using SoatTechChallenge.Middlewares.Exceptions;
 
 namespace SoatTechChallenge.Domain.Produtos.Services;
 
-public class ProdutoService : IProdutoService, ITransientService
+public class ProdutoService : IProdutoService, IScopedService
 {
     private readonly IRepository<Produto> _repository;
 
-    private static ProdutoResponse MapToResponse(Produto p) => new(p.Id, p.Nome, p.Descricao, p.Preco, p.QuantidadeEmEstoque);
+    private static ProdutoResponse MapToResponse(Produto p) => new(p.Id, p.Nome, p.Descricao, p.Valor, p.QuantidadeEmEstoque);
 
     public ProdutoService(IRepository<Produto> repository)
     {
@@ -31,15 +31,17 @@ public class ProdutoService : IProdutoService, ITransientService
 
     public async Task<PagedResponse<ProdutoResponse>> BuscarListaPaginada(PagedRequest request)
     {
-        var resultado = await _repository.Query()
-            .AsNoTracking()
+        var query = _repository.Query().AsNoTracking()
             .OrderBy(l => l.Nome)
+            .Select(p => new ProdutoResponse(p.Id, p.Nome, p.Descricao, p.Valor, p.QuantidadeEmEstoque));
+        
+        var total = await query.CountAsync();
+        var resultado = await query
             .Skip((request.Pagina - 1) * request.Tamanho)
             .Take(request.Tamanho)
-            .Select(p => new ProdutoResponse(p.Id, p.Nome, p.Descricao, p.Preco, p.QuantidadeEmEstoque))
             .ToListAsync();
-
-        return new PagedResponse<ProdutoResponse>(resultado);
+   
+        return new PagedResponse<ProdutoResponse>(resultado, total, request.Pagina, request.Tamanho);
     }
 
     public async Task<ProdutoResponse> Inserir(InserirProdutoRequest request)

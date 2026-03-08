@@ -1,13 +1,13 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using SoatTechChallenge.Host.Common.Services;
 using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 using SoatTechChallenge.Host.Middlewares.Exceptions;
-using SoatTechChallenge.Infrastructure.Common;
 using SoatTechChallenge.Infrastructure.Interfaces;
 
 namespace SoatTechChallenge.Domain.Clientes.Veiculos.Services.Validators;
 
-public class ClienteVeiculoValidatorService : IClienteVeiculoValidatorService, ITransientService
+public class ClienteVeiculoValidatorService : IClienteVeiculoValidatorService, IScopedService
 {
     private readonly IRepository<Cliente> _clienteRepository;
     private readonly IRepository<ClienteVeiculo> _clienteVeiculoRepository;

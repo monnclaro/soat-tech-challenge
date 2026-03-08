@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SoatTechChallenge.Application.DTOs;
 using SoatTechChallenge.Domain.Clientes.Veiculos.Services;
+using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 
 namespace SoatTechChallenge.Clientes.Controllers.Veiculos;

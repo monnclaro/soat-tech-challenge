@@ -1,4 +1,4 @@
-﻿using SoatTechChallenge.Application.DTOs;
+﻿using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 
 namespace SoatTechChallenge.Domain.Clientes.Veiculos.Services;

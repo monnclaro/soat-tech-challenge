@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SoatTechChallenge.Application.DTOs;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SoatTechChallenge.Domain.Clientes.Services;
+using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Clientes.DTOs;
 
 namespace SoatTechChallenge.Host.Controllers.Clientes;
 
 [ApiController]
 [Route("api/v1/clientes")]
+[Authorize(Roles = "Admin")] 
 [Produces("application/json")]
 public class ClientesController : ControllerBase
 {

@@ -1,14 +1,27 @@
-﻿namespace SoatTechChallenge.Domain.OrdensServico.Produtos;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SoatTechChallenge.Domain.OrdensServico.Produtos;
 
 public class OrdemServicoProduto
 {
     public Guid Id { get; private set; }
-    public Guid IdOrgemServico { get; private set; }
-    public Guid IdPeca { get; private set; }
-    public string NomePeca { get; private set; }
-    public decimal PrecoUnitario { get; private set; }
-    public int Quantidade { get; private set; }
-    public decimal Subtotal => PrecoUnitario * Quantidade;
+    public Guid IdOrdemServico { get; private set; }
+    public Guid IdProduto { get; private set; }
+    public string NomeProduto { get; private set; }
+    public decimal ValorUnitario { get; private set; }
+    public decimal Quantidade { get; private set; }
+    
+    [NotMapped] public decimal Subtotal => ValorUnitario * Quantidade;
 
     public OrdemServicoProduto() { }
+
+    public OrdemServicoProduto(Guid idOrdemServico, Guid idProduto, string nomeProduto, decimal valorUnitario, decimal quantidade)
+    {
+        Id = Guid.NewGuid();
+        IdOrdemServico = idOrdemServico;
+        IdProduto = idProduto;
+        NomeProduto = nomeProduto;
+        ValorUnitario = valorUnitario;
+        Quantidade = quantidade;
+    }
 }

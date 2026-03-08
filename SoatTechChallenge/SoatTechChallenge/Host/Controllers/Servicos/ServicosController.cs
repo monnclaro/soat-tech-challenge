@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SoatTechChallenge.Application.DTOs;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SoatTechChallenge.Domain.Servicos.Services;
+using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Servicos.DTOs;
 
 namespace SoatTechChallenge.Host.Controllers.Servicos;
 
 [ApiController]
 [Route("api/v1/servicos")]
+[Authorize(Roles = "Admin")] 
 [Produces("application/json")]
 public class ServicosController : ControllerBase
 {

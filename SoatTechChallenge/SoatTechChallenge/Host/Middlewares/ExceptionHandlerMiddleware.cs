@@ -1,8 +1,7 @@
 ﻿using System.Text.Json;
 using SoatTechChallenge.Host.Middlewares.Exceptions;
-using SoatTechChallenge.Middlewares.Exceptions;
 
-namespace SoatTechChallenge.Middlewares;
+namespace SoatTechChallenge.Host.Middlewares;
 
 public class ExceptionHandlerMiddleware
 {

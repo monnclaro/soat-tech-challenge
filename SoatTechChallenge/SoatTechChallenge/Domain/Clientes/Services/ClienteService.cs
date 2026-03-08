@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SoatTechChallenge.Application.DTOs;
 using SoatTechChallenge.Domain.Clientes.Services.Validators;
+using SoatTechChallenge.Host.Common.DTOs;
+using SoatTechChallenge.Host.Common.Services;
 using SoatTechChallenge.Host.Controllers.Clientes.DTOs;
-using SoatTechChallenge.Infrastructure.Common;
+using SoatTechChallenge.Host.Middlewares.Exceptions;
 using SoatTechChallenge.Infrastructure.Interfaces;
-using SoatTechChallenge.Middlewares.Exceptions;
 
 namespace SoatTechChallenge.Domain.Clientes.Services;
 
-public class ClienteService : IClienteService, ITransientService
+public class ClienteService : IClienteService, IScopedService
 {
     private readonly IRepository<Cliente> _repository;
     private readonly IClienteValidatorService _validatorService;
@@ -37,20 +37,17 @@ public class ClienteService : IClienteService, ITransientService
 
     public async Task<PagedResponse<ClienteResponse>> BuscarListaPaginada(PagedRequest request)
     {
-        var resultado = await _repository.Query()
-            .AsNoTracking()
+        var query = _repository.Query().AsNoTracking()
             .OrderBy(l => l.DataCriacao)
+            .Select(l => new ClienteResponse(l.Id, l.Nome, l.Documento, l.DataCriacao));
+        
+        var total = await query.CountAsync();
+        var resultado = await query
             .Skip((request.Pagina - 1) * request.Tamanho)
             .Take(request.Tamanho)
-            .Select(l => new ClienteResponse(
-                l.Id,
-                l.Nome,
-                l.Documento,
-                l.DataCriacao
-            ))
             .ToListAsync();
-
-        return new PagedResponse<ClienteResponse>(resultado);
+   
+        return new PagedResponse<ClienteResponse>(resultado, total, request.Pagina, request.Tamanho);
     }
 
     public async Task<ClienteResponse> Inserir(InserirClienteRequest request)

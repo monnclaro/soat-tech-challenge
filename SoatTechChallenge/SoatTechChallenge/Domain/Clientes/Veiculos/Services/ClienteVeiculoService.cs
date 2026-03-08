@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SoatTechChallenge.Application.DTOs;
 using SoatTechChallenge.Domain.Clientes.Veiculos.Services.Validators;
+using SoatTechChallenge.Host.Common.DTOs;
+using SoatTechChallenge.Host.Common.Services;
 using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
-using SoatTechChallenge.Infrastructure.Common;
+using SoatTechChallenge.Host.Middlewares.Exceptions;
 using SoatTechChallenge.Infrastructure.Interfaces;
-using SoatTechChallenge.Middlewares.Exceptions;
 
 namespace SoatTechChallenge.Domain.Clientes.Veiculos.Services;
 
-public class ClienteVeiculoService : IClienteVeiculoService, ITransientService
+public class ClienteVeiculoService : IClienteVeiculoService, IScopedService
 {
     private readonly IRepository<ClienteVeiculo> _repository;
     private readonly IClienteVeiculoValidatorService _validatorService;
@@ -34,23 +34,18 @@ public class ClienteVeiculoService : IClienteVeiculoService, ITransientService
 
     public async Task<PagedResponse<ClienteVeiculoResponse>> BuscarListaPaginada(Guid idCLiente, PagedRequest request)
     {
-        var resultado = await _repository.Query().AsNoTracking()
+        var query = _repository.Query().AsNoTracking()
             .Where(l => l.IdCliente == idCLiente)
             .OrderBy(l => l.DataCriacao)
+            .Select(l => new ClienteVeiculoResponse(l.Id, l.IdCliente, l.Placa, l.Marca, l.Modelo, l.Ano, l.DataCriacao));
+        
+        var total = await query.CountAsync();
+        var resultado = await query
             .Skip((request.Pagina - 1) * request.Tamanho)
             .Take(request.Tamanho)
-            .Select(l => new ClienteVeiculoResponse(
-                l.Id, 
-                l.IdCliente, 
-                l.Placa,
-                l.Marca, 
-                l.Modelo,
-                l.Ano,
-                l.DataCriacao
-            ))
             .ToListAsync();
-
-        return new PagedResponse<ClienteVeiculoResponse>(resultado);
+   
+        return new PagedResponse<ClienteVeiculoResponse>(resultado, total, request.Pagina, request.Tamanho);
     }
 
     public async Task<ClienteVeiculoResponse> Inserir(Guid idCliente, InserirClienteVeiculoRequest request)

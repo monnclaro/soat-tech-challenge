@@ -1,4 +1,4 @@
-﻿using SoatTechChallenge.Application.DTOs;
+﻿using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Clientes.DTOs;
 using SoatTechChallenge.Host.Controllers.Produtos.DTOs;
 

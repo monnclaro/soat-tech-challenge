@@ -8,7 +8,7 @@ public class Produto
     public Guid Id { get; private set; }
     public string Nome { get; private set; }
     public string Descricao { get; private set; }
-    public decimal Preco { get; private set; }
+    public decimal Valor { get; private set; }
     public decimal QuantidadeEmEstoque { get; private set; }
 
     public Produto() { }
@@ -18,7 +18,7 @@ public class Produto
         if (string.IsNullOrWhiteSpace(request.Nome))
             throw new DomainException("Nome do produto é obrigatório.");
 
-        if (request.Preco <= 0)
+        if (request.Valor <= 0)
             throw new DomainException("Preço deve ser maior que zero.");
 
         if (request.QuantidadeEmEstoque < 0)
@@ -27,7 +27,7 @@ public class Produto
         Id = Guid.NewGuid();
         Nome = request.Nome;
         Descricao = request.Descricao;
-        Preco =request.Preco;
+        Valor = request.Valor;
         QuantidadeEmEstoque = request.QuantidadeEmEstoque;
     }
     
@@ -36,7 +36,7 @@ public class Produto
         if (string.IsNullOrWhiteSpace(request.Nome))
             throw new DomainException("Nome do produto é obrigatório.");
 
-        if (request.Preco <= 0)
+        if (request.Valor <= 0)
             throw new DomainException("Preço deve ser maior que zero.");
 
         if (request.QuantidadeEmEstoque < 0)
@@ -44,12 +44,17 @@ public class Produto
      
         Nome = request.Nome;
         Descricao = request.Descricao;
-        Preco =request.Preco;
+        Valor =request.Valor;
         QuantidadeEmEstoque = request.QuantidadeEmEstoque;
     }
     
     public void AtualizarQuantidadeEmEstoque(decimal quantidade)
     {
         QuantidadeEmEstoque = quantidade;
+    }
+    
+    public void DecrementarQuantidadeEmEstoque(decimal quantidade)
+    {
+        QuantidadeEmEstoque -= quantidade;
     }
 }

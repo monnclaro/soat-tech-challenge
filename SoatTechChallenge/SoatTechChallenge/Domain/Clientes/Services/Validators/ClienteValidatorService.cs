@@ -1,15 +1,14 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Domain.Clientes.Enums;
+using SoatTechChallenge.Host.Common.Services;
 using SoatTechChallenge.Host.Controllers.Clientes.DTOs;
 using SoatTechChallenge.Host.Middlewares.Exceptions;
-using SoatTechChallenge.Infrastructure.Common;
 using SoatTechChallenge.Infrastructure.Interfaces;
-using SoatTechChallenge.Middlewares.Exceptions;
 
 namespace SoatTechChallenge.Domain.Clientes.Services.Validators;
 
-public class ClienteValidatorService : IClienteValidatorService, ITransientService
+public class ClienteValidatorService : IClienteValidatorService, IScopedService
 {
     private readonly IRepository<Cliente> _clienteRepository;
 

@@ -3,5 +3,4 @@
 public record InserirServicoRequest(  
     string Nome,
     string Descricao,
-    decimal Preco,
-    int TempoEstimadoMinutos);
+    decimal Valor);

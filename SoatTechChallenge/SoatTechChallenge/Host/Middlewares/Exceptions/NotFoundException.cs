@@ -1,4 +1,4 @@
-﻿namespace SoatTechChallenge.Middlewares.Exceptions;
+﻿namespace SoatTechChallenge.Host.Middlewares.Exceptions;
 
 public class NotFoundException : Exception
 {
