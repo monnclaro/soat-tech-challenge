@@ -6,15 +6,25 @@ namespace SoatTechChallenge.Domain.OrdensServico.Services;
 
 public interface IOrdemServicoService
 {
-    Task<OrdemServicoResponse> Buscar(Guid id);
-    Task<PagedResponse<OrdemServicoDetailedResponse>> BuscarListaPaginada(PagedRequest request);
+    #region Reads
+
+    Task<OrdemServicoResponse?> Buscar(Guid id);
+    Task<PagedResponse<OrdemServicoResponse>> BuscarListaPaginada(PagedRequest request);
+    Task<PagedResponse<OrdemServicoPorDocumentoResponse>> BuscarListaPaginadaPorDocumento(string documento, PagedRequest request);
     Task<TempoMedioExecucaoOrdensServicoResponse?> BuscarTempoMedioExecucao();
-    Task<OrdemServicoResponse> Inserir(InserirOrdemServicoRequest request);
+
+    #endregion
+   
+    #region Writes
+    
+    Task<OrdemServicoOrcamentoResponse> Inserir(InserirOrdemServicoRequest request);
+    Task<OrdemServicoOrcamentoResponse> Atualizar(Guid id, AtualizarOrdemServicoRequest request);
     Task IniciarDiagnostico(Guid id);
-    Task EnviarOrcamento(Guid id);
+    Task<OrdemServicoOrcamentoResponse> EnviarOrcamento(Guid id);
     Task AprovarOrcamento(Guid id);
-    Task IniciarExecucao(Guid id);
     Task Finalizar(Guid id);
     Task Entregar(Guid id);
     Task Remover(Guid id);
+    
+    #endregion
 }

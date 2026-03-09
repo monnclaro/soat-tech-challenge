@@ -40,9 +40,9 @@ public class OrdemServico
         Status = StatusOrdemServico.Recebida;
         DataCriacao = DateTime.UtcNow;
 
-        var dicionarioServicos = servicoRepository.Query().AsNoTracking()
+        var dicionarioServicos = await servicoRepository.Query().AsNoTracking()
             .Where(s => request.Servicos.Select(rs => rs.IdServico).Contains(s.Id))
-            .ToDictionary(s => s.Id);
+            .ToDictionaryAsync(s => s.Id);
 
         foreach (var requestServico in request.Servicos)
         {
@@ -52,9 +52,46 @@ public class OrdemServico
             }
         }
      
-        var dicionarioProdutos = produtoRepository.Query().AsNoTracking()
+        var dicionarioProdutos = await produtoRepository.Query().AsNoTracking()
             .Where(p => request.Produtos.Select(rp => rp.IdProduto).Contains(p.Id))
-            .ToDictionary(s => s.Id);
+            .ToDictionaryAsync(s => s.Id);
+
+        foreach (var requestProduto in request.Produtos)
+        {
+            if (dicionarioProdutos.TryGetValue(requestProduto.IdProduto, out var produto))
+            {
+                Produtos.Add(new OrdemServicoProduto(Id, produto.Id, produto.Nome, requestProduto.Quantidade, produto.Valor));
+            }
+        }
+        
+        CalcularTotal();
+    }
+    
+    public async Task Atualizar(
+        AtualizarOrdemServicoRequest request,
+        IRepository<Produto> produtoRepository,
+        IRepository<Servico> servicoRepository)
+    {
+        if (Status is not StatusOrdemServico.EmDiagnostico)
+        {
+            throw new DomainException("Só é possível adicionar serviços ou produtos quando a ordem de serviço estiver em diagnóstico.");
+        }
+        
+        var dicionarioServicos = await servicoRepository.Query().AsNoTracking()
+            .Where(s => request.Servicos.Select(rs => rs.IdServico).Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id);
+
+        foreach (var requestServico in request.Servicos)
+        {
+            if (dicionarioServicos.TryGetValue(requestServico.IdServico, out var servico))
+            {
+                Servicos.Add(new OrdemServicoServico(Id, servico.Id, servico.Nome, servico.Valor));
+            }
+        }
+     
+        var dicionarioProdutos = await produtoRepository.Query().AsNoTracking()
+            .Where(p => request.Produtos.Select(rp => rp.IdProduto).Contains(p.Id))
+            .ToDictionaryAsync(s => s.Id);
 
         foreach (var requestProduto in request.Produtos)
         {
@@ -84,6 +121,11 @@ public class OrdemServico
             throw new DomainException("O orçamento só pode ser enviado após diagnóstico.");
         }
         
+        if (!Servicos.Any() && !Produtos.Any())
+        {
+            throw new DomainException("Não é possível enviar o orçamento sem serviços ou produtos.");
+        }
+        
         Status = StatusOrdemServico.AguardandoAprovacao;
     }
 
@@ -94,18 +136,6 @@ public class OrdemServico
             throw new DomainException("O orçamento não está aguardando aprovação.");
         }
         
-        DataInicioExecucao = DateTime.UtcNow;
-        Status = StatusOrdemServico.EmExecucao;
-    }
-    
-    public void IniciarExecucao()
-    {
-        if (Status != StatusOrdemServico.Recebida &&
-            Status != StatusOrdemServico.AguardandoAprovacao)
-        {
-            throw new DomainException("A execução não pode ser iniciada neste status.");
-        }
-
         DataInicioExecucao = DateTime.UtcNow;
         Status = StatusOrdemServico.EmExecucao;
     }

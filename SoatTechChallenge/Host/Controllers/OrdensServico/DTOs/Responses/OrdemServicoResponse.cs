@@ -2,9 +2,10 @@
 
 public record OrdemServicoResponse(
  Guid Id,
- Guid IdCliente,
- Guid IdVeiculo,
+ OrdemServicoClienteResponse Cliente,
+ OrdemServicoVeiculoResponse Veiculo,
  DateTime DataCriacao,
+ DateTime? DataInicioExecucao,
  DateTime? DataFinalizacao,
  string Status,
  decimal ValorTotal,
@@ -12,9 +13,24 @@ public record OrdemServicoResponse(
  List<OrdemServicoProdutoResponse> Produtos
 );
 
+public record OrdemServicoClienteResponse(
+ Guid Id,
+ string Nome,
+ string Documento
+ );
+
+public record OrdemServicoVeiculoResponse(
+ Guid Id,
+ string Placa,
+ string Marca,
+ string Modelo,
+ int Ano
+);
+
 public record OrdemServicoServicoResponse(
  Guid Id,
  Guid IdServico,
+ string NomeServico,
  decimal Valor
 );
 
@@ -25,4 +41,3 @@ public record OrdemServicoProdutoResponse(
  decimal ValorUnitario,
  decimal Quantidade
 );
-

@@ -12,7 +12,7 @@ public class OrdemServicoProdutoConfiguration : IEntityTypeConfiguration<OrdemSe
         builder.ToTable("ordem_servico_produtos");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.Id).HasColumnName("id").ValueGeneratedNever();
         builder.Property(x => x.IdOrdemServico).HasColumnName("idordemservico").IsRequired();
         builder.Property(x => x.IdProduto).HasColumnName("idproduto").IsRequired();
         

@@ -25,12 +25,12 @@ public class OrdemServicoValidatorService : IOrdemServicoValidatorService, IScop
     
         if (cliente is null)
         {
-            throw new NotFoundException($"Cliente com Id '{request.IdCliente}' não encontrado.");
+            throw new DomainException($"Cliente com Id '{request.IdCliente}' não encontrado.");
         }
 
         if (cliente.Veiculos.All(v => v.Id != request.IdVeiculo))
         {
-            throw new NotFoundException($"Veículo com Id '{request.IdVeiculo}' não encontrado para o cliente '{cliente.Nome}'.");
+            throw new DomainException($"Veículo com Id '{request.IdVeiculo}' não encontrado para o cliente '{cliente.Nome}'.");
         }
     }
 }
