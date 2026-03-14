@@ -1,0 +1,32 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SoatTechChallenge.Domain.OrdensServico.Produtos;
+
+namespace SoatTechChallenge.Infrastucture.Database.Configurations.OrdensServico;
+
+public class OrdemServicoProdutoConfiguration : IEntityTypeConfiguration<OrdemServicoProduto>
+{
+    public void Configure(EntityTypeBuilder<OrdemServicoProduto> builder)
+    {
+        builder.ToTable("ordem_servico_produtos");
+
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).HasColumnName("id").ValueGeneratedNever();
+        builder.Property(x => x.IdOrdemServico).HasColumnName("idordemservico").IsRequired();
+        builder.Property(x => x.IdProduto).HasColumnName("idproduto").IsRequired();
+        
+        builder.Property(x => x.NomeProduto).HasColumnName("nomeproduto") 
+            .HasMaxLength(150)
+            .IsRequired();
+        
+        builder.Property(x => x.ValorUnitario)
+            .HasColumnName("valorunitario")
+            .HasColumnType("decimal(10,2)")
+            .IsRequired();
+        
+        builder.Property(x => x.Quantidade)
+            .HasColumnName("quantidade")
+            .HasColumnType("decimal(10,2)")
+            .IsRequired();
+    }
+}
