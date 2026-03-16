@@ -1,4 +1,4 @@
-﻿namespace SoatTechChallenge.Host.Common.DTOs;
+﻿namespace SoatTechChallenge.Application.Common.DTOs;
 
 public class PagedResponse<T>
 {

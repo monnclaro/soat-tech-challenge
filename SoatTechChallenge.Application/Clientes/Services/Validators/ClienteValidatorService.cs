@@ -20,8 +20,6 @@ public class ClienteValidatorService : IClienteValidatorService, IScopedService
 
     public async Task<(TipoDocumentoCliente tipo, string documento)> Validar(InserirClienteRequest request)
     {
-        ValidarCampos(request.Nome);
-
         var documento = NormalizarDocumento(request.Documento);
         ValidarTamanhoDocumento(documento);
 
@@ -33,16 +31,8 @@ public class ClienteValidatorService : IClienteValidatorService, IScopedService
         return (tipoDocumento, documento);
     }
 
-    private static void ValidarCampos(string nome)
-    {
-        if (string.IsNullOrWhiteSpace(nome)) throw new DomainException("O campo 'Nome' é obrigatório.");
-    }
-
     private static string NormalizarDocumento(string documento)
     {
-        if (string.IsNullOrWhiteSpace(documento))
-            throw new DomainException("O campo 'Documento' é obrigatório.");
-
         var digitos = Regex.Replace(documento, @"\D", string.Empty);
 
         if (string.IsNullOrWhiteSpace(digitos))
@@ -54,14 +44,14 @@ public class ClienteValidatorService : IClienteValidatorService, IScopedService
     private static void ValidarTamanhoDocumento(string documento)
     {
         if (documento.Length != 11 && documento.Length != 14)
+        {
             throw new DomainException("O documento deve conter 11 dígitos (CPF) ou 14 dígitos (CNPJ).");
+        }
     }
 
     private static TipoDocumentoCliente IdentificarTipoDocumento(string documento)
     {
-        return documento.Length == 11
-            ? TipoDocumentoCliente.Cpf
-            : TipoDocumentoCliente.Cnpj;
+        return documento.Length == 11 ? TipoDocumentoCliente.Cpf : TipoDocumentoCliente.Cnpj;
     }
 
     private async Task ValidarDocumentoDuplicado(string documento, TipoDocumentoCliente tipo)
@@ -71,7 +61,7 @@ public class ClienteValidatorService : IClienteValidatorService, IScopedService
         var clienteExistente = await _clienteRepository
             .GetQueryable()
             .AsNoTracking()
-            .AnyAsync(ç => ç.Documento == documento);
+            .AnyAsync(l => l.Documento == documento);
 
         if (clienteExistente) throw new ConflictException($"Já existe um cliente cadastrado com o {tipoDescricao} '{documento}'.");
     }
@@ -80,8 +70,8 @@ public class ClienteValidatorService : IClienteValidatorService, IScopedService
     {
         var documentoValido = tipo switch
         {
-            TipoDocumentoCliente.Cpf => ValidarCPF(documento),
-            TipoDocumentoCliente.Cnpj => ValidarCNPJ(documento),
+            TipoDocumentoCliente.Cpf => ValidarCpf(documento),
+            TipoDocumentoCliente.Cnpj => ValidarCnpj(documento),
             _ => false
         };
 
@@ -92,7 +82,7 @@ public class ClienteValidatorService : IClienteValidatorService, IScopedService
         }
     }
 
-    private static bool ValidarCPF(string cpf)
+    private static bool ValidarCpf(string cpf)
     {
         if (cpf.Length != 11)
             return false;
@@ -122,7 +112,7 @@ public class ClienteValidatorService : IClienteValidatorService, IScopedService
         return digito2 == cpf[10] - '0';
     }
 
-    private static bool ValidarCNPJ(string cnpj)
+    private static bool ValidarCnpj(string cnpj)
     {
         if (cnpj.Length != 14)
             return false;

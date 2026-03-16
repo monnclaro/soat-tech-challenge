@@ -1,4 +1,4 @@
-﻿namespace SoatTechChallenge.Application.Authentication.Services.DTOs;
+﻿namespace SoatTechChallenge.Application.Common.DTOs;
 
 public class JwtSettings
 {

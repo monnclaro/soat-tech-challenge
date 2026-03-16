@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoatTechChallenge.Application.Authentication.Services;
-using LoginRequest = SoatTechChallenge.Application.Authentication.Services.DTOs.LoginRequest;
+using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
+using LoginRequest = SoatTechChallenge.Application.Authentication.Services.DTOs.Requests.LoginRequest;
 
 namespace SoatTechChallenge.Controllers.Authentication.Controllers;
 
@@ -21,12 +22,13 @@ public class AuthenticationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var token = await _authenticationService.Login(request);
-        if (token is null)
-        {
-            return Unauthorized();
-        }
+        var resultado = await _authenticationService.Login(request);
 
-        return Ok(new { token });
+        return resultado.Status switch
+        {
+            LoginResponseStatusResultado.UsuarioNaoEncontrado => NotFound(),
+            LoginResponseStatusResultado.SenhaInvalida => Unauthorized(),
+            _ => Ok(new { resultado.Token })
+        };
     }
 }

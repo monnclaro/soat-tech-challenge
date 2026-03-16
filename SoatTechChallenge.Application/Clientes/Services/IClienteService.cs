@@ -1,5 +1,5 @@
 ﻿using SoatTechChallenge.Application.Clientes.DTOs;
-using SoatTechChallenge.Host.Common.DTOs;
+using SoatTechChallenge.Application.Common.DTOs;
 
 namespace SoatTechChallenge.Application.Clientes.Services;
 

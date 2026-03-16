@@ -16,7 +16,7 @@ public static class ClienteSeeder
             "João Silva",
             "12345678909",
             TipoDocumentoCliente.Cpf,
-            new List<ClienteVeiculo>
+            new List<Veiculo>
             {
                 CriarVeiculo("ABC1234", "Toyota", "Corolla", 2019),
                 CriarVeiculo("BRA2E19", "Honda", "Civic", 2021)
@@ -26,7 +26,7 @@ public static class ClienteSeeder
             "Maria Oliveira",
             "98765432100",
             TipoDocumentoCliente.Cpf,
-            new List<ClienteVeiculo>
+            new List<Veiculo>
             {
                 CriarVeiculo("DEF5678", "Volkswagen", "Golf", 2018)
             });
@@ -35,7 +35,7 @@ public static class ClienteSeeder
             "Oficina Mecânica Brasil LTDA",
             "11222333000181",
             TipoDocumentoCliente.Cnpj,
-            new List<ClienteVeiculo>
+            new List<Veiculo>
             {
                 CriarVeiculo("DCF5678", "Volkswagen", "Golf", 2014)
             });
@@ -44,7 +44,7 @@ public static class ClienteSeeder
         await context.SaveChangesAsync();
     }
 
-    private static Cliente CriarCliente(string nome, string documento, TipoDocumentoCliente tipo, List<ClienteVeiculo> veiculos)
+    private static Cliente CriarCliente(string nome, string documento, TipoDocumentoCliente tipo, List<Veiculo> veiculos)
     {
         var cliente = new Cliente();
         cliente.Inserir(nome, documento, tipo);
@@ -52,9 +52,9 @@ public static class ClienteSeeder
         return cliente;
     }
 
-    private static ClienteVeiculo CriarVeiculo(string placa, string marca, string modelo, int ano)
+    private static Veiculo CriarVeiculo(string placa, string marca, string modelo, int ano)
     {
-        var veiculo = new ClienteVeiculo();
+        var veiculo = new Veiculo();
         veiculo.Inserir(Guid.Empty, placa, marca, modelo, ano);
         return veiculo;
     }

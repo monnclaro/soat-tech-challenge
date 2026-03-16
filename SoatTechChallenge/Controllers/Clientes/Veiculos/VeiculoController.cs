@@ -1,23 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
-using SoatTechChallenge.Domain.Clientes.Veiculos.Services;
-using SoatTechChallenge.Host.Common.DTOs;
+using SoatTechChallenge.Application.Clientes.Veiculos.Services;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 
-namespace SoatTechChallenge.Controllers.Clientes;
+namespace SoatTechChallenge.Controllers.Clientes.Veiculos;
 
 [ApiController]
 [Route("api/v1/clientes/{idCliente:guid}/veiculos")]
 [Authorize(Roles = "Admin")] 
 [Produces("application/json")]
-public class ClientesVeiculosController : ControllerBase
+public class VeiculosController : ControllerBase
 {
-    private readonly IClienteVeiculoService _clienteVeiculoService;
+    private readonly IVeiculoService _veiculoService;
 
-    public ClientesVeiculosController(IClienteVeiculoService clienteVeiculoService)
+    public VeiculosController(IVeiculoService veiculoService)
     {
-        _clienteVeiculoService = clienteVeiculoService;
+        _veiculoService = veiculoService;
     }
 
     [HttpGet("{id:guid}")]
@@ -25,7 +25,7 @@ public class ClientesVeiculosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Buscar([FromRoute] Guid id)
     {
-        var resultado = await _clienteVeiculoService.Buscar(id);
+        var resultado = await _veiculoService.Buscar(id);
         return Ok(resultado);
     }
 
@@ -33,7 +33,7 @@ public class ClientesVeiculosController : ControllerBase
     [ProducesResponseType(typeof(PagedResponse<ClienteVeiculoResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> BuscarListaPaginada([FromRoute] Guid idCliente, [FromQuery] PagedRequest request)
     {
-        var resultado = await _clienteVeiculoService.BuscarListaPaginada(idCliente, request);
+        var resultado = await _veiculoService.BuscarListaPaginada(idCliente, request);
         return Ok(resultado);
     }
 
@@ -43,7 +43,7 @@ public class ClientesVeiculosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Inserir([FromRoute] Guid idCliente, [FromBody] InserirClienteVeiculoRequest request)
     {
-        var resultado = await _clienteVeiculoService.Inserir(idCliente, request);
+        var resultado = await _veiculoService.Inserir(idCliente, request);
         return CreatedAtAction(nameof(Buscar), new { idCliente = idCliente, id = resultado.Id }, resultado);
     }
 
@@ -53,7 +53,7 @@ public class ClientesVeiculosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Atualizar([FromRoute] Guid id, [FromBody] AtualizarClienteVeiculoRequest request)
     {
-        var resultado = await _clienteVeiculoService.Atualizar(id, request);
+        var resultado = await _veiculoService.Atualizar(id, request);
         return Ok(resultado);
     }
 
@@ -62,7 +62,7 @@ public class ClientesVeiculosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Remover([FromRoute] Guid id)
     {
-        await _clienteVeiculoService.Remover(id);
+        await _veiculoService.Remover(id);
         return NoContent();
     }
 }

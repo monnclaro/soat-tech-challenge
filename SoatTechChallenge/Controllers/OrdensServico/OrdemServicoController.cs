@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.OrdensServico.DTOs.Requests;
+using SoatTechChallenge.Application.OrdensServico.DTOs.Responses;
 using SoatTechChallenge.Application.OrdensServico.Services;
-using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.OrdensServico.DTOs.Responses;
 
 namespace SoatTechChallenge.Controllers.OrdensServico;
@@ -51,21 +52,6 @@ public class OrdemServicosController : ControllerBase
         var resultado = await _ordemServicoService.BuscarListaPaginadaPorDocumento(documento, request);
         return Ok(resultado);
     }
-    
-    [HttpGet("tempo-medio-execucao")]
-    [Authorize(Roles = "Admin")] 
-    [ProducesResponseType(typeof(TempoMedioExecucaoOrdensServicoResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> BuscarTempoMedioExecucao()
-    {
-        var resultado = await _ordemServicoService.BuscarTempoMedioExecucao();
-        if (resultado is null)
-        {
-            return NoContent();
-        }
- 
-        return Ok(resultado);
-    }
 
     [HttpPost]
     [Authorize(Roles = "Admin")] 
@@ -80,7 +66,7 @@ public class OrdemServicosController : ControllerBase
 
     [HttpPost("{id:guid}/produtos")]
     [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(OrdemServicoOrcamentoResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -92,7 +78,7 @@ public class OrdemServicosController : ControllerBase
 
     [HttpPost("{id:guid}/servicos")]
     [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(OrdemServicoOrcamentoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -112,16 +98,15 @@ public class OrdemServicosController : ControllerBase
         await _ordemServicoService.IniciarDiagnostico(id);
         return Ok();
     }
-    
-    [HttpPatch("{id:guid}/enviar-orcamento")]
+    [HttpPatch("{id:guid}/finalizar-diagnostico")]
     [Authorize(Roles = "Admin")] 
-    [ProducesResponseType(typeof(OrdemServicoOrcamentoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> EnviarOrcamento([FromRoute] Guid id)
+    public async Task<IActionResult> FinalizarDiagnostico([FromRoute] Guid id)
     {
-        var resultado = await _ordemServicoService.EnviarOrcamento(id);
-        return Ok(resultado);
+        await _ordemServicoService.FinalizarDiagnostico(id);
+        return Ok();
     }
     
     [HttpPatch("{id:guid}/aprovar-orcamento")]
@@ -135,14 +120,25 @@ public class OrdemServicosController : ControllerBase
         return Ok();
     }
     
-    [HttpPatch("{id:guid}/finalizar")]
+    [HttpPatch("{id:guid}/servicos/{idServico:guid}/iniciar-execucao")]
     [Authorize(Roles = "Admin")] 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Finalizar([FromRoute] Guid id)
+    public async Task<IActionResult> IniciarExecucaoServico([FromRoute] Guid id, [FromRoute] Guid idServico)
     {
-        await _ordemServicoService.Finalizar(id);
+        await _ordemServicoService.IniciarExecucaoServico(id, idServico);
+        return Ok();
+    }
+    
+    [HttpPatch("{id:guid}/servicos/{idServico:guid}/finalizar-execucao")]
+    [Authorize(Roles = "Admin")] 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> FinalizarExecucaoServico([FromRoute] Guid id, [FromRoute] Guid idServico)
+    {
+        await _ordemServicoService.FinalizarExecucaoServico(id, idServico);
         return Ok();
     }
     
@@ -165,5 +161,27 @@ public class OrdemServicosController : ControllerBase
     {
         await _ordemServicoService.Remover(id);
         return NoContent();
+    }
+    
+    [HttpDelete("{id:guid}/produtos/{idProduto:guid}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoverProduto([FromRoute] Guid id, [FromRoute] Guid idProduto)
+    {
+        await _ordemServicoService.RemoverProduto(id, idProduto);
+        return Ok();
+    }
+
+    [HttpDelete("{id:guid}/servicos/{idServico:guid}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoverServico([FromRoute] Guid id, [FromRoute] Guid idServico)
+    {
+        await _ordemServicoService.RemoverServico(id, idServico);
+        return Ok();
     }
 }

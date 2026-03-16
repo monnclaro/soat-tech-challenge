@@ -12,7 +12,7 @@ using SoatTechChallenge.Infrastucture.Database;
 namespace SoatTechChallenge.Infrastucture.Migrations
 {
     [DbContext(typeof(SoatTechChallengeDbContext))]
-    [Migration("20260312221304_AdicionandoEntidades")]
+    [Migration("20260316222751_AdicionandoEntidades")]
     partial class AdicionandoEntidades
     {
         /// <inheritdoc />
@@ -62,7 +62,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                     b.ToTable("cliente", (string)null);
                 });
 
-            modelBuilder.Entity("SoatTechChallenge.Domain.Clientes.Veiculos.ClienteVeiculo", b =>
+            modelBuilder.Entity("SoatTechChallenge.Domain.Clientes.Veiculos.Veiculo", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -78,7 +78,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
 
                     b.Property<Guid>("IdCliente")
                         .HasColumnType("uuid")
-                        .HasColumnName("cliente_id");
+                        .HasColumnName("id_cliente");
 
                     b.Property<string>("Marca")
                         .IsRequired()
@@ -105,7 +105,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                     b.HasIndex("Placa")
                         .IsUnique();
 
-                    b.ToTable("cliente_veiculos", (string)null);
+                    b.ToTable("veiculo", (string)null);
                 });
 
             modelBuilder.Entity("SoatTechChallenge.Domain.OrdensServico.OrdemServico", b =>
@@ -180,7 +180,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
 
                     b.HasIndex("IdOrdemServico");
 
-                    b.ToTable("ordem_servico_produtos", (string)null);
+                    b.ToTable("ordem_servico_produto", (string)null);
                 });
 
             modelBuilder.Entity("SoatTechChallenge.Domain.OrdensServico.Servicos.OrdemServicoServico", b =>
@@ -188,6 +188,14 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<DateTime?>("DataFinalizacaoExecucao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_finalizacao_execucao");
+
+                    b.Property<DateTime?>("DataInicioExecucao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_inicio_execucao");
 
                     b.Property<Guid>("IdOrdemServico")
                         .HasColumnType("uuid")
@@ -211,7 +219,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
 
                     b.HasIndex("IdOrdemServico");
 
-                    b.ToTable("ordem_servico_servicos", (string)null);
+                    b.ToTable("ordem_servico_servico", (string)null);
                 });
 
             modelBuilder.Entity("SoatTechChallenge.Domain.Produtos.Produto", b =>
@@ -295,7 +303,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
 
                     b.HasIndex("IdUsuario");
 
-                    b.ToTable("usuario_roles", (string)null);
+                    b.ToTable("usuario_role", (string)null);
                 });
 
             modelBuilder.Entity("SoatTechChallenge.Domain.Usuarios.Usuario", b =>
@@ -322,7 +330,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                     b.ToTable("usuario", (string)null);
                 });
 
-            modelBuilder.Entity("SoatTechChallenge.Domain.Clientes.Veiculos.ClienteVeiculo", b =>
+            modelBuilder.Entity("SoatTechChallenge.Domain.Clientes.Veiculos.Veiculo", b =>
                 {
                     b.HasOne("SoatTechChallenge.Domain.Clientes.Cliente", null)
                         .WithMany("Veiculos")

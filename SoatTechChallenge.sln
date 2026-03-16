@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoatTechChallenge.Domain", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoatTechChallenge.Application", "SoatTechChallenge.Application\SoatTechChallenge.Application.csproj", "{33F4DA17-C00C-475E-A8EA-5C9AE1319383}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoatTechChallenge.Tests", "SoatTechChallenge.Tests\SoatTechChallenge.Tests.csproj", "{EA5B245A-6DAA-4391-B919-6BF878D5740B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +37,9 @@ Global
 		{33F4DA17-C00C-475E-A8EA-5C9AE1319383}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33F4DA17-C00C-475E-A8EA-5C9AE1319383}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33F4DA17-C00C-475E-A8EA-5C9AE1319383}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA5B245A-6DAA-4391-B919-6BF878D5740B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA5B245A-6DAA-4391-B919-6BF878D5740B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA5B245A-6DAA-4391-B919-6BF878D5740B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA5B245A-6DAA-4391-B919-6BF878D5740B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

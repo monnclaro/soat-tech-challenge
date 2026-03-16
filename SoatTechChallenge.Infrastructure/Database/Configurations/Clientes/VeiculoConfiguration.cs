@@ -4,16 +4,15 @@ using SoatTechChallenge.Domain.Clientes.Veiculos;
 
 namespace SoatTechChallenge.Infrastucture.Database.Configurations.Clientes;
 
-public class ClienteVeiculoConfiguration : IEntityTypeConfiguration<ClienteVeiculo>
+public class VeiculoConfiguration : IEntityTypeConfiguration<Veiculo>
 {
-    public void Configure(EntityTypeBuilder<ClienteVeiculo> builder)
+    public void Configure(EntityTypeBuilder<Veiculo> builder)
     {
-        builder.ToTable("cliente_veiculos");
+        builder.ToTable("veiculo");
 
         builder.HasKey(x => x.Id);
-
         builder.Property(x => x.Id).HasColumnName("id");
-        builder.Property(x => x.IdCliente).HasColumnName("cliente_id");
+        builder.Property(x => x.IdCliente).HasColumnName("id_cliente");
         
         builder.HasIndex(x => x.Placa).IsUnique();
         builder.Property(x => x.Placa)

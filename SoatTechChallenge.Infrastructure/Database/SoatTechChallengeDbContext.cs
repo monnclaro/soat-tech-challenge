@@ -19,7 +19,7 @@ public class SoatTechChallengeDbContext : DbContext
     public DbSet<OrdemServicoProduto> OrdemServicoProduto { get; set; }
 
     public DbSet<Cliente> Cliente { get; set; }
-    public DbSet<ClienteVeiculo> ClienteVeiculo { get; set; }
+    public DbSet<Veiculo> Veiculo { get; set; }
     
     public DbSet<Servico> Servico { get; set; }
     public DbSet<Produto> Produto { get; set; }

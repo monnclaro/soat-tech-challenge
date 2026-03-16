@@ -2,9 +2,6 @@
 using SoatTechChallenge.Domain.OrdensServico.Enums;
 using SoatTechChallenge.Domain.OrdensServico.Produtos;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
-using SoatTechChallenge.Domain.Produtos;
-using SoatTechChallenge.Domain.Servicos;
-
 
 namespace SoatTechChallenge.Domain.OrdensServico;
 
@@ -32,14 +29,16 @@ public class OrdemServico
 
     public void Inserir(
         Guid idCliente,
-        Guid idVeiculo)
+        Guid idVeiculo,
+        List<OrdemServicoServico> servicos)
     {
         Id = Guid.NewGuid();
         IdCliente = idCliente;
         IdVeiculo = idVeiculo;
         Status = StatusOrdemServico.Recebida;
         DataCriacao = DateTime.UtcNow;
-
+        Servicos.AddRange(servicos);
+        
         CalcularTotal();
     }
 
@@ -64,7 +63,41 @@ public class OrdemServico
         Servicos.AddRange(servicos);
         CalcularTotal();
     }
+    
+    public void RemoverProduto(Guid idProduto)
+    {
+        if (Status != StatusOrdemServico.EmDiagnostico)
+        {
+            throw new DomainException("Só é possível remover produtos enquanto a ordem de serviço estiver em diagnóstico.");
+        }
 
+        var produto = Produtos.FirstOrDefault(s => s.Id == idProduto);
+        if (produto is null)
+        {
+            throw new DomainException("O produto informado não se encontra vinculado a esta ordem de serviço.");
+        }
+        
+        Produtos.Remove(produto);
+        ValorTotal -= produto.Subtotal;
+    }
+
+    public void RemoverServico(Guid idServico)
+    {
+        if (Status != StatusOrdemServico.EmDiagnostico)
+        {
+            throw new DomainException("Só é possível remover serviços enquanto a ordem de serviço estiver em diagnóstico.");
+        }
+
+        var servico = Servicos.FirstOrDefault(s => s.Id == idServico);
+        if (servico is null)
+        {
+            throw new DomainException("O serviço informado não se encontra vinculado a esta ordem de serviço.");
+        }
+
+        Servicos.Remove(servico);
+        ValorTotal -= servico.Valor;
+    }
+    
     public void IniciarDiagnostico()
     {
         if (Status != StatusOrdemServico.Recebida)
@@ -75,17 +108,24 @@ public class OrdemServico
         Status = StatusOrdemServico.EmDiagnostico;
     }
 
-    public void EnviarOrcamento()
+    public void FinalizarDiagnostico()
+    {      
+        if (!Servicos.Any())
+        {
+            throw new DomainException("Não é possível enviar o orçamento sem serviços vinculados.");
+        }
+        
+        EnviarOrcamento();
+    }
+
+    private void EnviarOrcamento()
     {
         if (Status != StatusOrdemServico.EmDiagnostico)
         {
             throw new DomainException("O orçamento só pode ser enviado após diagnóstico.");
         }
-        
-        if (!Servicos.Any() && !Produtos.Any())
-        {
-            throw new DomainException("Não é possível enviar o orçamento sem serviços ou produtos.");
-        }
+       
+        EnviarEmailOrcamento("teste@email.com", "Assunto", $"Orçamento: {ValorTotal}");
         
         Status = StatusOrdemServico.AguardandoAprovacao;
     }
@@ -101,13 +141,41 @@ public class OrdemServico
         Status = StatusOrdemServico.EmExecucao;
     }
 
-    public void FinalizarServico()
+    public void IniciarExecucaoServico(Guid idServico)
     {
         if (Status != StatusOrdemServico.EmExecucao)
         {
-            throw new DomainException("O serviço não está em execução.");
+            throw new DomainException("Não é possível iniciar a execução do serviço porque a ordem de serviço não está em execução.");
         }
-       
+
+        var servico = Servicos.FirstOrDefault(s => s.Id == idServico);
+        if (servico is null)
+        {
+            throw new DomainException("O serviço informado não se encontra vinculado a esta ordem de serviço.");
+        }
+
+        servico.IniciarExecucao();
+    }
+
+    public void FinalizarExecucaoServico(Guid idServico)
+    {
+        if (Status != StatusOrdemServico.EmExecucao)
+        {
+            throw new DomainException("Não é possível finalizar a execução do serviço porque a ordem de serviço não está em execução.");
+        }
+
+        var servico = Servicos.FirstOrDefault(s => s.Id == idServico);
+        if (servico is null)
+        {
+            throw new DomainException("O serviço informado não se encontra vinculado a esta ordem de serviço.");
+        }
+
+        servico.FinalizarExecucao();
+        if (Servicos.All(s => s.Finalizado)) Finalizar();
+    }
+
+    private void Finalizar()
+    {
         DataFinalizacao = DateTime.UtcNow;
         Status = StatusOrdemServico.Finalizada;
     }
@@ -116,7 +184,7 @@ public class OrdemServico
     {
         if (Status != StatusOrdemServico.Finalizada)
         {
-            throw new DomainException("A entrega só pode ocorrer após finalização.");
+            throw new DomainException("A entrega só pode ocorrer após a finalização de todos os serviços.");
         }
        
         Status = StatusOrdemServico.Entregue;
@@ -126,4 +194,15 @@ public class OrdemServico
     {
         ValorTotal = Servicos.Sum(s => s.Valor) + Produtos.Sum(p => p.Subtotal);
     }
+
+    #region Helpers
+    static void EnviarEmailOrcamento(string to, string subject, string body)
+    {
+        Console.WriteLine("=== MOCK EMAIL ===");
+        Console.WriteLine($"Para: {to}");
+        Console.WriteLine($"Assunto: {subject}");
+        Console.WriteLine($"Mensagem: {body}");
+        Console.WriteLine("==================");
+    }
+    #endregion
 }

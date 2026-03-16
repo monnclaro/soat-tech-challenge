@@ -1,5 +1,6 @@
 ﻿using SoatTechChallenge.Domain.Clientes.Enums;
 using SoatTechChallenge.Domain.Clientes.Veiculos;
+using SoatTechChallenge.Domain.Common.Exceptions;
 
 
 namespace SoatTechChallenge.Domain.Clientes;
@@ -11,12 +12,18 @@ public class Cliente
     public string Documento { get; private set; }
     public TipoDocumentoCliente TipoDocumento { get; private set; }
     public DateTime DataCriacao { get; private set; }
-    public List<ClienteVeiculo> Veiculos { get; init; } = new();
+    public List<Veiculo> Veiculos { get; init; } = new();
 
     public Cliente() { }
 
     public void Inserir(string nome, string documento, TipoDocumentoCliente tipoDocumento)
-    {
+    { 
+        if (string.IsNullOrWhiteSpace(nome))
+            throw new DomainException("O documento é obrigatório.");
+        
+        if (string.IsNullOrWhiteSpace(documento))
+            throw new DomainException("O documento é obrigatório.");
+        
         Id = Guid.NewGuid();
         Nome = nome;
         Documento = documento;

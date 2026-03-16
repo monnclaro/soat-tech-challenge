@@ -87,11 +87,11 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "cliente_veiculos",
+                name: "veiculo",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    cliente_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id_cliente = table.Column<Guid>(type: "uuid", nullable: false),
                     placa = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
                     marca = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     modelo = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
@@ -100,17 +100,17 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_cliente_veiculos", x => x.id);
+                    table.PrimaryKey("PK_veiculo", x => x.id);
                     table.ForeignKey(
-                        name: "FK_cliente_veiculos_cliente_cliente_id",
-                        column: x => x.cliente_id,
+                        name: "FK_veiculo_cliente_id_cliente",
+                        column: x => x.id_cliente,
                         principalTable: "cliente",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ordem_servico_produtos",
+                name: "ordem_servico_produto",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -122,9 +122,9 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ordem_servico_produtos", x => x.id);
+                    table.PrimaryKey("PK_ordem_servico_produto", x => x.id);
                     table.ForeignKey(
-                        name: "FK_ordem_servico_produtos_ordem_servico_idordemservico",
+                        name: "FK_ordem_servico_produto_ordem_servico_idordemservico",
                         column: x => x.idordemservico,
                         principalTable: "ordem_servico",
                         principalColumn: "id",
@@ -132,20 +132,22 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ordem_servico_servicos",
+                name: "ordem_servico_servico",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     idordemservico = table.Column<Guid>(type: "uuid", nullable: false),
                     idservico = table.Column<Guid>(type: "uuid", nullable: false),
                     nomeservico = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
-                    valorunitario = table.Column<decimal>(type: "numeric(10,2)", nullable: false)
+                    valorunitario = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    data_inicio_execucao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    data_finalizacao_execucao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ordem_servico_servicos", x => x.id);
+                    table.PrimaryKey("PK_ordem_servico_servico", x => x.id);
                     table.ForeignKey(
-                        name: "FK_ordem_servico_servicos_ordem_servico_idordemservico",
+                        name: "FK_ordem_servico_servico_ordem_servico_idordemservico",
                         column: x => x.idordemservico,
                         principalTable: "ordem_servico",
                         principalColumn: "id",
@@ -153,7 +155,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "usuario_roles",
+                name: "usuario_role",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -162,9 +164,9 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_usuario_roles", x => x.id);
+                    table.PrimaryKey("PK_usuario_role", x => x.id);
                     table.ForeignKey(
-                        name: "FK_usuario_roles_usuario_id_usuario",
+                        name: "FK_usuario_role_usuario_id_usuario",
                         column: x => x.id_usuario,
                         principalTable: "usuario",
                         principalColumn: "id",
@@ -178,43 +180,40 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_cliente_veiculos_cliente_id",
-                table: "cliente_veiculos",
-                column: "cliente_id");
+                name: "IX_ordem_servico_produto_idordemservico",
+                table: "ordem_servico_produto",
+                column: "idordemservico");
 
             migrationBuilder.CreateIndex(
-                name: "IX_cliente_veiculos_placa",
-                table: "cliente_veiculos",
+                name: "IX_ordem_servico_servico_idordemservico",
+                table: "ordem_servico_servico",
+                column: "idordemservico");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuario_role_id_usuario",
+                table: "usuario_role",
+                column: "id_usuario");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_veiculo_id_cliente",
+                table: "veiculo",
+                column: "id_cliente");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_veiculo_placa",
+                table: "veiculo",
                 column: "placa",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ordem_servico_produtos_idordemservico",
-                table: "ordem_servico_produtos",
-                column: "idordemservico");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ordem_servico_servicos_idordemservico",
-                table: "ordem_servico_servicos",
-                column: "idordemservico");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_usuario_roles_id_usuario",
-                table: "usuario_roles",
-                column: "id_usuario");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "cliente_veiculos");
+                name: "ordem_servico_produto");
 
             migrationBuilder.DropTable(
-                name: "ordem_servico_produtos");
-
-            migrationBuilder.DropTable(
-                name: "ordem_servico_servicos");
+                name: "ordem_servico_servico");
 
             migrationBuilder.DropTable(
                 name: "produto");
@@ -223,16 +222,19 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 name: "servico");
 
             migrationBuilder.DropTable(
-                name: "usuario_roles");
+                name: "usuario_role");
 
             migrationBuilder.DropTable(
-                name: "cliente");
+                name: "veiculo");
 
             migrationBuilder.DropTable(
                 name: "ordem_servico");
 
             migrationBuilder.DropTable(
                 name: "usuario");
+
+            migrationBuilder.DropTable(
+                name: "cliente");
         }
     }
 }

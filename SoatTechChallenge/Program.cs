@@ -4,11 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using SoatTechChallenge.Application.Authentication.Services.DTOs;
+using SoatTechChallenge.Application.Common;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Infrastucture.Database;
 using SoatTechChallenge.Infrastucture.Persistence;
 using SoatTechChallenge.Infrastucture.Seeders.Clientes;
+using SoatTechChallenge.Infrastucture.Seeders.OrdensServico;
 using SoatTechChallenge.Infrastucture.Seeders.Produtos;
 using SoatTechChallenge.Infrastucture.Seeders.Servicos;
 using SoatTechChallenge.Infrastucture.Seeders.Usuarios;
@@ -73,6 +76,7 @@ using (var scope = app.Services.CreateScope())
     await ProdutoSeeder.SeedAsync(db);
     await ServicoSeeder.SeedAsync(db);
     await UsuarioSeeder.SeedAsync(db);
+    await OrdensServicoSeeder.SeedAsync(db);
 }
 
 // Configure the HTTP request pipeline.

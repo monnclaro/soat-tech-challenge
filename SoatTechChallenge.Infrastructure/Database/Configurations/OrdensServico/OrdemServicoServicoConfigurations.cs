@@ -8,12 +8,14 @@ public class OrdemServicoServicoConfiguration : IEntityTypeConfiguration<OrdemSe
 {
     public void Configure(EntityTypeBuilder<OrdemServicoServico> builder)
     {
-        builder.ToTable("ordem_servico_servicos");
+        builder.ToTable("ordem_servico_servico");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("id").ValueGeneratedNever();
         builder.Property(x => x.IdOrdemServico).HasColumnName("idordemservico").IsRequired();
         builder.Property(x => x.IdServico).HasColumnName("idservico").IsRequired();
+        builder.Property(x => x.DataInicioExecucao).HasColumnName("data_inicio_execucao");
+        builder.Property(x => x.DataFinalizacaoExecucao).HasColumnName("data_finalizacao_execucao");
         
         builder.Property(x => x.NomeServico)
             .HasColumnName("nomeservico")

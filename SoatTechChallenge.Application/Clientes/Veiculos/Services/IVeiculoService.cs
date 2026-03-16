@@ -1,10 +1,10 @@
 ﻿using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
-using SoatTechChallenge.Host.Common.DTOs;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 
-namespace SoatTechChallenge.Domain.Clientes.Veiculos.Services;
+namespace SoatTechChallenge.Application.Clientes.Veiculos.Services;
 
-public interface IClienteVeiculoService
+public interface IVeiculoService
 {
     Task<ClienteVeiculoResponse> Buscar(Guid id);
     Task<PagedResponse<ClienteVeiculoResponse>> BuscarListaPaginada(Guid idCliente, PagedRequest request);

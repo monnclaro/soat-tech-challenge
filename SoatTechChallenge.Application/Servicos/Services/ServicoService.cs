@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Application.Servicos.DTOs;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
+using SoatTechChallenge.Domain.OrdensServico.Servicos;
 using SoatTechChallenge.Domain.Servicos;
-using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Servicos.DTOs;
 
 namespace SoatTechChallenge.Application.Servicos.Services;
@@ -12,12 +13,16 @@ namespace SoatTechChallenge.Application.Servicos.Services;
 public class ServicoService : IServicoService, IScopedService
 {
     private readonly IRepository<Servico> _repository;
-
+    private readonly IRepository<OrdemServicoServico> _ordemServicoServicoRepository;
+    
     private static ServicoResponse MapToResponse(Servico s) => new(s.Id, s.Nome, s.Descricao, s.Valor);
 
-    public ServicoService(IRepository<Servico> repository)
+    public ServicoService(
+        IRepository<Servico> repository,
+        IRepository<OrdemServicoServico> ordemServicoServicoRepository)
     {
         _repository = repository;
+        _ordemServicoServicoRepository = ordemServicoServicoRepository;
     }
 
     public async Task<ServicoResponse> Buscar(Guid id)
@@ -41,6 +46,29 @@ public class ServicoService : IServicoService, IScopedService
             .ToListAsync();
 
         return new PagedResponse<ServicoResponse>(resultado, total, request.Pagina, request.Tamanho);
+    }
+    
+    public async Task<List<TempoMedioExecucaoServicosResponse>> BuscarTempoMedioExecucao()
+    {
+        var resultado = await (
+            from ordemServico in _ordemServicoServicoRepository.GetQueryable().AsNoTracking()
+            join servico in _repository.GetQueryable().AsNoTracking() on ordemServico.IdServico equals servico.Id
+            where ordemServico.DataInicioExecucao != null && ordemServico.DataFinalizacaoExecucao != null
+            group ordemServico by new 
+            { 
+                servico.Id, 
+                servico.Nome 
+            } into g
+            select new TempoMedioExecucaoServicosResponse
+            {
+                Servico = g.Key.Nome,
+                TempoMedioMinutos = g.Average(o => (o.DataFinalizacaoExecucao!.Value - o.DataInicioExecucao!.Value).TotalMinutes),
+                TempoMinimoMinutos = g.Min(o => (o.DataFinalizacaoExecucao!.Value - o.DataInicioExecucao!.Value).TotalMinutes),
+                TempoMaximoMinutos = g.Max(o => (o.DataFinalizacaoExecucao!.Value - o.DataInicioExecucao!.Value).TotalMinutes),
+            }
+        ).ToListAsync();
+
+        return resultado;
     }
 
     public async Task<ServicoResponse> Inserir(InserirServicoRequest request)

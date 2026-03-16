@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SoatTechChallenge.Application.Clientes.DTOs;
 using SoatTechChallenge.Application.Clientes.Services;
-using SoatTechChallenge.Host.Common.DTOs;
+using SoatTechChallenge.Application.Common.DTOs;
 
 namespace SoatTechChallenge.Controllers.Clientes;
 

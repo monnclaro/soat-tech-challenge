@@ -4,7 +4,9 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SoatTechChallenge.Application.Authentication.Services.DTOs;
+using SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
+using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.Usuarios;
@@ -22,23 +24,25 @@ public class AuthenticationService : IAuthenticationService, IScopedService
         _jwtSettings = jwtSettings.Value;
     }
 
-    public async Task<string?> Login(LoginRequest request)
+    public async Task<LoginResponse> Login(LoginRequest request)
     {
-        var usuario = await _repository.GetQueryable().AsNoTracking()
+        var usuario = await _repository
+            .GetQueryable(true)
+            .AsNoTracking()
             .Include(u => u.Roles)
-            .FirstOrDefaultAsync(x => x.Nome == request.Usuario);
+            .FirstOrDefaultAsync(l => l.Nome == request.Usuario);
 
         if (usuario is null)
         {
-            return null;
+            return new LoginResponse(LoginResponseStatusResultado.UsuarioNaoEncontrado);
         }
 
         if (!BCrypt.Net.BCrypt.Verify(request.Senha, usuario.SenhaHash))
         {
-            return null;
+            return new LoginResponse(LoginResponseStatusResultado.SenhaInvalida);
         }
 
-        return GerarToken(usuario);
+        return new LoginResponse(GerarToken(usuario));
     }
 
     private string GerarToken(Usuario usuario)

@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SoatTechChallenge.Application.Common.DTOs;
+using SoatTechChallenge.Application.Produtos.DTOs;
 using SoatTechChallenge.Application.Produtos.Services;
-using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Produtos.DTOs;
 
 namespace SoatTechChallenge.Controllers.Produtos;
@@ -56,13 +57,13 @@ public class ProdutosController : ControllerBase
         return Ok(resultado);
     }
     
-    [HttpPatch("{id:guid}/quantidades-estoque")]
+    [HttpPatch("{id:guid}/incrementar-estoque")]
     [ProducesResponseType(typeof(ProdutoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Atualizar([FromRoute] Guid id, [FromBody] AtualizarQuantidadeEstoqueProdutoRequest request)
+    public async Task<IActionResult> IncrementarEstoque([FromRoute] Guid id, [FromBody] AtualizarQuantidadeEstoqueProdutoRequest request)
     {
-        var resultado = await _produtoService.Atualizar(id, request);
+        var resultado = await _produtoService.IncrementarEstoque(id, request);
         return Ok(resultado);
     }
 

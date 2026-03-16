@@ -1,23 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
 using SoatTechChallenge.Application.Clientes.Veiculos.Services.Validators;
+using SoatTechChallenge.Application.Common.DTOs;
+using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Domain.Clientes.Veiculos;
-using SoatTechChallenge.Domain.Clientes.Veiculos.Services;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
-using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 
 namespace SoatTechChallenge.Application.Clientes.Veiculos.Services;
 
-public class ClienteVeiculoService : IClienteVeiculoService
+public class VeiculoService : IVeiculoService, IScopedService
 {
-    private readonly IRepository<ClienteVeiculo> _repository;
-    private readonly IClienteVeiculoValidatorService _validatorService;
+    private readonly IRepository<Veiculo> _repository;
+    private readonly IVeiculoValidatorService _validatorService;
 
-    private static ClienteVeiculoResponse MapToResponse(ClienteVeiculo c) => new(c.Id, c.IdCliente, c.Placa, c.Marca, c.Modelo, c.Ano, c.DataCriacao);
+    private static ClienteVeiculoResponse MapToResponse(Veiculo c) => new(c.Id, c.IdCliente, c.Placa, c.Marca, c.Modelo, c.Ano, c.DataCriacao);
 
-    public ClienteVeiculoService(IRepository<ClienteVeiculo> repository, IClienteVeiculoValidatorService validatorService)
+    public VeiculoService(IRepository<Veiculo> repository, IVeiculoValidatorService validatorService)
     {
         _repository = repository;
         _validatorService = validatorService;
@@ -26,10 +26,7 @@ public class ClienteVeiculoService : IClienteVeiculoService
     public async Task<ClienteVeiculoResponse> Buscar(Guid id)
     {
         var resultado = await _repository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
-        if (resultado is null)
-        {
-            throw new NotFoundException($"Veículo de id: {id} não encontrado.");
-        }
+        if (resultado is null) throw new NotFoundException("Veículo não encontrado.");
 
         return MapToResponse(resultado);
     }
@@ -54,7 +51,7 @@ public class ClienteVeiculoService : IClienteVeiculoService
     {
         await _validatorService.Validar(idCliente, request);
         
-        var veiculo = new ClienteVeiculo();
+        var veiculo = new Veiculo();
         veiculo.Inserir(idCliente, request.Placa, request.Marca, request.Modelo, request.Ano);
 
         await _repository.InsertAsync(veiculo);
@@ -66,11 +63,8 @@ public class ClienteVeiculoService : IClienteVeiculoService
     {
         await _validatorService.Validar(id, request);
         
-        var veiculo = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
-        if (veiculo is null)
-        {
-            throw new NotFoundException($"Veículo de id: {id} não encontrado.");
-        }
+        var veiculo = await _repository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
+        if (veiculo is null) throw new NotFoundException("Veículo não encontrado.");
 
         veiculo.Atualizar(request.Placa, request.Marca, request.Modelo, request.Ano);
         
@@ -80,11 +74,8 @@ public class ClienteVeiculoService : IClienteVeiculoService
 
     public async Task Remover(Guid id)
     {
-        var veiculo = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
-        if (veiculo is null)
-        {
-            throw new NotFoundException($"Veículo de id: {id} não encontrado.");
-        }
+        var veiculo = await _repository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
+        if (veiculo is null) throw new NotFoundException("Veículo não encontrado.");
 
         await _repository.DeleteAsync(veiculo.Id);
     }

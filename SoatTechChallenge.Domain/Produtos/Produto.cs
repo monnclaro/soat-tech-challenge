@@ -15,7 +15,7 @@ public class Produto
     public void Inserir(string nome, string descricao, decimal valor, decimal quantidadeEmEstoque)
     {
         if (string.IsNullOrWhiteSpace(nome)) throw new DomainException("O nome do produto é obrigatório.");
-        if (valor <= 0) throw new DomainException("O preço deve ser maior que zero.");
+        if (valor <= 0) throw new DomainException("O valor deve ser maior que zero.");
         if (quantidadeEmEstoque < 0) throw new DomainException("A quantidade em estoque não pode ser negativa.");
         
         Id = Guid.NewGuid();
@@ -25,21 +25,19 @@ public class Produto
         QuantidadeEmEstoque = quantidadeEmEstoque;
     }
     
-    public void Atualizar(string nome, string descricao, decimal valor, decimal quantidadeEmEstoque)
+    public void Atualizar(string nome, string descricao, decimal valor )
     {
-        if (string.IsNullOrWhiteSpace(nome)) throw new DomainException("Nome do produto é obrigatório.");
-        if (valor <= 0) throw new DomainException("Preço deve ser maior que zero.");
-        if (quantidadeEmEstoque < 0) throw new DomainException("Quantidade em estoque não pode ser negativa.");
+        if (string.IsNullOrWhiteSpace(nome)) throw new DomainException("O nome do produto é obrigatório.");
+        if (valor <= 0) throw new DomainException("O valor deve ser maior que zero.");
      
         Nome = nome;
         Descricao = descricao;
         Valor = valor;
-        QuantidadeEmEstoque = quantidadeEmEstoque;
     }
     
-    public void AtualizarQuantidadeEmEstoque(decimal quantidade)
+    public void IncrementarQuantidadeEmEstoque(decimal quantidade)
     {
-        QuantidadeEmEstoque = quantidade;
+        QuantidadeEmEstoque += quantidade;
     }
     
     public void DecrementarQuantidadeEmEstoque(decimal quantidade)

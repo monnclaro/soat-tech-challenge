@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Servicos.DTOs;
 using SoatTechChallenge.Application.Servicos.Services;
-using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Servicos.DTOs;
 
 namespace SoatTechChallenge.Controllers.Servicos;
@@ -34,6 +34,16 @@ public class ServicosController : ControllerBase
     public async Task<IActionResult> BuscarListaPaginada([FromQuery] PagedRequest request)
     {
         var resultado = await _servicoService.BuscarListaPaginada(request);
+        return Ok(resultado);
+    }
+    
+    [HttpGet("tempo-medio-execucao")]
+    [Authorize(Roles = "Admin")] 
+    [ProducesResponseType(typeof(TempoMedioExecucaoServicosResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> BuscarTempoMedioExecucao()
+    {
+        var resultado = await _servicoService.BuscarTempoMedioExecucao();
         return Ok(resultado);
     }
 

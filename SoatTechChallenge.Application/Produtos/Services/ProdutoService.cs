@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Common.Interfaces;
+using SoatTechChallenge.Application.Produtos.DTOs;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.Produtos;
-using SoatTechChallenge.Host.Common.DTOs;
 using SoatTechChallenge.Host.Controllers.Produtos.DTOs;
 
 namespace SoatTechChallenge.Application.Produtos.Services;
@@ -24,7 +25,7 @@ public class ProdutoService : IProdutoService, IScopedService
         var resultado = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
         if (resultado is null)
         {
-            throw new NotFoundException($"Produto de id: {id} não encontrado.");
+            throw new NotFoundException("Produto não encontrado.");
         }
 
         return MapToResponse(resultado);
@@ -60,25 +61,25 @@ public class ProdutoService : IProdutoService, IScopedService
         var produto = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
         if (produto is null)
         {
-            throw new NotFoundException($"Produto de id: {id} não encontrado.");
+            throw new NotFoundException("Produto não encontrado.");
         }
 
-        produto.Atualizar(request.Nome, request.Descricao, request.Valor, request.QuantidadeEmEstoque);
+        produto.Atualizar(request.Nome, request.Descricao, request.Valor);
 
         await _repository.UpdateAsync(produto);
 
         return MapToResponse(produto);
     }
 
-    public async Task<ProdutoResponse> Atualizar(Guid id, AtualizarQuantidadeEstoqueProdutoRequest request)
+    public async Task<ProdutoResponse> IncrementarEstoque(Guid id, AtualizarQuantidadeEstoqueProdutoRequest request)
     {
         var produto = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
         if (produto is null)
         {
-            throw new NotFoundException($"Produto de id: {id} não encontrado.");
+            throw new NotFoundException("Produto não encontrado.");
         }
 
-        produto.AtualizarQuantidadeEmEstoque(request.QuantidadeEmEstoque);
+        produto.IncrementarQuantidadeEmEstoque(request.Quantidade);
 
         await _repository.UpdateAsync(produto);
         return MapToResponse(produto);
@@ -89,7 +90,7 @@ public class ProdutoService : IProdutoService, IScopedService
         var produto = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
         if (produto is null)
         {
-            throw new NotFoundException($"Produto de id: {id} não encontrado.");
+            throw new NotFoundException("Produto não encontrado.");
         }
 
         await _repository.DeleteAsync(produto.Id);

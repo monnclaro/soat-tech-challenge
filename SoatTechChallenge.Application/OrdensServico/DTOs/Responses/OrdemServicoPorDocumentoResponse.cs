@@ -1,38 +1,46 @@
-﻿namespace SoatTechChallenge.Host.Controllers.OrdensServico.DTOs.Responses;
+﻿namespace SoatTechChallenge.Application.OrdensServico.DTOs.Responses;
 
-public record OrdemServicoPorDocumentoResponse(
- OrdemServicoClientePorDocumentoResponse Cliente,
- OrdemServicoVeiculoPorDocumentoResponse Veiculo,
- DateTime DataCriacao,
- DateTime? DataInicioExecucao,
- DateTime? DataFinalizacao,
- string Status,
- decimal ValorTotal,
- List<OrdemServicoServicoPorDocumentoResponse> Servicos,
- List<OrdemServicoProdutoPorDocumentoResponse> Produtos
-);
+public class OrdemServicoPorDocumentoResponse
+{
+    public OrdemServicoClientePorDocumentoResponse Cliente { get; }
+    public OrdemServicoVeiculoPorDocumentoResponse Veiculo { get; }
+    public string Status { get; }
 
-public record OrdemServicoClientePorDocumentoResponse(
+    public OrdemServicoPorDocumentoResponse(
+        OrdemServicoClientePorDocumentoResponse cliente,
+        OrdemServicoVeiculoPorDocumentoResponse veiculo,
+        string status)
+    {
+        Cliente = cliente;
+        Veiculo = veiculo;
+        Status = status;
+    }
+}
 
- string Nome,
- string Documento
- );
+public class OrdemServicoClientePorDocumentoResponse
+{
+    public string Nome { get; }
+    public string Documento { get; }
 
-public record OrdemServicoVeiculoPorDocumentoResponse(
+    public OrdemServicoClientePorDocumentoResponse(string nome, string documento)
+    {
+        Nome = nome;
+        Documento = documento;
+    }
+}
 
- string Placa,
- string Marca,
- string Modelo,
- int Ano
-);
+public class OrdemServicoVeiculoPorDocumentoResponse
+{
+    public string Placa { get; }
+    public string Marca { get; }
+    public string Modelo { get; }
+    public int Ano { get; }
 
-public record OrdemServicoServicoPorDocumentoResponse(
- string NomeServico,
- decimal Valor
-);
-
-public record OrdemServicoProdutoPorDocumentoResponse(
- string NomeProduto,
- decimal ValorUnitario,
- decimal Quantidade
-);
+    public OrdemServicoVeiculoPorDocumentoResponse(string placa, string marca, string modelo, int ano)
+    {
+        Placa = placa;
+        Marca = marca;
+        Modelo = modelo;
+        Ano = ano;
+    }
+}

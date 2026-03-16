@@ -8,7 +8,7 @@ public class OrdemServicoProdutoConfiguration : IEntityTypeConfiguration<OrdemSe
 {
     public void Configure(EntityTypeBuilder<OrdemServicoProduto> builder)
     {
-        builder.ToTable("ordem_servico_produtos");
+        builder.ToTable("ordem_servico_produto");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("id").ValueGeneratedNever();

@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Clientes.DTOs;
 using SoatTechChallenge.Application.Clientes.Services.Validators;
+using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
-using SoatTechChallenge.Host.Common.DTOs;
 
 namespace SoatTechChallenge.Application.Clientes.Services;
 
@@ -30,7 +30,7 @@ public class ClienteService : IClienteService, IScopedService
 
         if (resultado is null)
         {
-            throw new NotFoundException($"Cliente de id: {id} não encontrado.");
+            throw new NotFoundException("Cliente não encontrado.");
         }
 
         return MapToResponse(resultado);
@@ -64,14 +64,8 @@ public class ClienteService : IClienteService, IScopedService
 
     public async Task<ClienteResponse> Atualizar(Guid id, AtualizarClienteRequest request)
     {
-        var cliente = await _repository
-            .GetQueryable()
-            .FirstOrDefaultAsync(l => l.Id == id);
-
-        if (cliente is null)
-        {
-            throw new NotFoundException($"Cliente de id: {id} não encontrado.");
-        }
+        var cliente = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
+        if (cliente is null) throw new NotFoundException("Cliente não encontrado.");
 
         cliente.Atualizar(request.Nome);
 
@@ -81,14 +75,8 @@ public class ClienteService : IClienteService, IScopedService
 
     public async Task Remover(Guid id)
     {
-        var cliente = await _repository
-           .GetQueryable()
-           .FirstOrDefaultAsync(l => l.Id == id);
-
-        if (cliente is null)
-        {
-            throw new NotFoundException($"Cliente de id: {id} não encontrado.");
-        }
+        var cliente = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
+        if (cliente is null) throw new NotFoundException("Cliente não encontrado.");
 
         await _repository.DeleteAsync(cliente.Id);
     }
