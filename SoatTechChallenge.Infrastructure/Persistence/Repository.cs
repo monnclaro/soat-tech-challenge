@@ -42,8 +42,15 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         return await _dbSet.FindAsync(id);
     }
 
-    public IQueryable<TEntity> GetQueryable()
+    public IQueryable<TEntity> GetQueryable(bool asSplitQuery = false)
     {
-        return _dbSet.AsQueryable();
+        var dbSet = _dbSet;
+        
+        if (asSplitQuery)
+        {
+            dbSet.AsSplitQuery();
+        }
+        
+        return dbSet;
     }
 }
