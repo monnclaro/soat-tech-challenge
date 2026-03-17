@@ -50,7 +50,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
     public async Task<OrdemServicoResponse?> Buscar(Guid id)
     {
         var query = from os in _repository
-                .GetQueryable(true)
+                .GetQueryable()
                 .AsNoTracking()
                 .Where(l => l.Id == id)
                 .Include(l => l.Produtos)
@@ -97,7 +97,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
     public async Task<PagedResponse<OrdemServicoResponse>> BuscarListaPaginada(PagedRequest request)
     {
         var query = from os in _repository
-                .GetQueryable(true)
+                .GetQueryable()
                 .AsNoTracking()
                 .Include(l => l.Produtos)
                 .Include(l => l.Servicos)
@@ -318,24 +318,30 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
 
         ordemServico.FinalizarExecucaoServico(idServico);
 
+        var produtosAtualizar = new List<Produto>();
+        if (ordemServico.Status is StatusOrdemServico.Finalizada)
+        {
+             var produtos = await _produtoRepository.GetQueryable()
+                .Where(p => ordemServico.IdsProdutos.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id);
+
+            foreach (var item in ordemServico.Produtos)
+            {
+                if (produtos.TryGetValue(item.IdProduto, out var produto))
+                {
+                    produto.DecrementarQuantidadeEmEstoque(item.Quantidade);
+                    produtosAtualizar.Add(produto);
+                }
+            }
+        }
+        
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            await _repository.UpdateAsync(ordemServico);
-
-            if (ordemServico.Status is StatusOrdemServico.Finalizada)
+            await _repository.UpdateAsync(ordemServico, false);
+            
+            foreach (var produto in produtosAtualizar)
             {
-                var produtos = await _produtoRepository.GetQueryable()
-                    .Where(p => ordemServico.IdsProdutos.Contains(p.Id))
-                    .ToDictionaryAsync(p => p.Id);
-
-                foreach (var item in ordemServico.Produtos)
-                {
-                    if (produtos.TryGetValue(item.IdProduto, out var produto))
-                    {
-                        produto.DecrementarQuantidadeEmEstoque(item.Quantidade);
-                        await _produtoRepository.UpdateAsync(produto);
-                    }
-                }
+                await _produtoRepository.UpdateAsync(produto, false);
             }
         });
     }

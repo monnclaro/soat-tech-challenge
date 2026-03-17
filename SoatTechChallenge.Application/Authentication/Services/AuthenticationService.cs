@@ -27,7 +27,7 @@ public class AuthenticationService : IAuthenticationService, IScopedService
     public async Task<LoginResponse> Login(LoginRequest request)
     {
         var usuario = await _repository
-            .GetQueryable(true)
+            .GetQueryable()
             .AsNoTracking()
             .Include(u => u.Roles)
             .FirstOrDefaultAsync(l => l.Nome == request.Usuario);

@@ -1,10 +1,9 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using SoatTechChallenge.Application.Authentication.Services.DTOs;
-using SoatTechChallenge.Application.Common;
 using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Domain.Common.Interfaces;
@@ -22,7 +21,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<SoatTechChallengeDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
-builder.Services.AddScoped<DbContext, SoatTechChallengeDbContext>();
     
 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 var services = assemblies.SelectMany(a => a.GetTypes()).Where(t => t.IsClass && !t.IsAbstract && typeof(IScopedService).IsAssignableFrom(t));
@@ -31,7 +29,7 @@ foreach (var service in services)
     var interfaces = service.GetInterfaces().Where(i => i != typeof(IScopedService));
     foreach (var iface in interfaces)
     {
-        builder.Services.AddScoped(iface, service);
+        builder.Services.TryAddScoped(iface, service);
     }
 }
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Domain.Common.Interfaces;
+using SoatTechChallenge.Infrastucture.Database;
 
 namespace SoatTechChallenge.Infrastucture.Persistence;
 
 public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
 {
-    protected readonly DbContext _context;
+    protected readonly SoatTechChallengeDbContext  _context;
     protected readonly DbSet<TEntity> _dbSet;
 
-    public Repository(DbContext context)
+    public Repository(SoatTechChallengeDbContext  context)
     {
         _context = context;
         _dbSet = context.Set<TEntity>();
@@ -20,10 +21,10 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(TEntity entity)
+    public async Task UpdateAsync(TEntity entity, bool autosave = true)
     {
         _dbSet.Update(entity);
-        await _context.SaveChangesAsync();
+        if (autosave) await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid id)
@@ -42,15 +43,8 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         return await _dbSet.FindAsync(id);
     }
 
-    public IQueryable<TEntity> GetQueryable(bool asSplitQuery = false)
+    public IQueryable<TEntity> GetQueryable()
     {
-        var dbSet = _dbSet;
-        
-        if (asSplitQuery)
-        {
-            dbSet.AsSplitQuery();
-        }
-        
-        return dbSet;
+        return _dbSet.AsQueryable();
     }
 }
