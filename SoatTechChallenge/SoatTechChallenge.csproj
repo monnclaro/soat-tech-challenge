@@ -29,7 +29,6 @@
     <ItemGroup>
       <ProjectReference Include="..\SoatTechChallenge.Application\SoatTechChallenge.Application.csproj" />
       <ProjectReference Include="..\SoatTechChallenge.Infrastructure\SoatTechChallenge.Infrastructure.csproj" />
-      <ProjectReference Include="..\SoatTechChallenge.Domain\SoatTechChallenge.Domain.csproj" />
     </ItemGroup>
 
 </Project>

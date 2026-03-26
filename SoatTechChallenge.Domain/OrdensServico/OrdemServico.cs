@@ -2,6 +2,7 @@
 using SoatTechChallenge.Domain.OrdensServico.Enums;
 using SoatTechChallenge.Domain.OrdensServico.Produtos;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
+using SoatTechChallenge.Domain.OrdensServico.Servicos.Enums;
 
 namespace SoatTechChallenge.Domain.OrdensServico;
 
@@ -171,7 +172,10 @@ public class OrdemServico
         }
 
         servico.FinalizarExecucao();
-        if (Servicos.All(s => s.Finalizado)) Finalizar();
+        if (Servicos.All(s => s.Status == StatusOrdemServicoServico.ExecucaoFinalizada))
+        {
+            Finalizar();
+        }
     }
 
     private void Finalizar()

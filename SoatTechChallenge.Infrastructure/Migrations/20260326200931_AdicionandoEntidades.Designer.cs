@@ -12,7 +12,7 @@ using SoatTechChallenge.Infrastucture.Database;
 namespace SoatTechChallenge.Infrastucture.Migrations
 {
     [DbContext(typeof(SoatTechChallengeDbContext))]
-    [Migration("20260316222751_AdicionandoEntidades")]
+    [Migration("20260326200931_AdicionandoEntidades")]
     partial class AdicionandoEntidades
     {
         /// <inheritdoc />
@@ -211,6 +211,10 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                         .HasColumnType("character varying(150)")
                         .HasColumnName("nomeservico");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<decimal>("Valor")
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("valorunitario");
@@ -312,6 +316,13 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Nome")
                         .IsRequired()

@@ -25,7 +25,8 @@ public class ClienteService : IClienteService, IScopedService
     public async Task<ClienteResponse> Buscar(Guid id)
     {
         var resultado = await _repository
-            .GetQueryable().AsNoTracking()
+            .GetQueryable()
+            .AsNoTracking()
             .FirstOrDefaultAsync(l => l.Id == id);
 
         if (resultado is null)
@@ -38,7 +39,9 @@ public class ClienteService : IClienteService, IScopedService
 
     public async Task<PagedResponse<ClienteResponse>> BuscarListaPaginada(PagedRequest request)
     {
-        var query = _repository.GetQueryable().AsNoTracking()
+        var query = _repository
+            .GetQueryable()
+            .AsNoTracking()
             .OrderBy(l => l.DataCriacao)
             .Select(l => new ClienteResponse(l.Id, l.Nome, l.Documento, l.DataCriacao));
 
@@ -64,7 +67,10 @@ public class ClienteService : IClienteService, IScopedService
 
     public async Task<ClienteResponse> Atualizar(Guid id, AtualizarClienteRequest request)
     {
-        var cliente = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
+        var cliente = await _repository
+            .GetQueryable()
+            .FirstOrDefaultAsync(l => l.Id == id);
+
         if (cliente is null) throw new NotFoundException("Cliente não encontrado.");
 
         cliente.Atualizar(request.Nome);
@@ -75,7 +81,10 @@ public class ClienteService : IClienteService, IScopedService
 
     public async Task Remover(Guid id)
     {
-        var cliente = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
+        var cliente = await _repository
+            .GetQueryable()
+            .FirstOrDefaultAsync(l => l.Id == id);
+
         if (cliente is null) throw new NotFoundException("Cliente não encontrado.");
 
         await _repository.DeleteAsync(cliente.Id);

@@ -28,19 +28,16 @@ public class AuthenticationService : IAuthenticationService, IScopedService
     {
         var usuario = await _repository
             .GetQueryable()
+            .AsSplitQuery()
             .AsNoTracking()
             .Include(u => u.Roles)
-            .FirstOrDefaultAsync(l => l.Nome == request.Usuario);
+            .FirstOrDefaultAsync(l => l.Email == request.Email);
 
-        if (usuario is null)
-        {
-            return new LoginResponse(LoginResponseStatusResultado.UsuarioNaoEncontrado);
-        }
+        if (usuario is null)        
+            return new LoginResponse(LoginResponseStatusResultado.UsuarioNaoEncontrado);        
 
-        if (!BCrypt.Net.BCrypt.Verify(request.Senha, usuario.SenhaHash))
-        {
-            return new LoginResponse(LoginResponseStatusResultado.SenhaInvalida);
-        }
+        if (!BCrypt.Net.BCrypt.Verify(request.Senha, usuario.SenhaHash))        
+            return new LoginResponse(LoginResponseStatusResultado.SenhaInvalida);        
 
         return new LoginResponse(GerarToken(usuario));
     }

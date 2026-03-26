@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Produtos.DTOs;
+using SoatTechChallenge.Application.Produtos.DTOs.Requests;
+using SoatTechChallenge.Application.Produtos.DTOs.Responses;
 using SoatTechChallenge.Application.Produtos.Services;
-using SoatTechChallenge.Host.Controllers.Produtos.DTOs;
 
 namespace SoatTechChallenge.Controllers.Produtos;
 

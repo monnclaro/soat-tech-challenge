@@ -79,7 +79,9 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     nome = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
-                    senha_hash = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    senha_hash = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -140,6 +142,7 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                     idservico = table.Column<Guid>(type: "uuid", nullable: false),
                     nomeservico = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     valorunitario = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
                     data_inicio_execucao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     data_finalizacao_execucao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },

@@ -2,7 +2,6 @@
 using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 
-
 namespace SoatTechChallenge.Domain.Clientes;
 
 public class Cliente

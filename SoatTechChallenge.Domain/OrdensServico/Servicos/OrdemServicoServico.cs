@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using SoatTechChallenge.Domain.Common.Exceptions;
+﻿using SoatTechChallenge.Domain.Common.Exceptions;
+using SoatTechChallenge.Domain.OrdensServico.Servicos.Enums;
 
 namespace SoatTechChallenge.Domain.OrdensServico.Servicos;
 
@@ -10,14 +10,9 @@ public class OrdemServicoServico
     public Guid IdServico { get; private set; }
     public string NomeServico { get; private set; }
     public decimal Valor { get; private set; }
+    public StatusOrdemServicoServico Status { get; private set; }
     public DateTime? DataInicioExecucao { get; private set; }
     public DateTime? DataFinalizacaoExecucao { get; private set; }
-    
-    #region NotMapped
-    
-    public bool Finalizado => DataFinalizacaoExecucao.HasValue;
-    
-    #endregion
     
     public OrdemServicoServico() { }
     
@@ -28,25 +23,28 @@ public class OrdemServicoServico
         IdServico = idServico;
         NomeServico = nomeServico;
         Valor = valor;
+        Status = StatusOrdemServicoServico.AguardandoExecucao;
     }
 
     public void IniciarExecucao()
     {
-        if (Finalizado)
+        if (Status is StatusOrdemServicoServico.ExecucaoFinalizada)
         {
             throw new DomainException("O serviço já se encontra finalizado.");
         }
-        
+
+        Status = StatusOrdemServicoServico.EmExecucao;
         DataInicioExecucao = DateTime.UtcNow;
     }
     
     public void FinalizarExecucao()
     {
-        if (Finalizado)
+        if (Status is StatusOrdemServicoServico.ExecucaoFinalizada)
         {
             throw new DomainException("O serviço já se encontra finalizado.");
         }
-        
+
+        Status = StatusOrdemServicoServico.ExecucaoFinalizada;
         DataFinalizacaoExecucao = DateTime.UtcNow;
     }
 }

@@ -2,11 +2,12 @@
 using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Application.Servicos.DTOs;
+using SoatTechChallenge.Application.Servicos.DTOs.Requests;
+using SoatTechChallenge.Application.Servicos.DTOs.Responses;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
 using SoatTechChallenge.Domain.Servicos;
-using SoatTechChallenge.Host.Controllers.Servicos.DTOs;
 
 namespace SoatTechChallenge.Application.Servicos.Services;
 
@@ -28,7 +29,7 @@ public class ServicoService : IServicoService, IScopedService
     public async Task<ServicoResponse> Buscar(Guid id)
     {
         var resultado = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
-        if (resultado is null) throw new NotFoundException($"Servico de id: {id} não encontrado.");
+        if (resultado is null) throw new NotFoundException("Servico não encontrado.");
 
         return MapToResponse(resultado);
     }
@@ -83,7 +84,7 @@ public class ServicoService : IServicoService, IScopedService
     public async Task<ServicoResponse> Atualizar(Guid id, AtualizarServicoRequest request)
     {
         var servico = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
-        if (servico is null) throw new NotFoundException($"Servico de id: {id} não encontrado.");
+        if (servico is null) throw new NotFoundException("Servico não encontrado.");
 
         servico.Atualizar(request.Nome, request.Descricao, request.Valor);
         await _repository.UpdateAsync(servico);
@@ -94,7 +95,7 @@ public class ServicoService : IServicoService, IScopedService
     public async Task Remover(Guid id)
     {
         var servico = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
-        if (servico is null) throw new NotFoundException($"Servico de id: {id} não encontrado.");
+        if (servico is null) return;
 
         await _repository.DeleteAsync(servico.Id);
     }

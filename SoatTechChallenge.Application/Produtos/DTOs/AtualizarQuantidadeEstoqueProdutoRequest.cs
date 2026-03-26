@@ -1,3 +1,0 @@
-﻿namespace SoatTechChallenge.Application.Produtos.DTOs;
-
-public record AtualizarQuantidadeEstoqueProdutoRequest(decimal Quantidade);

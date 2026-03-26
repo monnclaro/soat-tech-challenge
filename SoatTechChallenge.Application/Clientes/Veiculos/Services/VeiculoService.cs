@@ -25,7 +25,11 @@ public class VeiculoService : IVeiculoService, IScopedService
 
     public async Task<ClienteVeiculoResponse> Buscar(Guid id)
     {
-        var resultado = await _repository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
+        var resultado = await _repository
+            .GetQueryable()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(l => l.Id == id);
+            
         if (resultado is null) throw new NotFoundException("Veículo não encontrado.");
 
         return MapToResponse(resultado);

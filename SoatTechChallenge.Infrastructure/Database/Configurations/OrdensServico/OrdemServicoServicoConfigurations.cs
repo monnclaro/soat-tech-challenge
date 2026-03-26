@@ -16,6 +16,7 @@ public class OrdemServicoServicoConfiguration : IEntityTypeConfiguration<OrdemSe
         builder.Property(x => x.IdServico).HasColumnName("idservico").IsRequired();
         builder.Property(x => x.DataInicioExecucao).HasColumnName("data_inicio_execucao");
         builder.Property(x => x.DataFinalizacaoExecucao).HasColumnName("data_finalizacao_execucao");
+        builder.Property(x => x.Status).HasColumnName("status");
         
         builder.Property(x => x.NomeServico)
             .HasColumnName("nomeservico")

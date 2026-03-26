@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Infrastucture.Database;
 
@@ -6,14 +8,14 @@ namespace SoatTechChallenge.Infrastucture.Persistence;
 
 public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
 {
-    protected readonly SoatTechChallengeDbContext  _context;
+    protected readonly SoatTechChallengeDbContext _context;
     protected readonly DbSet<TEntity> _dbSet;
 
-    public Repository(SoatTechChallengeDbContext  context)
+    public Repository(SoatTechChallengeDbContext context)
     {
         _context = context;
         _dbSet = context.Set<TEntity>();
-    } 
+    }
 
     public async Task InsertAsync(TEntity entity)
     {
@@ -37,14 +39,20 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
             await _context.SaveChangesAsync();
         }
     }
-
-    private async Task<TEntity?> GetAsync(Guid id)
-    {
-        return await _dbSet.FindAsync(id);
-    }
+   
 
     public IQueryable<TEntity> GetQueryable()
     {
         return _dbSet.AsQueryable();
+    }
+
+public IQueryable<TEntity> GetRawSql(string query)
+{
+    return _dbSet.FromSqlRaw(query);
+}
+
+    private async Task<TEntity?> GetAsync(Guid id)
+    {
+        return await _dbSet.FindAsync(id);
     }
 }

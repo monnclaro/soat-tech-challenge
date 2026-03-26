@@ -37,6 +37,7 @@ public class Produto
     
     public void IncrementarQuantidadeEmEstoque(decimal quantidade)
     {
+        if (quantidade <= 0) throw new DomainException("A quantidade deve ser maior que zero.");
         QuantidadeEmEstoque += quantidade;
     }
     

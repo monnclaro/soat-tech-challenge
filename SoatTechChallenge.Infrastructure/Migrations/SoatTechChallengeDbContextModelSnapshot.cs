@@ -208,6 +208,10 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                         .HasColumnType("character varying(150)")
                         .HasColumnName("nomeservico");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<decimal>("Valor")
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("valorunitario");
@@ -309,6 +313,13 @@ namespace SoatTechChallenge.Infrastucture.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Nome")
                         .IsRequired()
