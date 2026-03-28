@@ -18,3 +18,6 @@ http://localhost:8080/scalar/v1
 O projeto utiliza PostgreSQL 16 como banco de dados principal.
 
 A escolha do PostgreSQL foi feita considerando consistência transacional, suporte avançado a concorrência e recursos nativos para modelagem de domínio, que facilitam a implementação de regras complexas de negócio.
+
+## Cobertura de Testes
+<img width="955" height="899" alt="image" src="https://github.com/user-attachments/assets/fd4f123f-de52-4490-adee-bd6a24185475" />
