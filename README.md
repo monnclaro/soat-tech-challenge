@@ -1,25 +1,56 @@
 # Tech Challenge - FIAP
 
 Este projeto consiste no desenvolvimento do MVP do back-end de um Sistema Integrado de Atendimento e Execução de Serviços para uma oficina mecânica.
-O sistema permite o gerenciamento de clientes, veículos, peças, serviços e ordens de serviço.
+O sistema permite o gerenciamento de clientes, veículos, produtos, serviços e ordens de serviço.
 
-# Instalação e Execução do Projeto
+---
 
-Este projeto foi desenvolvido para ser executado utilizando **Docker**, portanto **não é necessário instalar manualmente a aplicação nem o banco de dados** na sua máquina. Todo o ambiente necessário é provisionado automaticamente pelos containers.
-
-A API possui uma interface interativa para exploração e testes dos endpoints.
-
-Após subir o projeto, acesse no navegador:
-
+## Instalação e Execução
+ 
+> **Pré-requisito único:** [Docker](https://www.docker.com/get-started) instalado na máquina.
+ 
+Não é necessário instalar manualmente a aplicação nem o banco de dados. Todo o ambiente é provisionado automaticamente pelos containers.
+ 
+### 1. Clone o repositório
+ 
+```bash
+git clone https://github.com/seu-usuario/seu-repositorio.git
+cd seu-repositorio
+```
+ 
+### 2. Suba os containers
+ 
+```bash
+docker compose up -d
+```
+ 
+### 3. Acesse a aplicação
+ 
+Aguarde os containers inicializarem e acesse a **interface interativa da API**:
+ 
+```
 http://localhost:8080/scalar/v1
-
+```
+ 
+> A interface do Scalar permite explorar e testar todos os endpoints diretamente pelo navegador, sem necessidade de ferramentas externas.
+ 
+---
+ 
 ## Banco de Dados
-
-O projeto utiliza PostgreSQL 16 como banco de dados principal.
-
-A escolha do PostgreSQL foi feita considerando consistência transacional, suporte avançado a concorrência e recursos nativos para modelagem de domínio, que facilitam a implementação de regras complexas de negócio.
-
+ 
+O projeto utiliza **PostgreSQL 16** como banco de dados principal.
+ 
+A escolha foi feita considerando:
+ 
+-  **Consistência transacional** — suporte completo a ACID;
+-  **Concorrência avançada** — controle de concorrência multiversão (MVCC);
+-  **Modelagem de domínio** — recursos nativos que facilitam regras complexas de negócio;
+-  **Maturidade e confiabilidade** — amplamente utilizado em produção no mercado.
+ 
+---
+ 
 ## Cobertura de Testes
+ 
+O projeto possui atualmente uma cobertura total de **92%**.
 
-O projeto possui atualmente uma cobertura total de 92%.
 <img width="955" height="899" alt="image" src="https://github.com/user-attachments/assets/fd4f123f-de52-4490-adee-bd6a24185475" />
