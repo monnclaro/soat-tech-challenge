@@ -7,6 +7,7 @@ using SoatTechChallenge.Application.Servicos.DTOs.Responses;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
+using SoatTechChallenge.Domain.OrdensServico.Servicos.Enums;
 using SoatTechChallenge.Domain.Servicos;
 
 namespace SoatTechChallenge.Application.Servicos.Services;
@@ -54,7 +55,7 @@ public class ServicoService : IServicoService, IScopedService
         var resultado = await (
             from ordemServico in _ordemServicoServicoRepository.GetQueryable().AsNoTracking()
             join servico in _repository.GetQueryable().AsNoTracking() on ordemServico.IdServico equals servico.Id
-            where ordemServico.DataInicioExecucao != null && ordemServico.DataFinalizacaoExecucao != null
+            where ordemServico.Status == StatusOrdemServicoServico.ExecucaoFinalizada
             group ordemServico by new 
             { 
                 servico.Id, 

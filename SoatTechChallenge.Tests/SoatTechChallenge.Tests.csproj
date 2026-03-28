@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Servicos\" />
+    <Folder Include="Servicos\Integration\" />
   </ItemGroup>
 
 
