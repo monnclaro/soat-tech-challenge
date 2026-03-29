@@ -3,14 +3,12 @@
 Este projeto consiste no desenvolvimento do MVP do back-end de um Sistema Integrado de Atendimento e Execução de Serviços para uma oficina mecânica.
 O sistema permite o gerenciamento de clientes, veículos, produtos, serviços e ordens de serviço.
 
----
 
 ## Instalação e Execução
- 
-> **Pré-requisito único:** [Docker](https://www.docker.com/get-started) instalado na máquina.
- 
+  
 Não é necessário instalar manualmente a aplicação nem o banco de dados. Todo o ambiente é provisionado automaticamente pelos containers.
- 
+ > **Pré-requisito único:** [Docker](https://www.docker.com/get-started) instalado na máquina.
+
 ### 1. Clone o repositório
  
 ```bash
@@ -33,8 +31,7 @@ http://localhost:8080/scalar/v1
 ```
  
 > A interface do Scalar permite explorar e testar todos os endpoints diretamente pelo navegador, sem necessidade de ferramentas externas.
- 
----
+
  
 ## Banco de Dados
  
@@ -46,9 +43,8 @@ A escolha foi feita considerando:
 -  **Concorrência avançada** — controle de concorrência multiversão (MVCC);
 -  **Modelagem de domínio** — recursos nativos que facilitam regras complexas de negócio;
 -  **Maturidade e confiabilidade** — amplamente utilizado em produção no mercado.
- 
----
- 
+
+  
 ## Cobertura de Testes
  
 O projeto possui atualmente uma cobertura total de **92%**.
