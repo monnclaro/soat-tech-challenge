@@ -20,10 +20,10 @@ public class AuthenticationController : ControllerBase
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var resultado = await _authenticationService.Login(request);
-
         return resultado.Status switch
         {
             LoginResponseStatusResultado.UsuarioNaoEncontrado => NotFound(),

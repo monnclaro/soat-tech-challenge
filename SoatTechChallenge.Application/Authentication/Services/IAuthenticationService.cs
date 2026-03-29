@@ -1,5 +1,4 @@
-﻿using SoatTechChallenge.Application.Authentication.Services.DTOs;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
+﻿using SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
 using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
 
 namespace SoatTechChallenge.Application.Authentication.Services;
