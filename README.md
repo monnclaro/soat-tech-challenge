@@ -12,8 +12,8 @@ Não é necessário instalar manualmente a aplicação nem o banco de dados. Tod
 ### 1. Clone o repositório
  
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
+git clone https://github.com/monnclaro/soat-tech-challenge.git
+cd soat-tech-challenge
 ```
  
 ### 2. Suba os containers
