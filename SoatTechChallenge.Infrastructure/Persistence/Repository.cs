@@ -46,10 +46,10 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         return _dbSet.AsQueryable();
     }
 
-public IQueryable<TEntity> GetRawSql(string query)
-{
-    return _dbSet.FromSqlRaw(query);
-}
+    public IQueryable<TEntity> FromSql(FormattableString sql)
+    {
+        return _dbSet.FromSqlInterpolated(sql);
+    }
 
     private async Task<TEntity?> GetAsync(Guid id)
     {

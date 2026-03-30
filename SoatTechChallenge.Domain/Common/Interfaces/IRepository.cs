@@ -8,5 +8,5 @@ public interface IRepository<TEntity> where TEntity : class
     Task UpdateAsync(TEntity entity, bool autosave = true);
     Task DeleteAsync(Guid id);
     IQueryable<TEntity> GetQueryable();
-    IQueryable<TEntity> GetRawSql(string query);
+    IQueryable<TEntity> FromSql(FormattableString sql);
 }
