@@ -1,4 +1,4 @@
-﻿namespace SoatTechChallenge.Application.Clientes.DTOs;
+﻿namespace SoatTechChallenge.Application.Clientes.DTOs.Responses;
 
 public record ClienteResponse(
     Guid Id,

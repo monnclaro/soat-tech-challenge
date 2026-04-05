@@ -1,12 +1,19 @@
-﻿namespace SoatTechChallenge.Application.Produtos.DTOs.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SoatTechChallenge.Application.Produtos.DTOs.Requests;
 
 public class AtualizarProdutoRequest
 {
+    [Required]
+    [MaxLength(150)]
     public string Nome { get; set; }
-    public string Descricao { get; set; }
-    public decimal Valor { get; set; }
 
-    public AtualizarProdutoRequest() { }
+    [Required]
+    [MaxLength(500)]
+    public string Descricao { get; set; }
+
+    [Range(0, double.MaxValue)]
+    public decimal Valor { get; set; }
 
     public AtualizarProdutoRequest(string nome, string descricao, decimal valor)
     {

@@ -1,13 +1,11 @@
-﻿namespace SoatTechChallenge.Application.Produtos.DTOs.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SoatTechChallenge.Application.Produtos.DTOs.Requests;
 
 public class AtualizarQuantidadeEstoqueProdutoRequest
 {
+    [Range(0, double.MaxValue)]
     public decimal Quantidade { get; set; }
-
-    public AtualizarQuantidadeEstoqueProdutoRequest()
-    {
-        
-    }
 
     public AtualizarQuantidadeEstoqueProdutoRequest(decimal quantidade)
     {

@@ -1,13 +1,13 @@
 ﻿using MockQueryable.Moq;
 using Moq;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
+using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Requests;
 using SoatTechChallenge.Application.Clientes.Veiculos.Services;
 using SoatTechChallenge.Application.Clientes.Veiculos.Services.Validators;
 using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
-using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 using Xunit;
 
 namespace SoatTechChallenge.Tests.Clientes.Veiculos.Unit;
@@ -25,10 +25,10 @@ public class VeiculoServiceTests
         _sut = new VeiculoService(_repoMock.Object, _validatorMock.Object);
         // validator não lança por padrão
         _validatorMock
-            .Setup(v => v.Validar(It.IsAny<Guid>(), It.IsAny<InserirClienteVeiculoRequest>()))
+            .Setup(v => v.Validar(It.IsAny<Guid>(), It.IsAny<InserirVeiculoRequest>()))
             .Returns(Task.CompletedTask);
         _validatorMock
-            .Setup(v => v.Validar(It.IsAny<Guid>(), It.IsAny<AtualizarClienteVeiculoRequest>()))
+            .Setup(v => v.Validar(It.IsAny<Guid>(), It.IsAny<AtualizarVeiculoRequest>()))
             .Returns(Task.CompletedTask);
     }
 
@@ -130,7 +130,7 @@ public class VeiculoServiceTests
     public async Task Inserir_QuandoValidatorLanca_NaoChamaInsertAsync()
     {
         _validatorMock
-            .Setup(v => v.Validar(It.IsAny<Guid>(), It.IsAny<InserirClienteVeiculoRequest>()))
+            .Setup(v => v.Validar(It.IsAny<Guid>(), It.IsAny<InserirVeiculoRequest>()))
             .ThrowsAsync(new DomainException("Inválido"));
 
         await Assert.ThrowsAsync<DomainException>(() =>
@@ -194,7 +194,7 @@ public class VeiculoServiceTests
         var veiculo = CriarVeiculo();
         Setup(veiculo);
         _validatorMock
-            .Setup(v => v.Validar(It.IsAny<Guid>(), It.IsAny<AtualizarClienteVeiculoRequest>()))
+            .Setup(v => v.Validar(It.IsAny<Guid>(), It.IsAny<AtualizarVeiculoRequest>()))
             .ThrowsAsync(new DomainException("Placa duplicada"));
 
         await Assert.ThrowsAsync<DomainException>(() =>
@@ -282,14 +282,14 @@ public class VeiculoServiceTests
         return v;
     }
 
-    private static InserirClienteVeiculoRequest RequestInserir(
+    private static InserirVeiculoRequest RequestInserir(
         string placa = "ABC1234",
         string marca = "Honda",
         string modelo = "Civic",
         int? ano = null) =>
         new(placa, marca, modelo, ano ?? AnoAtual);
 
-    private static AtualizarClienteVeiculoRequest RequestAtualizar(
+    private static AtualizarVeiculoRequest RequestAtualizar(
         string placa = "XYZ9W87",
         string marca = "Honda",
         string modelo = "Civic",

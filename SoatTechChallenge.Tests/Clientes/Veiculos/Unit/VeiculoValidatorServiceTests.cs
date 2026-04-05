@@ -1,13 +1,13 @@
 ﻿using MockQueryable.Moq;
 using Moq;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
+using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Requests;
 using SoatTechChallenge.Application.Clientes.Veiculos.Services.Validators;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Clientes.Enums;
 using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
-using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 using Xunit;
 
 namespace SoatTechChallenge.Tests.Clientes.Veiculos.Unit;
@@ -166,10 +166,10 @@ public class VeiculoValidatorServiceTests
     // Helpers — requests
     // ────────────────────────────────────────────────────────────
 
-    private static InserirClienteVeiculoRequest RequestInserir(string placa) =>
+    private static InserirVeiculoRequest RequestInserir(string placa) =>
         new(placa, "Honda", "Civic", AnoAtual);
 
-    private static AtualizarClienteVeiculoRequest RequestAtualizar(string placa) =>
+    private static AtualizarVeiculoRequest RequestAtualizar(string placa) =>
         new(placa, "Toyota", "Corolla", AnoAtual);
 
     // ────────────────────────────────────────────────────────────

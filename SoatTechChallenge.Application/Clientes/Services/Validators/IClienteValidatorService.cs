@@ -1,4 +1,5 @@
 ﻿using SoatTechChallenge.Application.Clientes.DTOs;
+using SoatTechChallenge.Application.Clientes.DTOs.Requests;
 using SoatTechChallenge.Domain.Clientes.Enums;
 
 namespace SoatTechChallenge.Application.Clientes.Services.Validators;

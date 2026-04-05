@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SoatTechChallenge.Application.Clientes.DTOs;
+using SoatTechChallenge.Application.Clientes.DTOs.Requests;
+using SoatTechChallenge.Application.Clientes.DTOs.Responses;
 using SoatTechChallenge.Application.Clientes.Services;
 using SoatTechChallenge.Application.Clientes.Services.Validators;
 using SoatTechChallenge.Application.Common.DTOs;

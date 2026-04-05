@@ -1,10 +1,10 @@
 ﻿using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
-using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
+using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Requests;
 
 namespace SoatTechChallenge.Application.Clientes.Veiculos.Services.Validators;
 
 public interface IVeiculoValidatorService
 {
-    Task Validar(Guid idCliente, InserirClienteVeiculoRequest request);
-    Task Validar(Guid idVeiculo, AtualizarClienteVeiculoRequest request);
+    Task Validar(Guid idCliente, InserirVeiculoRequest request);
+    Task Validar(Guid idVeiculo, AtualizarVeiculoRequest request);
 }

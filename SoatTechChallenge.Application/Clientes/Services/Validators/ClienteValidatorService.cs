@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Clientes.DTOs;
+using SoatTechChallenge.Application.Clientes.DTOs.Requests;
 using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Clientes.Enums;

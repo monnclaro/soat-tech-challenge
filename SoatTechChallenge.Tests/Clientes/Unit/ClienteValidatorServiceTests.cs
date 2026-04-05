@@ -1,6 +1,7 @@
 ﻿using MockQueryable.Moq;
 using Moq;
 using SoatTechChallenge.Application.Clientes.DTOs;
+using SoatTechChallenge.Application.Clientes.DTOs.Requests;
 using SoatTechChallenge.Application.Clientes.Services.Validators;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Clientes.Enums;

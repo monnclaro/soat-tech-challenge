@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
+using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Requests;
+using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Responses;
 using SoatTechChallenge.Application.Clientes.Veiculos.Services;
 using SoatTechChallenge.Application.Common.DTOs;
-using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 
 namespace SoatTechChallenge.Controllers.Clientes.Veiculos;
 
@@ -21,7 +22,7 @@ public class VeiculosController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(ClienteVeiculoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(VeiculoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Buscar([FromRoute] Guid id)
     {
@@ -30,7 +31,7 @@ public class VeiculosController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<ClienteVeiculoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResponse<VeiculoResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> BuscarListaPaginada([FromRoute] Guid idCliente, [FromQuery] PagedRequest request)
     {
         var resultado = await _veiculoService.BuscarListaPaginada(idCliente, request);
@@ -38,20 +39,20 @@ public class VeiculosController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(ClienteVeiculoResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(VeiculoResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Inserir([FromRoute] Guid idCliente, [FromBody] InserirClienteVeiculoRequest request)
+    public async Task<IActionResult> Inserir([FromRoute] Guid idCliente, [FromBody] InserirVeiculoRequest request)
     {
         var resultado = await _veiculoService.Inserir(idCliente, request);
         return CreatedAtAction(nameof(Buscar), new { idCliente = idCliente, id = resultado.Id }, resultado);
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(ClienteVeiculoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(VeiculoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Atualizar([FromRoute] Guid id, [FromBody] AtualizarClienteVeiculoRequest request)
+    public async Task<IActionResult> Atualizar([FromRoute] Guid id, [FromBody] AtualizarVeiculoRequest request)
     {
         var resultado = await _veiculoService.Atualizar(id, request);
         return Ok(resultado);

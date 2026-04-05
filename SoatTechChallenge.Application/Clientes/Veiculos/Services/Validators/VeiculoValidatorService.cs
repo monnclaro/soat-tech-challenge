@@ -1,12 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
+using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Requests;
 using SoatTechChallenge.Application.Common.Interfaces;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
-using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 
 namespace SoatTechChallenge.Application.Clientes.Veiculos.Services.Validators;
 
@@ -24,7 +24,7 @@ public class VeiculoValidatorService : IVeiculoValidatorService, IScopedService
         _clienteVeiculoRepository = clienteVeiculoRepository;
     }
 
-    public async Task Validar(Guid idCliente, InserirClienteVeiculoRequest request)
+    public async Task Validar(Guid idCliente, InserirVeiculoRequest request)
     {
         var placa = NormalizarPlaca(request.Placa);
         ValidarFormatoPlaca(placa);
@@ -33,7 +33,7 @@ public class VeiculoValidatorService : IVeiculoValidatorService, IScopedService
         await ValidarPlacaDuplicada(placa);
     }
 
-    public async Task Validar(Guid idVeiculo, AtualizarClienteVeiculoRequest request)
+    public async Task Validar(Guid idVeiculo, AtualizarVeiculoRequest request)
     {
         var placa = NormalizarPlaca(request.Placa);
         ValidarFormatoPlaca(placa);

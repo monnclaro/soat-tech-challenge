@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
+using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Requests;
+using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Responses;
 using SoatTechChallenge.Application.Clientes.Veiculos.Services;
 using SoatTechChallenge.Application.Clientes.Veiculos.Services.Validators;
 using SoatTechChallenge.Application.Common.DTOs;
@@ -9,7 +11,6 @@ using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Clientes.Enums;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
-using SoatTechChallenge.Host.Controllers.Clientes.Veiculos.DTOs;
 using SoatTechChallenge.Infrastucture.Database;
 using SoatTechChallenge.Infrastucture.Persistence;
 using Testcontainers.PostgreSql;
@@ -74,13 +75,13 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         return cliente;
     }
 
-    private async Task<ClienteVeiculoResponse> SeedVeiculoAsync(
+    private async Task<VeiculoResponse> SeedVeiculoAsync(
         Guid idCliente,
         string placa = "ABC1234")
     {
         using var scope = _provider.CreateScope();
         return await CreateService(scope)
-            .Inserir(idCliente, new InserirClienteVeiculoRequest(placa, "Honda", "Civic", AnoAtual));
+            .Inserir(idCliente, new InserirVeiculoRequest(placa, "Honda", "Civic", AnoAtual));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -94,7 +95,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         await Assert.ThrowsAsync<DomainException>(() =>
             CreateService(scope).Inserir(
                 Guid.NewGuid(),
-                new InserirClienteVeiculoRequest("ABC1234", "Honda", "Civic", AnoAtual)));
+                new InserirVeiculoRequest("ABC1234", "Honda", "Civic", AnoAtual)));
     }
 
     [Fact]
@@ -106,7 +107,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         await Assert.ThrowsAsync<DomainException>(() =>
             CreateService(scope).Inserir(
                 cliente.Id,
-                new InserirClienteVeiculoRequest("INVALIDA", "Honda", "Civic", AnoAtual)));
+                new InserirVeiculoRequest("INVALIDA", "Honda", "Civic", AnoAtual)));
     }
 
     [Fact]
@@ -117,7 +118,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         using var scope = _provider.CreateScope();
         var result = await CreateService(scope).Inserir(
             cliente.Id,
-            new InserirClienteVeiculoRequest("ABC1234", "Honda", "Civic", AnoAtual));
+            new InserirVeiculoRequest("ABC1234", "Honda", "Civic", AnoAtual));
 
         Assert.NotEqual(Guid.Empty, result.Id);
         Assert.Equal(cliente.Id, result.IdCliente);
@@ -134,7 +135,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         var ex = await Assert.ThrowsAsync<DomainException>(() =>
             CreateService(scope).Inserir(
                 cliente.Id,
-                new InserirClienteVeiculoRequest("ABC1234", "Toyota", "Corolla", AnoAtual)));
+                new InserirVeiculoRequest("ABC1234", "Toyota", "Corolla", AnoAtual)));
 
         Assert.Contains("ABC1234", ex.Message);
     }
@@ -150,7 +151,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         using var scope = _provider.CreateScope();
         var result = await CreateService(scope).Inserir(
             cliente.Id,
-            new InserirClienteVeiculoRequest(placa, "Honda", "Civic", AnoAtual));
+            new InserirVeiculoRequest(placa, "Honda", "Civic", AnoAtual));
 
         // Placa normalizada (sem hífen, maiúsculo)
         Assert.False(string.IsNullOrWhiteSpace(result.Placa));
@@ -231,7 +232,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         using var scope = _provider.CreateScope();
         var result = await CreateService(scope).Atualizar(
             criado.Id,
-            new AtualizarClienteVeiculoRequest("XYZ9W87", "Toyota", "Corolla", AnoAtual - 1));
+            new AtualizarVeiculoRequest("XYZ9W87", "Toyota", "Corolla", AnoAtual - 1));
 
         Assert.Equal("XYZ9W87", result.Placa);
         Assert.Equal("Toyota", result.Marca);
@@ -254,7 +255,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         var ex = await Assert.ThrowsAsync<DomainException>(() =>
             CreateService(scope).Atualizar(
                 v2.Id,
-                new AtualizarClienteVeiculoRequest("ABC1234", "Honda", "Civic", AnoAtual)));
+                new AtualizarVeiculoRequest("ABC1234", "Honda", "Civic", AnoAtual)));
 
         Assert.Contains("ABC1234", ex.Message);
     }
@@ -270,7 +271,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         var ex = await Record.ExceptionAsync(() =>
             CreateService(scope).Atualizar(
                 criado.Id,
-                new AtualizarClienteVeiculoRequest("ABC1234", "Toyota", "Corolla", AnoAtual)));
+                new AtualizarVeiculoRequest("ABC1234", "Toyota", "Corolla", AnoAtual)));
 
         Assert.Null(ex);
     }
@@ -282,7 +283,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         await Assert.ThrowsAsync<NotFoundException>(() =>
             CreateService(scope).Atualizar(
                 Guid.NewGuid(),
-                new AtualizarClienteVeiculoRequest("ABC1234", "Honda", "Civic", AnoAtual)));
+                new AtualizarVeiculoRequest("ABC1234", "Honda", "Civic", AnoAtual)));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -325,7 +326,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         var ex = await Record.ExceptionAsync(() =>
             CreateService(insertScope).Inserir(
                 cliente.Id,
-                new InserirClienteVeiculoRequest("ABC1234", "Ford", "Ka", AnoAtual)));
+                new InserirVeiculoRequest("ABC1234", "Ford", "Ka", AnoAtual)));
 
         Assert.Null(ex);
     }

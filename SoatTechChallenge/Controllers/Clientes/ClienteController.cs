@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SoatTechChallenge.Application.Clientes.DTOs;
+using SoatTechChallenge.Application.Clientes.DTOs.Requests;
+using SoatTechChallenge.Application.Clientes.DTOs.Responses;
 using SoatTechChallenge.Application.Clientes.Services;
 using SoatTechChallenge.Application.Common.DTOs;
 
