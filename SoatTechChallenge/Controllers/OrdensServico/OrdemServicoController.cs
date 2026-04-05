@@ -10,7 +10,6 @@ namespace SoatTechChallenge.Controllers.OrdensServico;
 
 [ApiController]
 [Route("api/v1/ordens-servico")]
-
 [Produces("application/json")]
 public class OrdemServicosController : ControllerBase
 {
