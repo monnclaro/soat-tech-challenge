@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Common.DTOs;
-using SoatTechChallenge.Application.Common.Interfaces;
-using SoatTechChallenge.Application.Servicos.DTOs;
+using SharedKernel;
 using SoatTechChallenge.Application.Servicos.DTOs.Requests;
 using SoatTechChallenge.Application.Servicos.DTOs.Responses;
 using SoatTechChallenge.Domain.Common.Exceptions;
@@ -79,6 +78,8 @@ public class ServicoService : IServicoService, IScopedService
         servico.Inserir(request.Nome, request.Descricao, request.Valor);
 
         await _repository.InsertAsync(servico);
+        await _repository.SaveChangesAsync();
+        
         return MapToResponse(servico);
     }
 
@@ -88,7 +89,7 @@ public class ServicoService : IServicoService, IScopedService
         if (servico is null) throw new NotFoundException("Servico não encontrado.");
 
         servico.Atualizar(request.Nome, request.Descricao, request.Valor);
-        await _repository.UpdateAsync(servico);
+        await _repository.SaveChangesAsync();
 
         return MapToResponse(servico);
     }
@@ -98,6 +99,7 @@ public class ServicoService : IServicoService, IScopedService
         var servico = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
         if (servico is null) return;
 
-        await _repository.DeleteAsync(servico.Id);
+        await _repository.DeleteAsync(servico);
+        await _repository.SaveChangesAsync();
     }
 }

@@ -4,7 +4,7 @@ using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Requests;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Responses;
 using SoatTechChallenge.Application.Clientes.Veiculos.Services.Validators;
 using SoatTechChallenge.Application.Common.DTOs;
-using SoatTechChallenge.Application.Common.Interfaces;
+using SharedKernel;
 using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
@@ -60,7 +60,8 @@ public class VeiculoService : IVeiculoService, IScopedService
         veiculo.Inserir(idCliente, request.Placa, request.Marca, request.Modelo, request.Ano);
 
         await _repository.InsertAsync(veiculo);
-
+        await _repository.SaveChangesAsync();
+        
         return MapToResponse(veiculo);
     }
 
@@ -72,8 +73,9 @@ public class VeiculoService : IVeiculoService, IScopedService
         if (veiculo is null) throw new NotFoundException("Veículo não encontrado.");
 
         veiculo.Atualizar(request.Placa, request.Marca, request.Modelo, request.Ano);
+   
+        await _repository.SaveChangesAsync();
         
-        await _repository.UpdateAsync(veiculo);
         return MapToResponse(veiculo);
     }
 
@@ -82,6 +84,7 @@ public class VeiculoService : IVeiculoService, IScopedService
         var veiculo = await _repository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
         if (veiculo is null) throw new NotFoundException("Veículo não encontrado.");
 
-        await _repository.DeleteAsync(veiculo.Id);
+        await _repository.DeleteAsync(veiculo);
+        await _repository.SaveChangesAsync();
     }
 }

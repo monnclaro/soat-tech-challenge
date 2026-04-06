@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoatTechChallenge.Applicati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoatTechChallenge.Tests", "SoatTechChallenge.Tests\SoatTechChallenge.Tests.csproj", "{EA5B245A-6DAA-4391-B919-6BF878D5740B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel", "SharedKernel\SharedKernel.csproj", "{F1234D55-A5E7-4366-85F7-78614BC7B021}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +43,9 @@ Global
 		{EA5B245A-6DAA-4391-B919-6BF878D5740B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA5B245A-6DAA-4391-B919-6BF878D5740B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA5B245A-6DAA-4391-B919-6BF878D5740B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1234D55-A5E7-4366-85F7-78614BC7B021}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1234D55-A5E7-4366-85F7-78614BC7B021}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1234D55-A5E7-4366-85F7-78614BC7B021}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1234D55-A5E7-4366-85F7-78614BC7B021}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

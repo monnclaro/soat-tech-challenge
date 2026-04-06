@@ -1,8 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
-using SoatTechChallenge.Application.Clientes.Veiculos.DTOs;
 using SoatTechChallenge.Application.Clientes.Veiculos.DTOs.Requests;
-using SoatTechChallenge.Application.Common.Interfaces;
+using SharedKernel;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;

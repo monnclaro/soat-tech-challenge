@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
 using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
 using SoatTechChallenge.Application.Common.DTOs;
-using SoatTechChallenge.Application.Common.Interfaces;
+using SharedKernel;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.Usuarios;
 

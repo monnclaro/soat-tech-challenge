@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Common.DTOs;
-using SoatTechChallenge.Application.Common.Interfaces;
+using SharedKernel;
 using SoatTechChallenge.Application.OrdensServico.DTOs.Requests;
 using SoatTechChallenge.Application.OrdensServico.DTOs.Responses;
 using SoatTechChallenge.Application.OrdensServico.Services.Validators;
@@ -10,7 +10,6 @@ using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.OrdensServico;
-using SoatTechChallenge.Domain.OrdensServico.Enums;
 using SoatTechChallenge.Domain.OrdensServico.Produtos;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
 using SoatTechChallenge.Domain.Produtos;
@@ -50,41 +49,41 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
     public async Task<OrdemServicoResponse?> Buscar(Guid id)
     {
         var query = from os in _repository.GetQueryable().AsNoTracking().Where(l => l.Id == id)
-                    join c in _clienteRepository.GetQueryable().AsNoTracking() on os.IdCliente equals c.Id
-                    join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking() on os.IdVeiculo equals v.Id
-                    select new OrdemServicoResponse(
-                        os.Id,
-                        new OrdemServicoClienteResponse(
-                            c.Id,
-                            c.Nome,
-                            c.Documento
-                        ),
-                        new OrdemServicoVeiculoResponse(
-                            v.Id,
-                            v.Placa,
-                            v.Marca,
-                            v.Modelo,
-                            v.Ano
-                        ),
-                        os.DataCriacao,
-                        os.DataInicioExecucao,
-                        os.DataFinalizacao,
-                        os.Status.ToString(),
-                        os.ValorTotal,
-                        os.Servicos.Select(s => new OrdemServicoServicoResponse(
-                            s.Id,
-                            s.IdServico,
-                            s.NomeServico,
-                            s.Valor
-                        )).ToList(),
-                        os.Produtos.Select(p => new OrdemServicoProdutoResponse(
-                            p.Id,
-                            p.IdProduto,
-                            p.NomeProduto,
-                            p.ValorUnitario,
-                            p.Quantidade
-                        )).ToList()
-                    );
+            join c in _clienteRepository.GetQueryable().AsNoTracking() on os.IdCliente equals c.Id
+            join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking() on os.IdVeiculo equals v.Id
+            select new OrdemServicoResponse(
+                os.Id,
+                new OrdemServicoClienteResponse(
+                    c.Id,
+                    c.Nome,
+                    c.Documento
+                ),
+                new OrdemServicoVeiculoResponse(
+                    v.Id,
+                    v.Placa,
+                    v.Marca,
+                    v.Modelo,
+                    v.Ano
+                ),
+                os.DataCriacao,
+                os.DataInicioExecucao,
+                os.DataFinalizacao,
+                os.Status.ToString(),
+                os.ValorTotal,
+                os.Servicos.Select(s => new OrdemServicoServicoResponse(
+                    s.Id,
+                    s.IdServico,
+                    s.NomeServico,
+                    s.Valor
+                )).ToList(),
+                os.Produtos.Select(p => new OrdemServicoProdutoResponse(
+                    p.Id,
+                    p.IdProduto,
+                    p.NomeProduto,
+                    p.ValorUnitario,
+                    p.Quantidade
+                )).ToList()
+            );
 
         return await query.FirstOrDefaultAsync();
     }
@@ -92,42 +91,42 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
     public async Task<PagedResponse<OrdemServicoResponse>> BuscarListaPaginada(PagedRequest request)
     {
         var query = from os in _repository.GetQueryable().AsNoTracking()
-                    join c in _clienteRepository.GetQueryable().AsNoTracking() on os.IdCliente equals c.Id
-                    join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking() on os.IdVeiculo equals v.Id
-                    orderby os.DataCriacao
-                    select new OrdemServicoResponse(
-                        os.Id,
-                        new OrdemServicoClienteResponse(
-                            c.Id,
-                            c.Nome,
-                            c.Documento
-                        ),
-                        new OrdemServicoVeiculoResponse(
-                            v.Id,
-                            v.Placa,
-                            v.Marca,
-                            v.Modelo,
-                            v.Ano
-                        ),
-                        os.DataCriacao,
-                        os.DataInicioExecucao,
-                        os.DataFinalizacao,
-                        os.Status.ToString(),
-                        os.ValorTotal,
-                        os.Servicos.Select(s => new OrdemServicoServicoResponse(
-                            s.Id,
-                            s.IdServico,
-                            s.NomeServico,
-                            s.Valor
-                        )).ToList(),
-                        os.Produtos.Select(p => new OrdemServicoProdutoResponse(
-                            p.Id,
-                            p.IdProduto,
-                            p.NomeProduto,
-                            p.ValorUnitario,
-                            p.Quantidade
-                        )).ToList()
-                    );
+            join c in _clienteRepository.GetQueryable().AsNoTracking() on os.IdCliente equals c.Id
+            join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking() on os.IdVeiculo equals v.Id
+            orderby os.DataCriacao
+            select new OrdemServicoResponse(
+                os.Id,
+                new OrdemServicoClienteResponse(
+                    c.Id,
+                    c.Nome,
+                    c.Documento
+                ),
+                new OrdemServicoVeiculoResponse(
+                    v.Id,
+                    v.Placa,
+                    v.Marca,
+                    v.Modelo,
+                    v.Ano
+                ),
+                os.DataCriacao,
+                os.DataInicioExecucao,
+                os.DataFinalizacao,
+                os.Status.ToString(),
+                os.ValorTotal,
+                os.Servicos.Select(s => new OrdemServicoServicoResponse(
+                    s.Id,
+                    s.IdServico,
+                    s.NomeServico,
+                    s.Valor
+                )).ToList(),
+                os.Produtos.Select(p => new OrdemServicoProdutoResponse(
+                    p.Id,
+                    p.IdProduto,
+                    p.NomeProduto,
+                    p.ValorUnitario,
+                    p.Quantidade
+                )).ToList()
+            );
 
         var total = await query.CountAsync();
         var resultado = await query
@@ -138,27 +137,29 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         return new PagedResponse<OrdemServicoResponse>(resultado, total, request.Pagina, request.Tamanho);
     }
 
-    public async Task<PagedResponse<OrdemServicoPorDocumentoResponse>> BuscarListaPaginadaPorDocumento(string documento, PagedRequest request)
+    public async Task<PagedResponse<OrdemServicoPorDocumentoResponse>> BuscarListaPaginadaPorDocumento(string documento,
+        PagedRequest request)
     {
         var documentoLimpo = Regex.Replace(documento, @"\D", string.Empty);
 
         var query = from os in _repository.GetQueryable().AsNoTracking()
-                    join c in _clienteRepository.GetQueryable().AsNoTracking().Where(l => l.Documento == documentoLimpo) on os.IdCliente equals c.Id
-                    join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking() on os.IdVeiculo equals v.Id
-                    orderby os.DataCriacao
-                    select new OrdemServicoPorDocumentoResponse(
-                        new OrdemServicoClientePorDocumentoResponse(
-                            c.Nome,
-                            c.Documento
-                        ),
-                        new OrdemServicoVeiculoPorDocumentoResponse(
-                            v.Placa,
-                            v.Marca,
-                            v.Modelo,
-                            v.Ano
-                        ),
-                        os.Status.ToString()
-                    );
+            join c in _clienteRepository.GetQueryable().AsNoTracking().Where(l => l.Documento == documentoLimpo) on
+                os.IdCliente equals c.Id
+            join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking() on os.IdVeiculo equals v.Id
+            orderby os.DataCriacao
+            select new OrdemServicoPorDocumentoResponse(
+                new OrdemServicoClientePorDocumentoResponse(
+                    c.Nome,
+                    c.Documento
+                ),
+                new OrdemServicoVeiculoPorDocumentoResponse(
+                    v.Placa,
+                    v.Marca,
+                    v.Modelo,
+                    v.Ano
+                ),
+                os.Status.ToString()
+            );
 
         var total = await query.CountAsync();
         var resultado = await query
@@ -195,6 +196,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         ordemServico.Inserir(request.IdCliente, request.IdVeiculo, servicos);
 
         await _repository.InsertAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task InserirProdutos(Guid id, InserirProdutosOrdemServicoRequest request)
@@ -223,7 +225,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
             }).ToList();
 
         ordemServico.InserirProdutos(produtosInserir);
-        await _repository.UpdateAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task InserirServicos(Guid id, InserirServicosOrdemServicoRequest request)
@@ -252,7 +254,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
             }).ToList();
 
         ordemServico.InserirServicos(servicosInserir);
-        await _repository.UpdateAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task IniciarDiagnostico(Guid id)
@@ -261,7 +263,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.IniciarDiagnostico();
-        await _repository.UpdateAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task FinalizarDiagnostico(Guid id)
@@ -275,7 +277,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.FinalizarDiagnostico();
-        await _repository.UpdateAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task AprovarOrcamento(Guid id)
@@ -284,7 +286,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.AprovarOrcamento();
-        await _repository.UpdateAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task IniciarExecucaoServico(Guid id, Guid idServico)
@@ -297,7 +299,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.IniciarExecucaoServico(idServico);
-        await _repository.UpdateAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task FinalizarExecucaoServico(Guid id, Guid idServico)
@@ -311,33 +313,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.FinalizarExecucaoServico(idServico);
-
-        var produtosAtualizar = new List<Produto>();
-        if (ordemServico.Status is StatusOrdemServico.Finalizada)
-        {
-            var produtos = await _produtoRepository.GetQueryable()
-               .Where(p => ordemServico.IdsProdutos.Contains(p.Id))
-               .ToDictionaryAsync(p => p.Id);
-
-            foreach (var item in ordemServico.Produtos)
-            {
-                if (produtos.TryGetValue(item.IdProduto, out var produto))
-                {
-                    produto.DecrementarQuantidadeEmEstoque(item.Quantidade);
-                    produtosAtualizar.Add(produto);
-                }
-            }
-        }
-
-        await _unitOfWork.ExecuteInTransactionAsync(async () =>
-        {
-            await _repository.UpdateAsync(ordemServico, false);
-
-            foreach (var produto in produtosAtualizar)
-            {
-                await _produtoRepository.UpdateAsync(produto, false);
-            }
-        });
+        await _repository.SaveChangesAsync();
     }
 
     public async Task Entregar(Guid id)
@@ -346,7 +322,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.Entregar();
-        await _repository.UpdateAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task Remover(Guid id)
@@ -354,7 +330,8 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         var ordemServico = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
-        await _repository.DeleteAsync(ordemServico.Id);
+        await _repository.DeleteAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task RemoverProduto(Guid id, Guid idProduto)
@@ -368,7 +345,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.RemoverProduto(idProduto);
-        await _repository.UpdateAsync(ordemServico);
+        await _repository.SaveChangesAsync();
     }
 
     public async Task RemoverServico(Guid id, Guid idServico)
@@ -382,6 +359,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.RemoverServico(idServico);
-        await _repository.UpdateAsync(ordemServico);
+
+        await _repository.SaveChangesAsync();
     }
 }

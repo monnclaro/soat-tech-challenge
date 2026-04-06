@@ -1,12 +1,14 @@
-﻿using SoatTechChallenge.Domain.Common.Exceptions;
+﻿using SharedKernel;
+using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.OrdensServico.Enums;
+using SoatTechChallenge.Domain.OrdensServico.Events;
 using SoatTechChallenge.Domain.OrdensServico.Produtos;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
 using SoatTechChallenge.Domain.OrdensServico.Servicos.Enums;
 
 namespace SoatTechChallenge.Domain.OrdensServico;
 
-public class OrdemServico
+public class OrdemServico : Entity
 {
     public Guid Id { get; private set; }
     public Guid IdCliente { get; private set; }
@@ -79,7 +81,7 @@ public class OrdemServico
         }
         
         Produtos.Remove(produto);
-        ValorTotal -= produto.Subtotal;
+        CalcularTotal();
     }
 
     public void RemoverServico(Guid idServico)
@@ -96,7 +98,7 @@ public class OrdemServico
         }
 
         Servicos.Remove(servico);
-        ValorTotal -= servico.Valor;
+        CalcularTotal();
     }
     
     public void IniciarDiagnostico()
@@ -125,9 +127,9 @@ public class OrdemServico
         {
             throw new DomainException("O orçamento só pode ser enviado após diagnóstico.");
         }
-       
-        EnviarEmailOrcamento("teste@email.com", "Assunto", $"Orçamento: {ValorTotal}");
         
+        // Método mockado, pois não é um requisito do projeto no momento
+        EnviarEmailOrcamento("teste@email.com", "Assunto", $"Orçamento: {ValorTotal}");
         Status = StatusOrdemServico.AguardandoAprovacao;
     }
 
@@ -182,6 +184,8 @@ public class OrdemServico
     {
         DataFinalizacao = DateTime.UtcNow;
         Status = StatusOrdemServico.Finalizada;
+        
+        Raise(new OrdemServicoFinalizadaDomainEvent(Id, Produtos));
     }
 
     public void Entregar()

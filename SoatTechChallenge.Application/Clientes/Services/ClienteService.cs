@@ -4,7 +4,7 @@ using SoatTechChallenge.Application.Clientes.DTOs.Requests;
 using SoatTechChallenge.Application.Clientes.DTOs.Responses;
 using SoatTechChallenge.Application.Clientes.Services.Validators;
 using SoatTechChallenge.Application.Common.DTOs;
-using SoatTechChallenge.Application.Common.Interfaces;
+using SharedKernel;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
@@ -64,6 +64,8 @@ public class ClienteService : IClienteService, IScopedService
         cliente.Inserir(request.Nome, documento, tipo);
 
         await _repository.InsertAsync(cliente);
+        await _repository.SaveChangesAsync();
+        
         return MapToResponse(cliente);
     }
 
@@ -77,7 +79,7 @@ public class ClienteService : IClienteService, IScopedService
 
         cliente.Atualizar(request.Nome);
 
-        await _repository.UpdateAsync(cliente);
+        await _repository.SaveChangesAsync();
         return MapToResponse(cliente);
     }
 
@@ -89,6 +91,7 @@ public class ClienteService : IClienteService, IScopedService
 
         if (cliente is null) throw new NotFoundException("Cliente não encontrado.");
 
-        await _repository.DeleteAsync(cliente.Id);
+        await _repository.DeleteAsync(cliente);
+        await _repository.SaveChangesAsync();
     }
 }

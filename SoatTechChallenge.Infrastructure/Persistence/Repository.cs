@@ -1,6 +1,4 @@
-﻿using System.Data;
-using System.Data.Common;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Infrastucture.Database;
 
@@ -20,39 +18,27 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     public async Task InsertAsync(TEntity entity)
     {
         await _dbSet.AddAsync(entity);
-        await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(TEntity entity, bool autosave = true)
+    public Task UpdateAsync(TEntity entity)
     {
         _dbSet.Update(entity);
-        if (autosave) await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Guid id)
+    public Task DeleteAsync(TEntity entity)
     {
-        var entity = await GetAsync(id);
-
-        if (entity != null)
-        {
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
-        }
+        _dbSet.Remove(entity);
+        return Task.CompletedTask;
     }
-   
 
     public IQueryable<TEntity> GetQueryable()
     {
         return _dbSet.AsQueryable();
     }
 
-    public IQueryable<TEntity> FromSql(FormattableString sql)
+    public async Task SaveChangesAsync()
     {
-        return _dbSet.FromSqlInterpolated(sql);
-    }
-
-    private async Task<TEntity?> GetAsync(Guid id)
-    {
-        return await _dbSet.FindAsync(id);
+        await _context.SaveChangesAsync();
     }
 }

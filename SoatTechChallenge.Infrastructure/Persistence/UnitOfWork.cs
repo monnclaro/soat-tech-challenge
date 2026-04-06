@@ -19,6 +19,7 @@ public class UnitOfWork : IUnitOfWork
         try
         {
             await action();
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
         }

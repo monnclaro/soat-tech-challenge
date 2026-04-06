@@ -143,7 +143,7 @@ public class ProdutoServiceTests
         var request = new AtualizarProdutoRequest("Novo", "Nova desc", 200m);
         var result = await _sut.Atualizar(produto.Id, request);
 
-        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>(), true), Times.Once);
+        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>()), Times.Once);
         Assert.Equal("Novo", result.Nome);
         Assert.Equal(200m, result.Valor);
     }
@@ -179,7 +179,7 @@ public class ProdutoServiceTests
         var request = new AtualizarQuantidadeEstoqueProdutoRequest(5m);
         var result = await _sut.IncrementarEstoque(produto.Id, request);
 
-        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>(), true), Times.Once);
+        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>()), Times.Once);
         Assert.Equal(15m, result.QuantidadeEmEstoque);
     }
 
@@ -193,7 +193,7 @@ public class ProdutoServiceTests
 
         await Assert.ThrowsAsync<DomainException>(() =>
             _sut.IncrementarEstoque(produto.Id, request));
-        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>(), true), Times.Never);
+        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>()), Times.Never);
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public class ProdutoServiceTests
             _sut.Remover(Guid.NewGuid()));
 
         Assert.Null(exception);
-        _repositoryMock.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+        _repositoryMock.Verify(r => r.DeleteAsync(It.IsAny<Produto>()), Times.Never);
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public class ProdutoServiceTests
 
         await _sut.Remover(produto.Id);
 
-        _repositoryMock.Verify(r => r.DeleteAsync(produto.Id), Times.Once);
+        _repositoryMock.Verify(r => r.DeleteAsync(produto), Times.Once);
     }
 
     private static Produto ProdutoValido(

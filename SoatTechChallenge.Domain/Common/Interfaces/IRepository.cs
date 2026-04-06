@@ -1,12 +1,10 @@
-﻿using System.Data.Common;
-
-namespace SoatTechChallenge.Domain.Common.Interfaces;
+﻿namespace SoatTechChallenge.Domain.Common.Interfaces;
 
 public interface IRepository<TEntity> where TEntity : class
 {
     Task InsertAsync(TEntity entity);
-    Task UpdateAsync(TEntity entity, bool autosave = true);
-    Task DeleteAsync(Guid id);
+    Task UpdateAsync(TEntity entity);
+    Task DeleteAsync(TEntity entity);
     IQueryable<TEntity> GetQueryable();
-    IQueryable<TEntity> FromSql(FormattableString sql);
+    Task SaveChangesAsync();
 }

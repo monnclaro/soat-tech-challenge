@@ -200,7 +200,7 @@ public class VeiculoServiceTests
         await Assert.ThrowsAsync<DomainException>(() =>
             _sut.Atualizar(veiculo.Id, RequestAtualizar("ABC1234")));
 
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>(), true), Times.Never);
+        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>()), Times.Never);
     }
 
     [Fact]
@@ -215,7 +215,7 @@ public class VeiculoServiceTests
         Assert.Equal("Toyota", result.Marca);
         Assert.Equal("Corolla", result.Modelo);
         Assert.Equal(AnoAtual - 1, result.Ano);
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>(), true), Times.Once);
+        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>()), Times.Once);
     }
 
     [Fact]
@@ -251,7 +251,7 @@ public class VeiculoServiceTests
 
         await _sut.Remover(veiculo.Id);
 
-        _repoMock.Verify(r => r.DeleteAsync(veiculo.Id), Times.Once);
+        _repoMock.Verify(r => r.DeleteAsync(veiculo), Times.Once);
     }
 
     [Fact]
@@ -262,7 +262,7 @@ public class VeiculoServiceTests
 
         await _sut.Remover(veiculo.Id);
 
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>(), true), Times.Never);
+        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>()), Times.Never);
     }
 
     // ────────────────────────────────────────────────────────────

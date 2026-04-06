@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Common.DTOs;
-using SoatTechChallenge.Application.Common.Interfaces;
-using SoatTechChallenge.Application.Produtos.DTOs;
+using SharedKernel;
+using SoatTechChallenge.Application.Produtos.DTOs.Commands;
 using SoatTechChallenge.Application.Produtos.DTOs.Requests;
 using SoatTechChallenge.Application.Produtos.DTOs.Responses;
 using SoatTechChallenge.Domain.Common.Exceptions;
@@ -53,7 +53,8 @@ public class ProdutoService : IProdutoService, IScopedService
         produto.Inserir(request.Nome, request.Descricao, request.Valor, request.QuantidadeEmEstoque);
 
         await _repository.InsertAsync(produto);
-
+        await _repository.SaveChangesAsync();
+        
         return MapToResponse(produto);
     }
 
@@ -70,7 +71,7 @@ public class ProdutoService : IProdutoService, IScopedService
 
         produto.Atualizar(request.Nome, request.Descricao, request.Valor);
         
-        await _repository.UpdateAsync(produto);
+        await _repository.SaveChangesAsync();
         return MapToResponse(produto);
     }
 
@@ -86,9 +87,29 @@ public class ProdutoService : IProdutoService, IScopedService
         }
 
         produto.IncrementarQuantidadeEmEstoque(request.Quantidade);
-
-        await _repository.UpdateAsync(produto);
+   
+        await _repository.SaveChangesAsync();
         return MapToResponse(produto);
+    }
+
+    public async Task DecrementarEstoque(DecrementarQuantidadeEstoqueProdutosCommand command)
+    {
+        var idsProdutos = command.Produtos.Select(p => p.Id).ToList();
+
+        var produtos = await _repository
+            .GetQueryable()
+            .Where(p => idsProdutos.Contains(p.Id))
+            .ToListAsync();
+
+        var dicionarioProdutos = command.Produtos.ToDictionary(p => p.Id);
+
+        foreach (var produto in produtos)
+        {
+            var item = dicionarioProdutos[produto.Id];
+            produto.DecrementarQuantidadeEmEstoque(item.Quantidade);
+        }
+
+        await _repository.SaveChangesAsync();
     }
 
     public async Task Remover(Guid id)
@@ -96,6 +117,7 @@ public class ProdutoService : IProdutoService, IScopedService
         var produto = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
         if (produto is null) return;
 
-        await _repository.DeleteAsync(produto.Id);
+        await _repository.DeleteAsync(produto);
+        await _repository.SaveChangesAsync();
     }
 }

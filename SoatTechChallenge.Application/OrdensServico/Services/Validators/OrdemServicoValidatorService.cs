@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SoatTechChallenge.Application.Common.Interfaces;
+using SharedKernel;
 using SoatTechChallenge.Application.OrdensServico.DTOs.Requests;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Common.Exceptions;

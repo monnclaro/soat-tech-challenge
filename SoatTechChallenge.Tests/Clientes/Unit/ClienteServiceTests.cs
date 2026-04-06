@@ -172,7 +172,7 @@ public class ClienteServiceTests
         var result = await _sut.Atualizar(cliente.Id, new AtualizarClienteRequest("Nome Novo"));
 
         Assert.Equal("Nome Novo", result.Nome);
-        _repoMock.Verify(r => r.UpdateAsync(It.Is<Cliente>(c => c.Nome == "Nome Novo"), true), Times.Once);
+        _repoMock.Verify(r => r.UpdateAsync(It.Is<Cliente>(c => c.Nome == "Nome Novo")), Times.Once);
     }
 
     [Fact]
@@ -208,7 +208,7 @@ public class ClienteServiceTests
 
         await _sut.Remover(cliente.Id);
 
-        _repoMock.Verify(r => r.DeleteAsync(cliente.Id), Times.Once);
+        _repoMock.Verify(r => r.DeleteAsync(cliente), Times.Once);
     }
 
     [Fact]
@@ -219,7 +219,7 @@ public class ClienteServiceTests
 
         await _sut.Remover(cliente.Id);
 
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Cliente>(), true), Times.Never);
+        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Cliente>()), Times.Never);
     }
 
     // ────────────────────────────────────────────────────────────

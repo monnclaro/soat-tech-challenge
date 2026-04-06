@@ -239,7 +239,7 @@ public class ServicoServiceTests
         Assert.Equal("Novo", result.Nome);
         Assert.Equal("Nova desc", result.Descricao);
         Assert.Equal(300m, result.Valor);
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Servico>(), true), Times.Once);
+        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Servico>()), Times.Once);
     }
 
     [Fact]
@@ -251,7 +251,7 @@ public class ServicoServiceTests
         await Assert.ThrowsAsync<DomainException>(() =>
             _sut.Atualizar(servico.Id, new AtualizarServicoRequest("Nome", "desc", -1m)));
 
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Servico>(), true), Times.Never);
+        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Servico>()), Times.Never);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -265,7 +265,7 @@ public class ServicoServiceTests
         var ex = await Record.ExceptionAsync(() => _sut.Remover(Guid.NewGuid()));
 
         Assert.Null(ex);
-        _repoMock.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+        _repoMock.Verify(r => r.DeleteAsync(It.IsAny<Servico>()), Times.Never);
     }
 
     [Fact]
@@ -276,7 +276,7 @@ public class ServicoServiceTests
 
         await _sut.Remover(servico.Id);
 
-        _repoMock.Verify(r => r.DeleteAsync(servico.Id), Times.Once);
+        _repoMock.Verify(r => r.DeleteAsync(servico), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────

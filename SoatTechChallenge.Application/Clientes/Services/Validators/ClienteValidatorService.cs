@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Clientes.DTOs;
 using SoatTechChallenge.Application.Clientes.DTOs.Requests;
-using SoatTechChallenge.Application.Common.Interfaces;
+using SharedKernel;
 using SoatTechChallenge.Domain.Clientes;
 using SoatTechChallenge.Domain.Clientes.Enums;
 using SoatTechChallenge.Domain.Common.Exceptions;

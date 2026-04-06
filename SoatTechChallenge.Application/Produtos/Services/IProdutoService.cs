@@ -1,5 +1,5 @@
 ﻿using SoatTechChallenge.Application.Common.DTOs;
-using SoatTechChallenge.Application.Produtos.DTOs;
+using SoatTechChallenge.Application.Produtos.DTOs.Commands;
 using SoatTechChallenge.Application.Produtos.DTOs.Requests;
 using SoatTechChallenge.Application.Produtos.DTOs.Responses;
 
@@ -12,5 +12,6 @@ public interface IProdutoService
     Task<ProdutoResponse> Inserir(InserirProdutoRequest request);
     Task<ProdutoResponse> Atualizar(Guid id, AtualizarProdutoRequest request);
     Task<ProdutoResponse> IncrementarEstoque(Guid id, AtualizarQuantidadeEstoqueProdutoRequest request);
+    Task DecrementarEstoque(DecrementarQuantidadeEstoqueProdutosCommand command);
     Task Remover(Guid id);
 }
