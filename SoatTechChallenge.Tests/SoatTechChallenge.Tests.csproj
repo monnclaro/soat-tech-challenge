@@ -51,9 +51,5 @@
     <ProjectReference Include="..\SoatTechChallenge.Infrastructure\SoatTechChallenge.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Servicos\Integration\" />
-  </ItemGroup>
-
 
 </Project>

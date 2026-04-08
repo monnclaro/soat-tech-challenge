@@ -135,7 +135,7 @@ public class ProdutoServiceTests
     }
 
     [Fact]
-    public async Task Atualizar_QuandoProdutoExiste_ChamaUpdateAsyncERetornaResponseAtualizado()
+    public async Task Atualizar_QuandoProdutoExiste_ChamaSaveChabngesAsyncERetornaResponseAtualizado()
     {
         var produto = ProdutoValido(nome: "Antigo", valor: 100m);
         SetupQueryable(produto);
@@ -143,7 +143,7 @@ public class ProdutoServiceTests
         var request = new AtualizarProdutoRequest("Novo", "Nova desc", 200m);
         var result = await _sut.Atualizar(produto.Id, request);
 
-        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>()), Times.Once);
+        _repositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
         Assert.Equal("Novo", result.Nome);
         Assert.Equal(200m, result.Valor);
     }
@@ -179,7 +179,7 @@ public class ProdutoServiceTests
         var request = new AtualizarQuantidadeEstoqueProdutoRequest(5m);
         var result = await _sut.IncrementarEstoque(produto.Id, request);
 
-        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>()), Times.Once);
+        _repositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
         Assert.Equal(15m, result.QuantidadeEmEstoque);
     }
 
@@ -193,7 +193,7 @@ public class ProdutoServiceTests
 
         await Assert.ThrowsAsync<DomainException>(() =>
             _sut.IncrementarEstoque(produto.Id, request));
-        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Produto>()), Times.Never);
+        _repositoryMock.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Fact]

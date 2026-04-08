@@ -6,6 +6,11 @@ public class DecrementarQuantidadeEstoqueProdutosCommand
 {
     public List<DecrementarQuantidadeEstoqueProdutosProdutoCommand> Produtos { get; set; } = new();
 
+    public DecrementarQuantidadeEstoqueProdutosCommand()
+    {
+        
+    }
+    
     public DecrementarQuantidadeEstoqueProdutosCommand(OrdemServicoFinalizadaDomainEvent evento)
     {
         Produtos = evento.Produtos.Select(l => new DecrementarQuantidadeEstoqueProdutosProdutoCommand()
@@ -20,4 +25,9 @@ public class DecrementarQuantidadeEstoqueProdutosProdutoCommand
 {
     public Guid Id { get; set; }
     public decimal Quantidade { get; set; }
+
+    public DecrementarQuantidadeEstoqueProdutosProdutoCommand()
+    {
+        
+    }
 }

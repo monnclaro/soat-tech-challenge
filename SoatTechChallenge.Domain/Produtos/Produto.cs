@@ -17,32 +17,37 @@ public class Produto
         if (string.IsNullOrWhiteSpace(nome)) throw new DomainException("O nome do produto é obrigatório.");
         if (valor <= 0) throw new DomainException("O valor deve ser maior que zero.");
         if (quantidadeEmEstoque < 0) throw new DomainException("A quantidade em estoque não pode ser negativa.");
-        
+
         Id = Guid.NewGuid();
         Nome = nome;
         Descricao = descricao;
         Valor = valor;
         QuantidadeEmEstoque = quantidadeEmEstoque;
     }
-    
-    public void Atualizar(string nome, string descricao, decimal valor )
+
+    public void Atualizar(string nome, string descricao, decimal valor)
     {
         if (string.IsNullOrWhiteSpace(nome)) throw new DomainException("O nome do produto é obrigatório.");
         if (valor <= 0) throw new DomainException("O valor deve ser maior que zero.");
-     
+
         Nome = nome;
         Descricao = descricao;
         Valor = valor;
     }
-    
+
     public void IncrementarQuantidadeEmEstoque(decimal quantidade)
     {
-        if (quantidade <= 0) throw new DomainException("A quantidade deve ser maior que zero.");
+        if (quantidade <= 0)
+            throw new DomainException("A quantidade deve ser maior que zero.");      
+
         QuantidadeEmEstoque += quantidade;
     }
-    
+
     public void DecrementarQuantidadeEmEstoque(decimal quantidade)
     {
-        QuantidadeEmEstoque -= quantidade;
+        if (quantidade < 0)
+            throw new DomainException("A quantidade não pode ser negativa.");       
+
+        QuantidadeEmEstoque = Math.Max(0, QuantidadeEmEstoque - quantidade);
     }
 }

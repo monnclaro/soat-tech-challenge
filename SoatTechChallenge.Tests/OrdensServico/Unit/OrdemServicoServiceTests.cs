@@ -122,7 +122,7 @@ public class OrdemServicoServiceTests
     public async Task BuscarListaPaginadaPorDocumento_LimpaDocumentoEFiltroCorretamente()
     {
         var (os, cliente, veiculo) = CriarOrdemServicoComClienteEVeiculo(documento: "12345678900");
-        
+
         SetupOrdemServico(os);
         SetupClientes(cliente);
         SetupVeiculos(veiculo);
@@ -216,7 +216,7 @@ public class OrdemServicoServiceTests
 
         await _sut.InserirProdutos(os.Id, request);
 
-        _osRepoMock.Verify(r => r.UpdateAsync(It.Is<OrdemServico>(o => o.Produtos.Count == 1)), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -247,7 +247,7 @@ public class OrdemServicoServiceTests
 
         await _sut.InserirServicos(os.Id, request);
 
-        _osRepoMock.Verify(r => r.UpdateAsync(It.IsAny<OrdemServico>()), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -270,7 +270,7 @@ public class OrdemServicoServiceTests
         await _sut.IniciarDiagnostico(os.Id);
 
         Assert.Equal(StatusOrdemServico.EmDiagnostico, os.Status);
-        _osRepoMock.Verify(r => r.UpdateAsync(os), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -293,7 +293,7 @@ public class OrdemServicoServiceTests
         await _sut.FinalizarDiagnostico(os.Id);
 
         Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status);
-        _osRepoMock.Verify(r => r.UpdateAsync(os), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -316,7 +316,7 @@ public class OrdemServicoServiceTests
         await _sut.AprovarOrcamento(os.Id);
 
         Assert.Equal(StatusOrdemServico.EmExecucao, os.Status);
-        _osRepoMock.Verify(r => r.UpdateAsync(os), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -340,7 +340,7 @@ public class OrdemServicoServiceTests
         await _sut.IniciarExecucaoServico(os.Id, servico.Id);
 
         Assert.Equal(StatusOrdemServicoServico.EmExecucao, servico.Status);
-        _osRepoMock.Verify(r => r.UpdateAsync(os), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -368,13 +368,12 @@ public class OrdemServicoServiceTests
 
         servicoOs.IniciarExecucao();
         SetupOrdemServico(os);
-        SetupProdutos(produto);
 
         await _sut.FinalizarExecucaoServico(os.Id, servicoOs.Id);
 
         Assert.Equal(StatusOrdemServico.Finalizada, os.Status);
-        Assert.Equal(8m, produto.QuantidadeEmEstoque);
-        _unitOfWorkMock.Verify(u => u.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()), Times.Once);
+        Assert.Single(os.DomainEvents);
+        _osRepoMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -414,7 +413,7 @@ public class OrdemServicoServiceTests
         await _sut.Entregar(os.Id);
 
         Assert.Equal(StatusOrdemServico.Entregue, os.Status);
-        _osRepoMock.Verify(r => r.UpdateAsync(os), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -461,7 +460,7 @@ public class OrdemServicoServiceTests
         await _sut.RemoverProduto(os.Id, produtoOs.Id);
 
         Assert.Empty(os.Produtos);
-        _osRepoMock.Verify(r => r.UpdateAsync(os), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -487,7 +486,7 @@ public class OrdemServicoServiceTests
 
         // Deve restar apenas o serviço base inserido pelo factory
         Assert.Single(os.Servicos);
-        _osRepoMock.Verify(r => r.UpdateAsync(os), Times.Once);
+        _osRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     // ────────────────────────────────────────────────────────────

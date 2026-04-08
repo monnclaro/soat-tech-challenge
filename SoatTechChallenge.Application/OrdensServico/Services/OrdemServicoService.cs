@@ -221,6 +221,15 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
             .Select(l =>
             {
                 var produto = dicionarioProdutos[l.IdProduto];
+            
+                if (produto.QuantidadeEmEstoque < l.Quantidade)
+                {
+                    throw new ConflictException(
+                        $"Estoque insuficiente para o produto '{produto.Nome}'. " +
+                        $"Disponível: {produto.QuantidadeEmEstoque}, solicitado: {l.Quantidade}."
+                    );
+                }
+
                 return new OrdemServicoProduto(id, produto.Id, produto.Nome, produto.Valor, l.Quantidade);
             }).ToList();
 
@@ -237,7 +246,8 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
             .Include(l => l.Servicos)
             .FirstOrDefaultAsync(l => l.Id == id);
 
-        if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
+        if (ordemServico is null) 
+            throw new NotFoundException("Ordem de serviço não encontrada.");
 
         var dicionarioServicos = await _servicoRepository.GetQueryable()
             .AsNoTracking()

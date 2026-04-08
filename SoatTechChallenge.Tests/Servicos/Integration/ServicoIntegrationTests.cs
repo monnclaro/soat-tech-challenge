@@ -13,11 +13,12 @@ using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.OrdensServico;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
 using SoatTechChallenge.Infrastucture.Database;
+using SoatTechChallenge.Infrastucture.DomainEvents;
 using SoatTechChallenge.Infrastucture.Persistence;
 using Testcontainers.PostgreSql;
 using Xunit;
 
-namespace SoatTechChallenge.Tests.Servicos;
+namespace SoatTechChallenge.Tests.Servicos.Integration;
 
 [Collection(nameof(IntegrationTestCollection))]
 public class ServicoServiceIntegrationTests : IAsyncLifetime
@@ -41,6 +42,7 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
         await _postgres.StartAsync();
 
         var services = new ServiceCollection();
+        services.AddScoped<IDomainEventsDispatcher, NoopDomainEventsDispatcher>();
         services.AddDbContext<SoatTechChallengeDbContext>(o => o.UseNpgsql(_postgres.GetConnectionString()));
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<ServicoService>();
@@ -105,6 +107,7 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
             .SetValue(oss, fim);
 
         await ossRepo.InsertAsync(oss);
+        await ossRepo.SaveChangesAsync();
     }
 
     /// <summary>
@@ -135,8 +138,10 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
 
         var os = new OrdemServico();
         os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>());
+        
         await osRepo.InsertAsync(os);
-
+        await osRepo.SaveChangesAsync();
+        
         return os.Id;
     }
 
@@ -304,15 +309,18 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
         var cliente = new Cliente();
         cliente.Inserir("Cliente Sem Datas", "01290124180", TipoDocumentoCliente.Cpf);
         await clienteRepo.InsertAsync(cliente);
-
+        await clienteRepo.SaveChangesAsync();
+        
         var veiculo = new Veiculo();
         veiculo.Inserir(cliente.Id, "ZZZ9999", "Ford", "Ka", DateTime.Now.Year);
         await veiculoRepo.InsertAsync(veiculo);
-
+        await veiculoRepo.SaveChangesAsync();
+        
         var os = new OrdemServico();
         os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>());
         await osRepo.InsertAsync(os);
-
+        await osRepo.SaveChangesAsync();
+        
         var ossSemDatas = new OrdemServicoServico(os.Id, servico.Id, "Suspensão", 100m);
         await ossRepo.InsertAsync(ossSemDatas);
 

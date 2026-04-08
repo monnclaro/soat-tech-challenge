@@ -12,6 +12,7 @@ using SoatTechChallenge.Domain.Clientes.Enums;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Infrastucture.Database;
+using SoatTechChallenge.Infrastucture.DomainEvents;
 using SoatTechChallenge.Infrastucture.Persistence;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -45,6 +46,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IVeiculoValidatorService, VeiculoValidatorService>();
         services.AddScoped<VeiculoService>();
+        services.AddScoped<IDomainEventsDispatcher, NoopDomainEventsDispatcher>();
 
         _provider = services.BuildServiceProvider();
 
@@ -72,6 +74,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         var cliente = new Cliente();
         cliente.Inserir(nome, "52998224725", TipoDocumentoCliente.Cpf);
         await repo.InsertAsync(cliente);
+        await repo.SaveChangesAsync();
         return cliente;
     }
 
@@ -237,8 +240,7 @@ public class VeiculoServiceIntegrationTests : IAsyncLifetime
         Assert.Equal("XYZ9W87", result.Placa);
         Assert.Equal("Toyota", result.Marca);
         Assert.Equal("Corolla", result.Modelo);
-
-        // Confirmar persistência
+        
         using var verifyScope = _provider.CreateScope();
         var buscado = await CreateService(verifyScope).Buscar(criado.Id);
         Assert.Equal("XYZ9W87", buscado.Placa);

@@ -172,7 +172,7 @@ public class ClienteServiceTests
         var result = await _sut.Atualizar(cliente.Id, new AtualizarClienteRequest("Nome Novo"));
 
         Assert.Equal("Nome Novo", result.Nome);
-        _repoMock.Verify(r => r.UpdateAsync(It.Is<Cliente>(c => c.Nome == "Nome Novo")), Times.Once);
+        _repoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]

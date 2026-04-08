@@ -132,22 +132,42 @@ public class ProdutoTests
         Assert.Equal(10m, produto.QuantidadeEmEstoque);
     }
 
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(-0.01)]
+    public void DecrementarEstoque_QuandoQuantidadeMenorZero_LancaDomainException(decimal quantidade)
+    {
+        var produto = ProdutoValido(estoque: 10m);
+        Assert.Throws<DomainException>(() =>
+            produto.DecrementarQuantidadeEmEstoque(quantidade));
+    }
+ 
     [Fact]
     public void DecrementarEstoque_QuandoQuantidadeValida_SubtraiDoEstoqueAtual()
     {
         var produto = ProdutoValido(estoque: 10m);
         produto.DecrementarQuantidadeEmEstoque(4m);
-
+ 
         Assert.Equal(6m, produto.QuantidadeEmEstoque);
     }
-
+ 
     [Fact]
     public void DecrementarEstoque_QuandoQuantidadeIgualAoEstoque_ZeraEstoque()
     {
         var produto = ProdutoValido(estoque: 5m);
         produto.DecrementarQuantidadeEmEstoque(5m);
-
+ 
         Assert.Equal(0m, produto.QuantidadeEmEstoque);
+    }
+ 
+    [Fact]
+    public void DecrementarEstoque_MultiplasChamadas_AcumulaSubtracoesCorretamente()
+    {
+        var produto = ProdutoValido(estoque: 20m);
+        produto.DecrementarQuantidadeEmEstoque(5m);
+        produto.DecrementarQuantidadeEmEstoque(3m);
+ 
+        Assert.Equal(12m, produto.QuantidadeEmEstoque);
     }
 
     private static Produto ProdutoValido(

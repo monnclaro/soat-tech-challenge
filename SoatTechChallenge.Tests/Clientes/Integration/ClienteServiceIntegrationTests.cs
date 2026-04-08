@@ -10,6 +10,7 @@ using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Infrastucture.Database;
+using SoatTechChallenge.Infrastucture.DomainEvents;
 using SoatTechChallenge.Infrastucture.Persistence;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -49,6 +50,7 @@ public class ClienteServiceIntegrationTests : IAsyncLifetime
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IClienteValidatorService, ClienteValidatorService>();
         services.AddScoped<ClienteService>();
+        services.AddScoped<IDomainEventsDispatcher, NoopDomainEventsDispatcher>();
 
         _provider = services.BuildServiceProvider();
 

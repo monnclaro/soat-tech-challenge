@@ -69,11 +69,13 @@ public class VeiculoService : IVeiculoService, IScopedService
     {
         await _validatorService.Validar(id, request);
         
-        var veiculo = await _repository.GetQueryable().AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
+        var veiculo = await _repository
+            .GetQueryable()
+            .FirstOrDefaultAsync(l => l.Id == id);
+        
         if (veiculo is null) throw new NotFoundException("Veículo não encontrado.");
 
         veiculo.Atualizar(request.Placa, request.Marca, request.Modelo, request.Ano);
-   
         await _repository.SaveChangesAsync();
         
         return MapToResponse(veiculo);

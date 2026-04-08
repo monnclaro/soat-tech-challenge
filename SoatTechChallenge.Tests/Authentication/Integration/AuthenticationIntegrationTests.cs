@@ -9,6 +9,7 @@ using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.Usuarios;
 using SoatTechChallenge.Domain.Usuarios.Roles;
 using SoatTechChallenge.Infrastucture.Database;
+using SoatTechChallenge.Infrastucture.DomainEvents;
 using SoatTechChallenge.Infrastucture.Persistence;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -35,7 +36,8 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
         await _postgres.StartAsync();
 
         var services = new ServiceCollection();
-
+        
+        services.AddScoped<IDomainEventsDispatcher, NoopDomainEventsDispatcher>();
         services.AddDbContext<SoatTechChallengeDbContext>(opts => opts.UseNpgsql(_postgres.GetConnectionString()));
         services.AddScoped<IRepository<Usuario>, Repository<Usuario>>();
 
@@ -72,6 +74,7 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
         using var scope = _provider.CreateScope();
         var repo = scope.ServiceProvider.GetRequiredService<IRepository<Usuario>>();
         await repo.InsertAsync(usuario);
+        await repo.SaveChangesAsync();
     }
 
     private static Usuario CriarUsuario(

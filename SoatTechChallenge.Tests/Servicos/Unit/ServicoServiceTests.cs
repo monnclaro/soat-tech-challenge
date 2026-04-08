@@ -9,7 +9,7 @@ using SoatTechChallenge.Domain.OrdensServico.Servicos;
 using SoatTechChallenge.Domain.Servicos;
 using Xunit;
 
-namespace SoatTechChallenge.Tests.Servicos;
+namespace SoatTechChallenge.Tests.Servicos.Unit;
 
 public class ServicoServiceTests
 {
@@ -239,7 +239,7 @@ public class ServicoServiceTests
         Assert.Equal("Novo", result.Nome);
         Assert.Equal("Nova desc", result.Descricao);
         Assert.Equal(300m, result.Valor);
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Servico>()), Times.Once);
+        _repoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -251,7 +251,7 @@ public class ServicoServiceTests
         await Assert.ThrowsAsync<DomainException>(() =>
             _sut.Atualizar(servico.Id, new AtualizarServicoRequest("Nome", "desc", -1m)));
 
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Servico>()), Times.Never);
+        _repoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     // ────────────────────────────────────────────────────────────

@@ -189,7 +189,7 @@ public class VeiculoServiceTests
     }
 
     [Fact]
-    public async Task Atualizar_QuandoValidatorLanca_NaoChamaUpdateAsync()
+    public async Task Atualizar_QuandoValidatorLanca_NaoChamaSaveChanges()
     {
         var veiculo = CriarVeiculo();
         Setup(veiculo);
@@ -200,7 +200,7 @@ public class VeiculoServiceTests
         await Assert.ThrowsAsync<DomainException>(() =>
             _sut.Atualizar(veiculo.Id, RequestAtualizar("ABC1234")));
 
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>()), Times.Never);
+        _repoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
     [Fact]
@@ -215,7 +215,7 @@ public class VeiculoServiceTests
         Assert.Equal("Toyota", result.Marca);
         Assert.Equal("Corolla", result.Modelo);
         Assert.Equal(AnoAtual - 1, result.Ano);
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>()), Times.Once);
+        _repoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -252,17 +252,6 @@ public class VeiculoServiceTests
         await _sut.Remover(veiculo.Id);
 
         _repoMock.Verify(r => r.DeleteAsync(veiculo), Times.Once);
-    }
-
-    [Fact]
-    public async Task Remover_NaoChamaUpdateAsync()
-    {
-        var veiculo = CriarVeiculo();
-        Setup(veiculo);
-
-        await _sut.Remover(veiculo.Id);
-
-        _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Veiculo>()), Times.Never);
     }
 
     // ────────────────────────────────────────────────────────────

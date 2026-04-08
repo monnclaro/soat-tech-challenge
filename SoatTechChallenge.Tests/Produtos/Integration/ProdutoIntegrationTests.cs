@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SoatTechChallenge.Application.Common.DTOs;
+using SoatTechChallenge.Application.Produtos.DTOs.Commands;
 using SoatTechChallenge.Application.Produtos.DTOs.Requests;
 using SoatTechChallenge.Application.Produtos.Services;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.Produtos;
 using SoatTechChallenge.Infrastucture.Database;
+using SoatTechChallenge.Infrastucture.DomainEvents;
 using SoatTechChallenge.Infrastucture.Persistence;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -32,10 +34,9 @@ public class ProdutoServiceIntegrationTests : IAsyncLifetime
         await _postgres.StartAsync();
 
         var services = new ServiceCollection();
-
-        services.AddDbContext<SoatTechChallengeDbContext>(opts =>
-            opts.UseNpgsql(_postgres.GetConnectionString()));
-
+        
+        services.AddScoped<IDomainEventsDispatcher, NoopDomainEventsDispatcher>();
+        services.AddDbContext<SoatTechChallengeDbContext>(opts => opts.UseNpgsql(_postgres.GetConnectionString()));
         services.AddScoped<IRepository<Produto>, Repository<Produto>>();
         services.AddScoped<ProdutoService>();
 
@@ -68,7 +69,8 @@ public class ProdutoServiceIntegrationTests : IAsyncLifetime
         produto.Inserir(nome, descricao, valor, estoque);
 
         await repo.InsertAsync(produto);
-
+        await repo.SaveChangesAsync();
+        
         return produto;
     }
 
@@ -106,8 +108,7 @@ public class ProdutoServiceIntegrationTests : IAsyncLifetime
         using var scope = _provider.CreateScope();
         var result = await CreateService(scope)
             .BuscarListaPaginada(new PagedRequest(1, 2));
-
-        // Primeira página, tamanho 2, ordenado por nome
+    
         Assert.Equal(2, result.Itens.Count);
         Assert.Equal("Abacate", result.Itens[0].Nome);
         Assert.Equal("Manga", result.Itens[1].Nome);
@@ -122,8 +123,7 @@ public class ProdutoServiceIntegrationTests : IAsyncLifetime
 
         var request = new InserirProdutoRequest("Mouse Gamer", "RGB 12000 DPI", 250m, 30m);
         var result = await service.Inserir(request);
-
-        // Verificar que persiste consultando diretamente
+     
         using var verifyScope = _provider.CreateScope();
         var buscado = await CreateService(verifyScope).Buscar(result.Id);
 
@@ -178,8 +178,7 @@ public class ProdutoServiceIntegrationTests : IAsyncLifetime
         var result = await CreateService(scope).IncrementarEstoque(produto.Id, request);
 
         Assert.Equal(15m, result.QuantidadeEmEstoque);
-
-        // Confirmar persistência
+       
         using var verifyScope = _provider.CreateScope();
         var buscado = await CreateService(verifyScope).Buscar(produto.Id);
         Assert.Equal(15m, buscado.QuantidadeEmEstoque);
@@ -196,6 +195,52 @@ public class ProdutoServiceIntegrationTests : IAsyncLifetime
         await Assert.ThrowsAsync<DomainException>(() =>
             CreateService(scope).IncrementarEstoque(produto.Id, request));
     }
+    
+    [Fact]
+    public async Task DecrementarEstoque_QuandoProdutoExiste_AtualizaEstoqueNoBanco()
+    {
+        var produto = await SeedProdutoAsync(estoque: 10m);
+        using var scope = _provider.CreateScope();
+
+        var command = new DecrementarQuantidadeEstoqueProdutosCommand()
+        {
+            Produtos = new List<DecrementarQuantidadeEstoqueProdutosProdutoCommand>()
+            {
+                new ()
+                {
+                    Id = produto.Id,
+                    Quantidade = 5
+                }
+            }
+        };
+            
+        await CreateService(scope).DecrementarEstoque(command);
+      
+        using var verifyScope = _provider.CreateScope();
+        var buscado = await CreateService(verifyScope).Buscar(produto.Id);
+        Assert.Equal(5m, buscado.QuantidadeEmEstoque);
+    }
+    
+    [Fact]
+    public async Task DecrementarEstoque_QuandoQuantidadeZero_LancaDomainException()
+    {
+        var produto = await SeedProdutoAsync();
+
+        using var scope = _provider.CreateScope();
+        var command = new DecrementarQuantidadeEstoqueProdutosCommand()
+        {
+            Produtos = new List<DecrementarQuantidadeEstoqueProdutosProdutoCommand>()
+            {
+                new ()
+                {
+                    Id = produto.Id,
+                    Quantidade = -6m
+                }
+            }
+        };
+
+        await Assert.ThrowsAsync<DomainException>(() => CreateService(scope).DecrementarEstoque(command));
+    }
 
     [Fact]
     public async Task Remover_QuandoProdutoExiste_ExcluiDoBanco()
@@ -206,18 +251,14 @@ public class ProdutoServiceIntegrationTests : IAsyncLifetime
         await CreateService(scope).Remover(produto.Id);
 
         using var verifyScope = _provider.CreateScope();
-        await Assert.ThrowsAsync<NotFoundException>(() =>
-            CreateService(verifyScope).Buscar(produto.Id));
+        await Assert.ThrowsAsync<NotFoundException>(() => CreateService(verifyScope).Buscar(produto.Id));
     }
 
     [Fact]
     public async Task Remover_QuandoProdutoNaoExiste_NaoLancaExcecao()
     {
         using var scope = _provider.CreateScope();
-
-        var exception = await Record.ExceptionAsync(() =>
-            CreateService(scope).Remover(Guid.NewGuid()));
-
+        var exception = await Record.ExceptionAsync(() => CreateService(scope).Remover(Guid.NewGuid()));
         Assert.Null(exception);
     }
 }
