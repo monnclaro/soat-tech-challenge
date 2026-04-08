@@ -40,6 +40,7 @@ public class OrdemServico : Entity
         IdVeiculo = idVeiculo;
         Status = StatusOrdemServico.Recebida;
         DataCriacao = DateTime.UtcNow;
+
         Servicos.AddRange(servicos);
         
         CalcularTotal();
@@ -129,7 +130,7 @@ public class OrdemServico : Entity
         }
         
         // Método mockado, pois não é um requisito do projeto no momento
-        EnviarEmailOrcamento("teste@email.com", "Assunto", $"Orçamento: {ValorTotal}");
+        EnviarEmailOrcamento("cliente@email.com", "Assunto", $"Orçamento: {ValorTotal}");
         Status = StatusOrdemServico.AguardandoAprovacao;
     }
 

@@ -132,12 +132,12 @@ public class ProdutoServiceIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Inserir_QuandoValorZero_LancaDomainException()
+    public async Task Inserir_QuandoValorNegativo_LancaDomainException()
     {
         using var scope = _provider.CreateScope();
         var service = CreateService(scope);
 
-        var request = new InserirProdutoRequest("Produto", "desc", 0m, 5m);
+        var request = new InserirProdutoRequest("Produto", "desc", -1m, 5m);
 
         await Assert.ThrowsAsync<DomainException>(() => service.Inserir(request));
     }

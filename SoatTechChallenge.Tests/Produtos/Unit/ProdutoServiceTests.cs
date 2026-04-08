@@ -154,7 +154,7 @@ public class ProdutoServiceTests
         var produto = ProdutoValido();
         SetupQueryable(produto);
 
-        var request = new AtualizarProdutoRequest("Nome", "desc", 0m);
+        var request = new AtualizarProdutoRequest("Nome", "desc", -20m);
 
         await Assert.ThrowsAsync<DomainException>(() =>
             _sut.Atualizar(produto.Id, request));

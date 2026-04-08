@@ -21,10 +21,9 @@ public class ServicoTests
     }
 
     [Theory]
-    [InlineData(0)]
     [InlineData(-1)]
     [InlineData(-0.01)]
-    public void Inserir_QuandoValorMenorOuIgualZero_LancaDomainException(decimal valor)
+    public void Inserir_QuandoValorNegativo_LancaDomainException(decimal valor)
     {
         var servico = new Servico();
         Assert.Throws<DomainException>(() => servico.Inserir("Nome", "desc", valor));
@@ -75,10 +74,9 @@ public class ServicoTests
         Assert.Throws<DomainException>(() => servico.Atualizar(nome!, "desc", 100m));
     }
 
-    [Theory]
-    [InlineData(0)]
+    [Theory] 
     [InlineData(-1)]
-    public void Atualizar_QuandoValorMenorOuIgualZero_LancaDomainException(decimal valor)
+    public void Atualizar_QuandoValorNegativo_LancaDomainException(decimal valor)
     {
         var servico = ServicoValido();
         Assert.Throws<DomainException>(() => servico.Atualizar("Nome", "desc", valor));

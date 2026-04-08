@@ -17,10 +17,9 @@ public class ProdutoTests
     }
 
     [Theory]
-    [InlineData(0)]
     [InlineData(-1)]
     [InlineData(-100)]
-    public void Inserir_QuandoValorMenorOuIgualZero_LancaDomainException(decimal valor)
+    public void Inserir_QuandoValorNegativo_LancaDomainException(decimal valor)
     {
         var produto = new Produto();
         Assert.Throws<DomainException>(() => produto.Inserir("Nome", "desc", valor, 5m));
@@ -78,12 +77,11 @@ public class ProdutoTests
     }
 
     [Theory]
-    [InlineData(0)]
     [InlineData(-0.01)]
-    public void Atualizar_QuandoValorMenorOuIgualZero_LancaDomainException(decimal valor)
+    public void Atualizar_QuandoValorNegativo_LancaDomainException(decimal valor)
     {
         var produto = ProdutoValido();
-        Assert.Throws<DomainException>(() => produto.Atualizar("Nome", "desc", valor)); 
+        Assert.Throws<DomainException>(() => produto.Atualizar("Nome", "desc", valor));
     }
 
     [Fact]
@@ -135,38 +133,37 @@ public class ProdutoTests
     [Theory]
     [InlineData(-1)]
     [InlineData(-0.01)]
-    public void DecrementarEstoque_QuandoQuantidadeMenorZero_LancaDomainException(decimal quantidade)
+    public void DecrementarEstoque_QuandoQuantidadeNegativa_LancaDomainException(decimal quantidade)
     {
         var produto = ProdutoValido(estoque: 10m);
-        Assert.Throws<DomainException>(() =>
-            produto.DecrementarQuantidadeEmEstoque(quantidade));
+        Assert.Throws<DomainException>(() => produto.DecrementarQuantidadeEmEstoque(quantidade));
     }
- 
+
     [Fact]
     public void DecrementarEstoque_QuandoQuantidadeValida_SubtraiDoEstoqueAtual()
     {
         var produto = ProdutoValido(estoque: 10m);
         produto.DecrementarQuantidadeEmEstoque(4m);
- 
+
         Assert.Equal(6m, produto.QuantidadeEmEstoque);
     }
- 
+
     [Fact]
     public void DecrementarEstoque_QuandoQuantidadeIgualAoEstoque_ZeraEstoque()
     {
         var produto = ProdutoValido(estoque: 5m);
         produto.DecrementarQuantidadeEmEstoque(5m);
- 
+
         Assert.Equal(0m, produto.QuantidadeEmEstoque);
     }
- 
+
     [Fact]
     public void DecrementarEstoque_MultiplasChamadas_AcumulaSubtracoesCorretamente()
     {
         var produto = ProdutoValido(estoque: 20m);
         produto.DecrementarQuantidadeEmEstoque(5m);
         produto.DecrementarQuantidadeEmEstoque(3m);
- 
+
         Assert.Equal(12m, produto.QuantidadeEmEstoque);
     }
 

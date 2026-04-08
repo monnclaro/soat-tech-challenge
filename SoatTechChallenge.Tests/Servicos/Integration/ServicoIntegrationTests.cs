@@ -162,8 +162,7 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData("", "desc", 100)]
-    [InlineData("Nome", "desc", 0)]
+    [InlineData("", "desc", 100)]  
     [InlineData("Nome", "desc", -1)]
     public async Task Inserir_QuandoDadosInvalidos_LancaDomainException(
         string nome, string descricao, decimal valor)

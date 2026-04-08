@@ -18,7 +18,7 @@ public class Cliente
     public void Inserir(string nome, string documento, TipoDocumentoCliente tipoDocumento)
     { 
         if (string.IsNullOrWhiteSpace(nome))
-            throw new DomainException("O documento é obrigatório.");
+            throw new DomainException("O nome é obrigatório.");
         
         if (string.IsNullOrWhiteSpace(documento))
             throw new DomainException("O documento é obrigatório.");

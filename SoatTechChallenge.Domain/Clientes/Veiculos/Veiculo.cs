@@ -21,7 +21,7 @@ public class Veiculo
             throw new DomainException("A marca do veículo é obrigatória.");
 
         if (string.IsNullOrWhiteSpace(modelo))
-            throw new DomainException("O modelo do veículo é obrigatória.");
+            throw new DomainException("O modelo do veículo é obrigatório.");
 
         if (string.IsNullOrWhiteSpace(placa))
             throw new DomainException("A placa do veículo é obrigatória.");

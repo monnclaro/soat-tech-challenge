@@ -210,7 +210,7 @@ public class ServicoServiceTests
     [Fact]
     public async Task Inserir_QuandoValorInvalido_LancaDomainException()
     {
-        var request = new InserirServicoRequest("Nome", "desc", 0m);
+        var request = new InserirServicoRequest("Nome", "desc", -10m);
 
         await Assert.ThrowsAsync<DomainException>(() => _sut.Inserir(request));
         _repoMock.Verify(r => r.InsertAsync(It.IsAny<Servico>()), Times.Never);

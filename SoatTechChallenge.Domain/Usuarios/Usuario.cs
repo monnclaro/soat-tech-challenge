@@ -34,8 +34,11 @@ public class Usuario
 
     public void AdicionarRoles(List<UsuarioRole> roles)
     {
+        var rolesExistentes = Roles.Select(r => r.Role).ToHashSet();
+
         var rolesNovas = roles
-            .Where(r => Roles.All(l => l.Id != r.Id))
+            .Where(r => !rolesExistentes.Contains(r.Role))
+            .DistinctBy(r => r.Role)
             .ToList();
 
         Roles.AddRange(rolesNovas);
