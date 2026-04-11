@@ -9,13 +9,16 @@ using SoatTechChallenge.Domain.Common.Interfaces;
 
 namespace SoatTechChallenge.Application.Clientes.Veiculos.Services.Validators;
 
-public class VeiculoValidatorService : IVeiculoValidatorService, IScopedService
+public partial class VeiculoValidatorService : IVeiculoValidatorService, IScopedService
 {
     private readonly IRepository<Cliente> _clienteRepository;
     private readonly IRepository<Veiculo> _clienteVeiculoRepository;
 
-    private static readonly Regex Antiga = new(@"^[A-Z]{3}-?\d{4}$", RegexOptions.Compiled);
-    private static readonly Regex Mercosul = new(@"^[A-Z]{3}\d[A-Z]\d{2}$", RegexOptions.Compiled);
+    [GeneratedRegex(@"^[A-Z]{3}-?\d{4}$")]
+    private static partial Regex Antiga();
+
+    [GeneratedRegex(@"^[A-Z]{3}\d[A-Z]\d{2}$")]
+    private static partial Regex Mercosul();
 
     public VeiculoValidatorService(IRepository<Cliente> clienteRepository, IRepository<Veiculo> clienteVeiculoRepository)
     {
@@ -47,7 +50,7 @@ public class VeiculoValidatorService : IVeiculoValidatorService, IScopedService
 
     private static void ValidarFormatoPlaca(string placa)
     {
-        if (!Antiga.IsMatch(placa) && !Mercosul.IsMatch(placa))
+        if (!Antiga().IsMatch(placa) && !Mercosul().IsMatch(placa))
         {
             throw new DomainException("Placa inválida. Use o formato ABC1234 (antiga) ou ABC1D23 (Mercosul).");
         }

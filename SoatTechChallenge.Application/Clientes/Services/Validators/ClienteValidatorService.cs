@@ -34,7 +34,7 @@ public class ClienteValidatorService : IClienteValidatorService, IScopedService
 
     private static string NormalizarDocumento(string documento)
     {
-        var digitos = Regex.Replace(documento, @"\D", string.Empty);
+        var digitos = new string(documento.Where(char.IsDigit).ToArray());
 
         if (string.IsNullOrWhiteSpace(digitos))
             throw new DomainException("O documento informado é inválido.");

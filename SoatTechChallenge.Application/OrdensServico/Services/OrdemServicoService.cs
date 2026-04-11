@@ -137,10 +137,9 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         return new PagedResponse<OrdemServicoResponse>(resultado, total, request.Pagina, request.Tamanho);
     }
 
-    public async Task<PagedResponse<OrdemServicoPorDocumentoResponse>> BuscarListaPaginadaPorDocumento(string documento,
-        PagedRequest request)
+    public async Task<PagedResponse<OrdemServicoPorDocumentoResponse>> BuscarListaPaginadaPorDocumento(string documento, PagedRequest request)
     {
-        var documentoLimpo = Regex.Replace(documento, @"\D", string.Empty);
+        var documentoLimpo = new string(documento.Where(char.IsDigit).ToArray());
 
         var query = from os in _repository.GetQueryable().AsNoTracking()
             join c in _clienteRepository.GetQueryable().AsNoTracking().Where(l => l.Documento == documentoLimpo) on
