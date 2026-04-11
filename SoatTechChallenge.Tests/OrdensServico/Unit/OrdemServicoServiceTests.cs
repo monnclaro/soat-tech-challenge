@@ -28,7 +28,7 @@ public class OrdemServicoServiceTests
     private readonly Mock<IRepository<Veiculo>> _veiculoRepoMock = new();
     private readonly Mock<IRepository<Produto>> _produtoRepoMock = new();
     private readonly Mock<IRepository<Servico>> _servicoRepoMock = new();
-    private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
+   
     private readonly OrdemServicoService _sut;
 
     public OrdemServicoServiceTests()
@@ -39,13 +39,7 @@ public class OrdemServicoServiceTests
             _clienteRepoMock.Object,
             _veiculoRepoMock.Object,
             _produtoRepoMock.Object,
-            _servicoRepoMock.Object,
-            _unitOfWorkMock.Object);
-
-        // UnitOfWork executa o delegate imediatamente por padrão
-        _unitOfWorkMock
-            .Setup(u => u.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
-            .Returns((Func<Task> action) => action());
+            _servicoRepoMock.Object);
     }
 
     // ────────────────────────────────────────────────────────────
