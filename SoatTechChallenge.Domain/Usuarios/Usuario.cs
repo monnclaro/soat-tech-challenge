@@ -1,9 +1,10 @@
-﻿using SoatTechChallenge.Domain.Common.Exceptions;
+﻿using SharedKernel;
+using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Usuarios.Roles;
 
 namespace SoatTechChallenge.Domain.Usuarios;
 
-public class Usuario
+public class Usuario : Entity
 {
     public Guid Id { get; private set; }
     public string Nome { get; private set; }

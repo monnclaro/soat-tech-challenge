@@ -1,8 +1,9 @@
-﻿using SoatTechChallenge.Domain.Common.Exceptions;
+﻿using SharedKernel;
+using SoatTechChallenge.Domain.Common.Exceptions;
 
 namespace SoatTechChallenge.Domain.Servicos;
 
-public class Servico
+public class Servico : Entity
 {
     public Guid Id { get; private set; }
     public string Nome { get; private set; }

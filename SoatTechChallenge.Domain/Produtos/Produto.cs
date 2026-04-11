@@ -1,8 +1,9 @@
-﻿using SoatTechChallenge.Domain.Common.Exceptions;
+﻿using SharedKernel;
+using SoatTechChallenge.Domain.Common.Exceptions;
 
 namespace SoatTechChallenge.Domain.Produtos;
 
-public class Produto
+public class Produto : Entity
 {
     public Guid Id { get; private set; }
     public string Nome { get; private set; }

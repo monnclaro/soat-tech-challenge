@@ -1,9 +1,10 @@
-﻿using SoatTechChallenge.Domain.Common.Exceptions;
+﻿using SharedKernel;
+using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.OrdensServico.Servicos.Enums;
 
 namespace SoatTechChallenge.Domain.OrdensServico.Servicos;
 
-public class OrdemServicoServico
+public class OrdemServicoServico : Entity
 {
     public Guid Id { get; private set; }
     public Guid IdOrdemServico { get; private set; }

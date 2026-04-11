@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using SharedKernel;
 
 namespace SoatTechChallenge.Domain.OrdensServico.Produtos;
 
-public class OrdemServicoProduto
+public class OrdemServicoProduto : Entity
 {
     public Guid Id { get; private set; }
     public Guid IdOrdemServico { get; private set; }

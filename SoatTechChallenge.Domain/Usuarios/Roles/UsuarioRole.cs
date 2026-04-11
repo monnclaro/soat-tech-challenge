@@ -1,6 +1,8 @@
-﻿namespace SoatTechChallenge.Domain.Usuarios.Roles;
+﻿using SharedKernel;
 
-public class UsuarioRole
+namespace SoatTechChallenge.Domain.Usuarios.Roles;
+
+public class UsuarioRole : Entity
 {
     public Guid Id { get; private set; }
     public Guid IdUsuario { get; private set; }

@@ -1,9 +1,10 @@
 ﻿
+using SharedKernel;
 using SoatTechChallenge.Domain.Common.Exceptions;
 
 namespace SoatTechChallenge.Domain.Clientes.Veiculos;
 
-public class Veiculo
+public class Veiculo : Entity
 {
     public Guid Id { get; private set; }
     public Guid IdCliente { get; private set; }

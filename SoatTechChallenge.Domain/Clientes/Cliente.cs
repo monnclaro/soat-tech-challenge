@@ -1,10 +1,11 @@
-﻿using SoatTechChallenge.Domain.Clientes.Enums;
+﻿using SharedKernel;
+using SoatTechChallenge.Domain.Clientes.Enums;
 using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 
 namespace SoatTechChallenge.Domain.Clientes;
 
-public class Cliente
+public class Cliente : Entity
 {
     public Guid Id { get; private set; }
     public string Nome { get; private set; }
