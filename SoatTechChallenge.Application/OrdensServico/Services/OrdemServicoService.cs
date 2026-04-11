@@ -26,7 +26,6 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
     private readonly IRepository<Veiculo> _clienteVeiculoRepository;
     private readonly IRepository<Produto> _produtoRepository;
     private readonly IRepository<Servico> _servicoRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public OrdemServicoService(
         IRepository<OrdemServico> repository,
@@ -34,8 +33,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         IRepository<Cliente> clienteRepository,
         IRepository<Veiculo> clienteVeiculoRepository,
         IRepository<Produto> produtoRepository,
-        IRepository<Servico> servicoRepository,
-        IUnitOfWork unitOfWork)
+        IRepository<Servico> servicoRepository)
     {
         _repository = repository;
         _ordemServicoValidatorService = ordemServicoValidatorService;
@@ -43,7 +41,6 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         _clienteVeiculoRepository = clienteVeiculoRepository;
         _produtoRepository = produtoRepository;
         _servicoRepository = servicoRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<OrdemServicoResponse?> Buscar(Guid id)

@@ -36,10 +36,10 @@ public class VeiculoService : IVeiculoService, IScopedService
         return MapToResponse(resultado);
     }
 
-    public async Task<PagedResponse<VeiculoResponse>> BuscarListaPaginada(Guid idCLiente, PagedRequest request)
+    public async Task<PagedResponse<VeiculoResponse>> BuscarListaPaginada(Guid idCliente, PagedRequest request)
     {
         var query = _repository.GetQueryable().AsNoTracking()
-            .Where(l => l.IdCliente == idCLiente)
+            .Where(l => l.IdCliente == idCliente)
             .OrderBy(l => l.DataCriacao)
             .Select(l => new VeiculoResponse(l.Id, l.IdCliente, l.Placa, l.Marca, l.Modelo, l.Ano, l.DataCriacao));
 
