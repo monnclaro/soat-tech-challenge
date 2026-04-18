@@ -42,11 +42,5 @@ A escolha foi feita considerando:
 -  **Consistência transacional** — suporte completo a ACID;
 -  **Concorrência avançada** — controle de concorrência multiversão (MVCC);
 -  **Modelagem de domínio** — recursos nativos que facilitam regras complexas de negócio;
--  **Maturidade e confiabilidade** — amplamente utilizado em produção no mercado.
+-  **Maturidade e confiabilidade** — amplamente utilizado em produção no mercado. 
 
-  
-## Cobertura de Testes
- 
-O projeto possui atualmente uma cobertura total de **92%**.
-
-<img width="955" height="899" alt="image" src="https://github.com/user-attachments/assets/fd4f123f-de52-4490-adee-bd6a24185475" />
