@@ -31,7 +31,8 @@ public record OrdemServicoServicoResponse(
  Guid Id,
  Guid IdServico,
  string NomeServico,
- decimal Valor
+ decimal Valor,
+ string Status
 );
 
 public record OrdemServicoProdutoResponse(

@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Application.Common.DTOs;
 using SharedKernel;
 using SoatTechChallenge.Application.OrdensServico.DTOs.Requests;
@@ -71,7 +70,8 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
                     s.Id,
                     s.IdServico,
                     s.NomeServico,
-                    s.Valor
+                    s.Valor,
+                    s.Status.ToString()
                 )).ToList(),
                 os.Produtos.Select(p => new OrdemServicoProdutoResponse(
                     p.Id,
@@ -114,7 +114,8 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
                     s.Id,
                     s.IdServico,
                     s.NomeServico,
-                    s.Valor
+                    s.Valor,
+                    s.Status.ToString()
                 )).ToList(),
                 os.Produtos.Select(p => new OrdemServicoProdutoResponse(
                     p.Id,
@@ -144,6 +145,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
             join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking() on os.IdVeiculo equals v.Id
             orderby os.DataCriacao
             select new OrdemServicoPorDocumentoResponse(
+                os.Status.ToString(),
                 new OrdemServicoClientePorDocumentoResponse(
                     c.Nome,
                     c.Documento
@@ -154,7 +156,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
                     v.Modelo,
                     v.Ano
                 ),
-                os.Status.ToString()
+                os.Servicos.Select(l => new OrdemServicoServicoPorDocumentoResponse(l.NomeServico, l.Status.ToString())).ToList()
             );
 
         var total = await query.CountAsync();

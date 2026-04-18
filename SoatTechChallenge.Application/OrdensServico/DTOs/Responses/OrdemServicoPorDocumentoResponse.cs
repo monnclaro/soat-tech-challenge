@@ -2,18 +2,24 @@
 
 public class OrdemServicoPorDocumentoResponse
 {
+    public string Status { get; }
+    
     public OrdemServicoClientePorDocumentoResponse Cliente { get; }
     public OrdemServicoVeiculoPorDocumentoResponse Veiculo { get; }
-    public string Status { get; }
+    public List<OrdemServicoServicoPorDocumentoResponse> Servicos { get; }
+
 
     public OrdemServicoPorDocumentoResponse(
+        string status,
         OrdemServicoClientePorDocumentoResponse cliente,
         OrdemServicoVeiculoPorDocumentoResponse veiculo,
-        string status)
+        List<OrdemServicoServicoPorDocumentoResponse> servicos
+    )
     {
         Cliente = cliente;
         Veiculo = veiculo;
         Status = status;
+        Servicos = servicos;
     }
 }
 
@@ -42,5 +48,17 @@ public class OrdemServicoVeiculoPorDocumentoResponse
         Marca = marca;
         Modelo = modelo;
         Ano = ano;
+    }
+}
+
+public class OrdemServicoServicoPorDocumentoResponse
+{
+    public string Nome { get; }
+    public string Status { get; }
+    
+    public OrdemServicoServicoPorDocumentoResponse(string nome, string status)
+    {
+        Nome = nome;
+        Status = status;
     }
 }
