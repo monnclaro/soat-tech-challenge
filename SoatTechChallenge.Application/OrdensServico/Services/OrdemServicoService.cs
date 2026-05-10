@@ -198,6 +198,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
                 .ToDictionaryAsync(s => s.Id);
 
             servicos = request.IdsServicos
+                .Where(id => dicionarioServicos.ContainsKey(id))
                 .Select(s =>
                 {
                     var servico = dicionarioServicos[s];

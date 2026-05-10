@@ -69,7 +69,7 @@ public class OrdemServicosController : ControllerBase
     public async Task<IActionResult> Inserir([FromBody] InserirOrdemServicoRequest request)
     {
         var response = await _ordemServicoService.Inserir(request);
-        return CreatedAtAction(nameof(Buscar), new { id = response }, response);
+        return CreatedAtAction(nameof(Buscar), new { id = response }, new { id = response });
     }
 
     [HttpPost("{id:guid}/produtos")]

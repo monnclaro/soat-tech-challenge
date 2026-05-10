@@ -18,8 +18,9 @@ public class OrdemServicoValidatorService : IOrdemServicoValidatorService, IScop
 
     public async Task Validar(InserirOrdemServicoRequest request)
     {
-        var cliente = await _clienteRepository.GetQueryable().AsNoTracking()
-            .Include(l => l.Veiculos)
+        var cliente = await _clienteRepository
+            .GetQueryable().AsNoTracking()
+            .Include(l => l.Veiculos).AsSplitQuery()
             .Where(l => l.Id == request.IdCliente)
             .FirstOrDefaultAsync();
 
