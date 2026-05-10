@@ -1,7 +1,6 @@
 ﻿using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Application.OrdensServico.DTOs.Requests;
 using SoatTechChallenge.Application.OrdensServico.DTOs.Responses;
-using SoatTechChallenge.Host.Controllers.OrdensServico.DTOs.Responses;
 
 namespace SoatTechChallenge.Application.OrdensServico.Services;
 

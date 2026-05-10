@@ -9,11 +9,11 @@ using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.OrdensServico;
+using SoatTechChallenge.Domain.OrdensServico.Enums;
 using SoatTechChallenge.Domain.OrdensServico.Produtos;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
 using SoatTechChallenge.Domain.Produtos;
 using SoatTechChallenge.Domain.Servicos;
-using SoatTechChallenge.Host.Controllers.OrdensServico.DTOs.Responses;
 
 namespace SoatTechChallenge.Application.OrdensServico.Services;
 
@@ -101,10 +101,25 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
 
     public async Task<PagedResponse<OrdemServicoResponse>> BuscarListaPaginada(PagedRequest request)
     {
-        var query = from os in _repository.GetQueryable().AsNoTracking()
-            join c in _clienteRepository.GetQueryable().AsNoTracking() on os.IdCliente equals c.Id
-            join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking() on os.IdVeiculo equals v.Id
-            orderby os.DataCriacao
+        var query =
+            from os in _repository.GetQueryable().AsNoTracking()
+
+            where os.Status != StatusOrdemServico.Finalizada
+                  && os.Status != StatusOrdemServico.Entregue
+
+            join c in _clienteRepository.GetQueryable().AsNoTracking()
+                on os.IdCliente equals c.Id
+
+            join v in _clienteVeiculoRepository.GetQueryable().AsNoTracking()
+                on os.IdVeiculo equals v.Id
+
+            orderby
+                os.Status == StatusOrdemServico.EmExecucao ? 1 :
+                    os.Status == StatusOrdemServico.AguardandoAprovacao ? 2 :
+                    os.Status == StatusOrdemServico.EmDiagnostico ? 3 :
+                    os.Status == StatusOrdemServico.Recebida ? 4 : 99,
+                os.DataCriacao
+
             select new OrdemServicoResponse(
                 os.Id,
                 new OrdemServicoClienteResponse(
@@ -124,20 +139,22 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
                 os.DataFinalizacao,
                 os.Status.ToString(),
                 os.ValorTotal,
-                os.Servicos.Select(s => new OrdemServicoServicoResponse(
-                    s.Id,
-                    s.IdServico,
-                    s.NomeServico,
-                    s.Valor,
-                    s.Status.ToString()
-                )).ToList(),
-                os.Produtos.Select(p => new OrdemServicoProdutoResponse(
-                    p.Id,
-                    p.IdProduto,
-                    p.NomeProduto,
-                    p.ValorUnitario,
-                    p.Quantidade
-                )).ToList()
+                os.Servicos.Select(s =>
+                    new OrdemServicoServicoResponse(
+                        s.Id,
+                        s.IdServico,
+                        s.NomeServico,
+                        s.Valor,
+                        s.Status.ToString()
+                    )).ToList(),
+                os.Produtos.Select(p =>
+                    new OrdemServicoProdutoResponse(
+                        p.Id,
+                        p.IdProduto,
+                        p.NomeProduto,
+                        p.ValorUnitario,
+                        p.Quantidade
+                    )).ToList()
             );
 
         var total = await query.CountAsync();

@@ -1,4 +1,4 @@
-﻿namespace SoatTechChallenge.Host.Controllers.OrdensServico.DTOs.Responses;
+﻿namespace SoatTechChallenge.Application.OrdensServico.DTOs.Responses;
 
 public record OrdemServicoResponse(
  Guid Id,
