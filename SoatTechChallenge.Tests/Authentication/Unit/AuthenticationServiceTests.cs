@@ -1,12 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.Extensions.Options;
-using MockQueryable.Moq;
+﻿using MockQueryable.Moq;
 using Moq;
+using SoatTechChallenge.Application.Authentication.DTOs.Requests;
+using SoatTechChallenge.Application.Authentication.DTOs.Responses;
+using SoatTechChallenge.Application.Authentication.Interfaces;
 using SoatTechChallenge.Application.Authentication.Services;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
-using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.Usuarios;
 using SoatTechChallenge.Domain.Usuarios.Roles;
@@ -17,21 +14,20 @@ namespace SoatTechChallenge.Tests.Authentication.Unit;
 public class AuthenticationServiceTests
 {
     private readonly Mock<IRepository<Usuario>> _repositoryMock;
-    private readonly JwtSettings _jwtSettings;
+    private readonly Mock<IPasswordHasher> _passwordHasherMock;
+    private readonly Mock<ITokenProvider> _tokenProviderMock;
     private readonly AuthenticationService _sut;
 
     public AuthenticationServiceTests()
     {
-        _repositoryMock = new Mock<IRepository<Usuario>>();
+        _repositoryMock    = new Mock<IRepository<Usuario>>();
+        _passwordHasherMock = new Mock<IPasswordHasher>();
+        _tokenProviderMock  = new Mock<ITokenProvider>();
 
-        _jwtSettings = new JwtSettings
-        {
-            Secret = "super-secret-key-for-testing-purposes-minimum-32-chars",
-            ExpirationHours = 2
-        };
-
-        var jwtOptions = Options.Create(_jwtSettings);
-        _sut = new AuthenticationService(_repositoryMock.Object, jwtOptions);
+        _sut = new AuthenticationService(
+            _repositoryMock.Object,
+            _passwordHasherMock.Object,
+            _tokenProviderMock.Object);
     }
 
     [Fact]
@@ -53,9 +49,12 @@ public class AuthenticationServiceTests
     public async Task Login_QuandoSenhaInvalida_RetornaSenhaInvalida()
     {
         // Arrange
-        var usuario = CriarUsuario("email@email.com", "senha123");
+        var usuario = CriarUsuario("email@email.com");
         var request = new LoginRequest(usuario.Email, "senhaErrada");
         SetupRepositoryReturning(usuario);
+        _passwordHasherMock
+            .Setup(h => h.Verificar(request.Senha, usuario.SenhaHash))
+            .Returns(false);
 
         // Act
         var result = await _sut.Login(request);
@@ -69,89 +68,98 @@ public class AuthenticationServiceTests
     public async Task Login_QuandoCredenciaisValidas_RetornaToken()
     {
         // Arrange
-        var senha = "senha123";
-        var usuario = CriarUsuario("email@email.com", senha);
-        var request = new LoginRequest(usuario.Email, senha);
+        var usuario = CriarUsuario("email@email.com");
+        var request = new LoginRequest(usuario.Email, "senha123");
         SetupRepositoryReturning(usuario);
+        _passwordHasherMock
+            .Setup(h => h.Verificar(request.Senha, usuario.SenhaHash))
+            .Returns(true);
+        _tokenProviderMock
+            .Setup(t => t.GerarToken(usuario))
+            .Returns("token-gerado");
 
         // Act
         var result = await _sut.Login(request);
 
         // Assert
         Assert.Equal(LoginResponseStatusResultado.Sucesso, result.Status);
-        Assert.NotNull(result.Token);
-        Assert.NotEmpty(result.Token!);
+        Assert.Equal("token-gerado", result.Token);
     }
 
     [Fact]
-    public async Task Login_QuandoSucesso_TokenContemNomeDoUsuario()
+    public async Task Login_QuandoSucesso_InvocaGerarTokenComUsuarioCorreto()
     {
         // Arrange
-        var usuario = CriarUsuario("email@email.com", "senha123", nome: "João Silva");
+        var usuario = CriarUsuario("email@email.com", nome: "João Silva");
+        var request = new LoginRequest(usuario.Email, "senha123");
         SetupRepositoryReturning(usuario);
+        _passwordHasherMock
+            .Setup(h => h.Verificar(request.Senha, usuario.SenhaHash))
+            .Returns(true);
+        _tokenProviderMock
+            .Setup(t => t.GerarToken(It.IsAny<Usuario>()))
+            .Returns("token-qualquer");
 
         // Act
-        var result = await _sut.Login(new LoginRequest(usuario.Email, "senha123"));
+        await _sut.Login(request);
 
         // Assert
-        var jwt = LerToken(result.Token!);
-        var nameClaim = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
-
-        Assert.NotNull(nameClaim);
-        Assert.Equal("João Silva", nameClaim!.Value);
+        _tokenProviderMock.Verify(t => t.GerarToken(
+            It.Is<Usuario>(u => u.Nome == "João Silva" && u.Email == "email@email.com")),
+            Times.Once);
     }
 
     [Fact]
-    public async Task Login_QuandoSucesso_TokenContemRolesDoUsuario()
+    public async Task Login_QuandoSucesso_NaoInvocaGerarTokenComSenhaErrada()
     {
         // Arrange
-        var roles = new List<UsuarioRole> { new("Admin"), new("Operador") };
-        var usuario = CriarUsuario("email@email.com", "senha123", roles: roles);
+        var usuario = CriarUsuario("email@email.com");
+        var request = new LoginRequest(usuario.Email, "senhaErrada");
         SetupRepositoryReturning(usuario);
+        _passwordHasherMock
+            .Setup(h => h.Verificar(request.Senha, usuario.SenhaHash))
+            .Returns(false);
 
         // Act
-        var result = await _sut.Login(new LoginRequest(usuario.Email, "senha123"));
+        await _sut.Login(request);
 
         // Assert
-        var jwt = LerToken(result.Token!);
-        var roleClaims = jwt.Claims
-            .Where(c => c.Type == ClaimTypes.Role)
-            .Select(c => c.Value)
-            .ToList();
-
-        Assert.Contains("Admin", roleClaims);
-        Assert.Contains("Operador", roleClaims);
+        _tokenProviderMock.Verify(t => t.GerarToken(It.IsAny<Usuario>()), Times.Never);
     }
 
     [Fact]
-    public async Task Login_QuandoSucesso_TokenExpiracaoCorreta()
+    public async Task Login_QuandoSucesso_RetornaTokenDoProvider()
     {
         // Arrange
-        var usuario = CriarUsuario("email@email.com", "senha123");
+        const string tokenEsperado = "jwt.token.gerado";
+        var usuario = CriarUsuario("email@email.com");
+        var request = new LoginRequest(usuario.Email, "senha123");
         SetupRepositoryReturning(usuario);
-
-        var antes = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours).AddMinutes(-1);
-        var depois = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours).AddMinutes(1);
+        _passwordHasherMock
+            .Setup(h => h.Verificar(request.Senha, usuario.SenhaHash))
+            .Returns(true);
+        _tokenProviderMock
+            .Setup(t => t.GerarToken(usuario))
+            .Returns(tokenEsperado);
 
         // Act
-        var result = await _sut.Login(new LoginRequest(usuario.Email, "senha123"));
+        var result = await _sut.Login(request);
 
         // Assert
-        var jwt = LerToken(result.Token!);
-        Assert.InRange(jwt.ValidTo, antes, depois);
+        Assert.Equal(tokenEsperado, result.Token);
     }
 
     private static Usuario CriarUsuario(
         string email,
-        string senha,
+        string senhaHash = "hash-qualquer",
         string nome = "Usuário Teste",
         List<UsuarioRole>? roles = null)
     {
-        var hash = BCrypt.Net.BCrypt.HashPassword(senha);
-        var usuario = new Usuario(nome, email, hash);
-        
-        if (roles is { Count: > 0 }) usuario.AdicionarRoles(roles);
-        
+        var usuario = new Usuario(nome, email, senhaHash);
+
+        if (roles is { Count: > 0 })
+            usuario.AdicionarRoles(roles);
+
         return usuario;
     }
 
@@ -170,6 +178,4 @@ public class AuthenticationServiceTests
             .Setup(r => r.GetQueryable())
             .Returns(mockQueryable);
     }
-
-    private static JwtSecurityToken LerToken(string token) => new JwtSecurityTokenHandler().ReadJwtToken(token);
 }

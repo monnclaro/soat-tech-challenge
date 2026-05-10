@@ -10,6 +10,7 @@ public interface IOrdemServicoService
     #region Reads
 
     Task<OrdemServicoResponse?> Buscar(Guid id);
+    Task<OrdemServicoStatusResponse?> BuscarStatus(Guid id);
     Task<PagedResponse<OrdemServicoResponse>> BuscarListaPaginada(PagedRequest request);
     Task<PagedResponse<OrdemServicoPorDocumentoResponse>> BuscarListaPaginadaPorDocumento(string documento, PagedRequest request);
 
@@ -17,7 +18,7 @@ public interface IOrdemServicoService
    
     #region Writes
     
-    Task Inserir(InserirOrdemServicoRequest request);
+    Task<Guid> Inserir(InserirOrdemServicoRequest request);
     Task InserirProdutos(Guid id, InserirProdutosOrdemServicoRequest request);
     Task InserirServicos(Guid id, InserirServicosOrdemServicoRequest request);
     Task IniciarDiagnostico(Guid id);

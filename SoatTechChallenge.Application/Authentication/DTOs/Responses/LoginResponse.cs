@@ -1,4 +1,4 @@
-﻿namespace SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
+﻿namespace SoatTechChallenge.Application.Authentication.DTOs.Responses;
 
 public class LoginResponse
 {

@@ -1,6 +1,6 @@
-﻿using SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
-using SharedKernel;
+﻿using SharedKernel;
+using SoatTechChallenge.Application.Authentication.DTOs.Requests;
+using SoatTechChallenge.Application.Authentication.DTOs.Responses;
 
 namespace SoatTechChallenge.Application.Authentication.Services;
 

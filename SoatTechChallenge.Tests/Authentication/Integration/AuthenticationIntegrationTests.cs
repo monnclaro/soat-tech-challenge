@@ -1,13 +1,16 @@
-﻿using DotNet.Testcontainers.Builders;
+﻿using System.IdentityModel.Tokens.Jwt;
+using DotNet.Testcontainers.Builders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SoatTechChallenge.Application.Authentication.DTOs.Requests;
+using SoatTechChallenge.Application.Authentication.DTOs.Responses;
+using SoatTechChallenge.Application.Authentication.Interfaces;
 using SoatTechChallenge.Application.Authentication.Services;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
 using SoatTechChallenge.Application.Common.DTOs;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.Usuarios;
 using SoatTechChallenge.Domain.Usuarios.Roles;
+using SoatTechChallenge.Infrastucture.Authentication;
 using SoatTechChallenge.Infrastucture.Database;
 using SoatTechChallenge.Infrastucture.DomainEvents;
 using SoatTechChallenge.Infrastucture.Persistence;
@@ -27,7 +30,6 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
         .Build();
 
     private ServiceProvider _provider = null!;
-    private AuthenticationService _sut = null!;
 
     #region Lifecycle
 
@@ -36,22 +38,25 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
         await _postgres.StartAsync();
 
         var services = new ServiceCollection();
-        
+
         services.AddScoped<IDomainEventsDispatcher, NoopDomainEventsDispatcher>();
-        services.AddDbContext<SoatTechChallengeDbContext>(opts => opts.UseNpgsql(_postgres.GetConnectionString()));
+        services.AddDbContext<SoatTechChallengeDbContext>(opts =>
+            opts.UseNpgsql(_postgres.GetConnectionString()));
         services.AddScoped<IRepository<Usuario>, Repository<Usuario>>();
+
+        services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
         services.Configure<JwtSettings>(opts =>
         {
             opts.Secret = "integration-test-secret-key-minimum-32-chars!";
             opts.ExpirationHours = 1;
         });
+        services.AddScoped<ITokenProvider, JwtTokenProvider>();
 
         services.AddScoped<AuthenticationService>();
 
         _provider = services.BuildServiceProvider();
 
-        // Garantir schema atualizado
         using var scope = _provider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<SoatTechChallengeDbContext>();
         await db.Database.MigrateAsync();
@@ -67,7 +72,8 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
 
     #region Helpers
 
-    private AuthenticationService CreateService(IServiceScope scope) => scope.ServiceProvider.GetRequiredService<AuthenticationService>();
+    private AuthenticationService CreateService(IServiceScope scope) =>
+        scope.ServiceProvider.GetRequiredService<AuthenticationService>();
 
     private async Task SeedUsuarioAsync(Usuario usuario)
     {
@@ -85,9 +91,10 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
     {
         var hash = BCrypt.Net.BCrypt.HashPassword(senha);
         var usuario = new Usuario(nome, email, hash);
-        
-        if (roles is { Count: > 0 }) usuario.AdicionarRoles(roles);
-        
+
+        if (roles is { Count: > 0 })
+            usuario.AdicionarRoles(roles);
+
         return usuario;
     }
 
@@ -156,8 +163,7 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
         var result = await service.Login(new LoginRequest(usuario.Email, senha));
 
         // Assert
-        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-        var jwt = handler.ReadJwtToken(result.Token);
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(result.Token);
         var roleClaims = jwt.Claims
             .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
             .Select(c => c.Value)
@@ -179,10 +185,10 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
         using var scope = _provider.CreateScope();
         var service = CreateService(scope);
 
-        // Act – login com email em maiúsculo
+        // Act
         var result = await service.Login(new LoginRequest("USUARIO@test.com", "senha2"));
 
-        // Assert – deve encontrar o usuário correto
+        // Assert
         Assert.Equal(LoginResponseStatusResultado.Sucesso, result.Status);
     }
 
@@ -198,7 +204,7 @@ public class AuthenticationServiceIntegrationTests : IAsyncLifetime
         var service = CreateService(scope);
         var request = new LoginRequest(usuario.Email, senha);
 
-        // Act & Assert – chamadas repetidas devem funcionar consistentemente
+        // Act & Assert
         for (var i = 0; i < 5; i++)
         {
             var result = await service.Login(request);

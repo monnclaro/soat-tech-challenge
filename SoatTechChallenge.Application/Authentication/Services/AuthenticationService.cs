@@ -1,13 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
-using SoatTechChallenge.Application.Common.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
 using SharedKernel;
+using SoatTechChallenge.Application.Authentication.DTOs.Requests;
+using SoatTechChallenge.Application.Authentication.DTOs.Responses;
+using SoatTechChallenge.Application.Authentication.Interfaces;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.Usuarios;
 
@@ -15,49 +10,36 @@ namespace SoatTechChallenge.Application.Authentication.Services;
 
 public class AuthenticationService : IAuthenticationService, IScopedService
 {
-    private readonly IRepository<Usuario> _repository;
-    private readonly JwtSettings _jwtSettings;
-
-    public AuthenticationService(IRepository<Usuario> repository, IOptions<JwtSettings> jwtSettings)
+    private readonly IRepository<Usuario> _usuarioRepository;
+    private readonly IPasswordHasher _passwordHasher;
+    private readonly ITokenProvider _tokenProvider;
+    
+    public AuthenticationService(
+        IRepository<Usuario> usuarioRepository, 
+        IPasswordHasher passwordHasher, 
+        ITokenProvider tokenProvider)
     {
-        _repository = repository;
-        _jwtSettings = jwtSettings.Value;
+        _usuarioRepository = usuarioRepository;
+        _passwordHasher = passwordHasher;
+        _tokenProvider = tokenProvider;
     }
 
     public async Task<LoginResponse> Login(LoginRequest request)
     {
-        var usuario = await _repository
-            .GetQueryable()
-            .AsSplitQuery()
-            .AsNoTracking()
-            .Include(u => u.Roles)
-            .FirstOrDefaultAsync(l => l.Email == request.Email);
+        var usuario = await _usuarioRepository
+            .GetQueryable().AsNoTracking()
+            .Include(l => l.Roles).AsSplitQuery()
+            .Where(l => l.Email == request.Email)
+            .FirstOrDefaultAsync();
 
-        if (usuario is null)        
-            return new LoginResponse(LoginResponseStatusResultado.UsuarioNaoEncontrado);        
+        if (usuario is null)
+            return new LoginResponse(LoginResponseStatusResultado.UsuarioNaoEncontrado);
 
-        if (!BCrypt.Net.BCrypt.Verify(request.Senha, usuario.SenhaHash))        
-            return new LoginResponse(LoginResponseStatusResultado.SenhaInvalida);        
+        var senhaValida = _passwordHasher.Verificar(request.Senha, usuario.SenhaHash);
+        if (!senhaValida)
+            return new LoginResponse(LoginResponseStatusResultado.SenhaInvalida);
 
-        return new LoginResponse(GerarToken(usuario));
-    }
-
-    private string GerarToken(Usuario usuario)
-    {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
-        var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var claims = new List<Claim> { new(ClaimTypes.Name, usuario.Nome) };
-        foreach (var role in usuario.Roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role.Role));
-        }
-
-        var token = new JwtSecurityToken(
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours),
-            signingCredentials: signingCredentials);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var token = _tokenProvider.GerarToken(usuario);
+        return new LoginResponse(token);
     }
 }

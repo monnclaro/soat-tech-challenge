@@ -1,4 +1,4 @@
-﻿namespace SoatTechChallenge.Application.Authentication.Services.DTOs.Requests;
+﻿namespace SoatTechChallenge.Application.Authentication.DTOs.Requests;
 
 public class LoginRequest
 {

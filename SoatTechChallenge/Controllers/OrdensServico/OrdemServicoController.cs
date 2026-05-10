@@ -34,6 +34,15 @@ public class OrdemServicosController : ControllerBase
         
         return Ok(resultado);
     }
+    
+    [HttpGet("{id:guid}/status")]
+    public async Task<IActionResult> BuscarStatus(Guid id)
+    {
+        var response = await _ordemServicoService.BuscarStatus(id);
+        if (response is null) return NotFound();
+        
+        return Ok(response);
+    }
 
     [HttpGet]
     [Authorize(Roles = "Admin")] 
@@ -59,8 +68,8 @@ public class OrdemServicosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Inserir([FromBody] InserirOrdemServicoRequest request)
     {
-        await _ordemServicoService.Inserir(request);
-        return Ok();
+        var response = await _ordemServicoService.Inserir(request);
+        return CreatedAtAction(nameof(Buscar), new { id = response }, response);
     }
 
     [HttpPost("{id:guid}/produtos")]

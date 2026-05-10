@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SoatTechChallenge.Application.Authentication.DTOs.Responses;
 using SoatTechChallenge.Application.Authentication.Services;
-using SoatTechChallenge.Application.Authentication.Services.DTOs.Responses;
-using LoginRequest = SoatTechChallenge.Application.Authentication.Services.DTOs.Requests.LoginRequest;
+using LoginRequest = SoatTechChallenge.Application.Authentication.DTOs.Requests.LoginRequest;
 
 namespace SoatTechChallenge.Controllers.Authentication.Controllers;
 

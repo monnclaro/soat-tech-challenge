@@ -84,6 +84,20 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
 
         return await query.FirstOrDefaultAsync();
     }
+    
+    public async Task<OrdemServicoStatusResponse?> BuscarStatus(Guid id)
+    {
+        return await _repository
+            .GetQueryable()
+            .AsNoTracking()
+            .Where(l => l.Id == id)
+            .Select(l => new OrdemServicoStatusResponse
+            {
+                Id = l.Id,
+                Status = l.Status.ToString()
+            })
+            .FirstOrDefaultAsync();
+    }
 
     public async Task<PagedResponse<OrdemServicoResponse>> BuscarListaPaginada(PagedRequest request)
     {
@@ -168,7 +182,7 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         return new PagedResponse<OrdemServicoPorDocumentoResponse>(resultado, total, request.Pagina, request.Tamanho);
     }
 
-    public async Task Inserir(InserirOrdemServicoRequest request)
+    public async Task<Guid> Inserir(InserirOrdemServicoRequest request)
     {
         await _ordemServicoValidatorService.Validar(request);
 
@@ -195,6 +209,8 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
 
         await _repository.InsertAsync(ordemServico);
         await _repository.SaveChangesAsync();
+
+        return ordemServico.Id;
     }
 
     public async Task InserirProdutos(Guid id, InserirProdutosOrdemServicoRequest request)
