@@ -10,14 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -------------------
+      # 1. Checkout code
+      # -------------------
       - name: Checkout
         uses: actions/checkout@v4
 
+      # -------------------
+      # 2. Setup .NET
+      # -------------------
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
+      # -------------------
+      # 3. Build & Test
+      # -------------------
       - name: Restore
         run: dotnet restore
 
@@ -27,6 +36,9 @@ jobs:
       - name: Test
         run: dotnet test --no-build
 
+      # -------------------
+      # 4. Docker build & push
+      # -------------------
       - name: Docker Login
         uses: docker/login-action@v3
         with:
@@ -41,9 +53,36 @@ jobs:
       - name: Push Docker Image
         run: docker push seuusuario/soat-api:latest
 
-      - name: Configure Kubectl
+      # -------------------
+      # 5. Setup kubectl
+      # -------------------
+      - name: Configure Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+      - name: Setup Kubectl
         uses: azure/setup-kubectl@v4
 
-      - name: Deploy Kubernetes
-        run: |
-          kubectl apply -f k8s/
+      # -------------------
+      # 6. Terraform (DATABASE + INFRA)
+      # -------------------
+      - name: Terraform Init
+        working-directory: infra
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: infra
+        run: terraform apply -auto-approve
+
+      # -------------------
+      # 7. Deploy Kubernetes manifests
+      # -------------------
+      - name: Apply K8s manifests
+        run: kubectl apply -f k8s/
+
+      # -------------------
+      # 8. Verify deployment
+      # -------------------
+      - name: Check rollout status
+        run: kubectl rollout status deployment/soat-api

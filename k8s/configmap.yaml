@@ -6,6 +6,8 @@ metadata:
 
 data:
   ASPNETCORE_ENVIRONMENT: "Production"
+
   ConnectionStrings__Default: "Host=postgres-service;Port=5432;Database=soattechchallenge;Username=postgres;Password=postgres"
+
   JwtSettings__Secret: "SuaChaveSuperSecretaComMinimo32Caracteres"
   JwtSettings__ExpirationHours: "2"
