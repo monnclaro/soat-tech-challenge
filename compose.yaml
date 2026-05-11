@@ -3,7 +3,7 @@
     image: soattechchallenge
     build:
       context: .
-      dockerfile: SoatTechChallenge/Dockerfile
+      dockerfile: src/Api/Dockerfile
     ports:
       - "8080:8080"
     env_file:
