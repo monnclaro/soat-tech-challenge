@@ -116,7 +116,7 @@ public class OrdemServicosController : ControllerBase
         return Ok();
     }
     
-    [HttpPatch("{id:guid}/aprovar-orcamento")]
+    [HttpPatch("{id:guid}/orcamento/aprovar")]
     [Authorize(Roles = "Admin")] 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -124,6 +124,17 @@ public class OrdemServicosController : ControllerBase
     public async Task<IActionResult> AprovarOrcamento([FromRoute] Guid id)
     {
         await _ordemServicoService.AprovarOrcamento(id);
+        return Ok();
+    }
+    
+    [HttpPatch("{id:guid}/orcamento/reprovar")]
+    [Authorize(Roles = "Admin")] 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReprovarOrcamento([FromRoute] Guid id)
+    {
+        await _ordemServicoService.ReprovarOrcamento(id);
         return Ok();
     }
     

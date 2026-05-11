@@ -33,7 +33,7 @@ public static class OrdensServicoSeeder
     private static OrdemServico CriarOrdem(Cliente cliente, List<Produto> produtos, List<Servico> servicos)
     {
         var ordem = new OrdemServico();
-        ordem.Inserir(cliente.Id, cliente.Veiculos[0].Id, new List<OrdemServicoServico>());
+        ordem.Inserir(cliente.Id, cliente.Veiculos[0].Id, new List<OrdemServicoServico>(), new List<OrdemServicoProduto>());
         ordem.IniciarDiagnostico();
         
         var servicosInserir = servicos.Select(l => new OrdemServicoServico(ordem.Id, l.Id, l.Nome, l.Valor)).ToList();

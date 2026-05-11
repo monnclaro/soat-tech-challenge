@@ -1,0 +1,10 @@
+﻿apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: soat-api-config
+
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"

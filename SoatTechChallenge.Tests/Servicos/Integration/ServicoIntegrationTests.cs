@@ -11,6 +11,7 @@ using SoatTechChallenge.Domain.Clientes.Veiculos;
 using SoatTechChallenge.Domain.Common.Exceptions;
 using SoatTechChallenge.Domain.Common.Interfaces;
 using SoatTechChallenge.Domain.OrdensServico;
+using SoatTechChallenge.Domain.OrdensServico.Produtos;
 using SoatTechChallenge.Domain.OrdensServico.Servicos;
 using SoatTechChallenge.Infrastucture.Database;
 using SoatTechChallenge.Infrastucture.DomainEvents;
@@ -137,7 +138,7 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
         await veiculoRepo.InsertAsync(veiculo);
 
         var os = new OrdemServico();
-        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>());
+        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>(), new List<OrdemServicoProduto>());
         
         await osRepo.InsertAsync(os);
         await osRepo.SaveChangesAsync();
@@ -316,7 +317,7 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
         await veiculoRepo.SaveChangesAsync();
         
         var os = new OrdemServico();
-        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>());
+        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>(), new List<OrdemServicoProduto>());
         await osRepo.InsertAsync(os);
         await osRepo.SaveChangesAsync();
         

@@ -33,7 +33,8 @@ public class OrdemServico : Entity
     public void Inserir(
         Guid idCliente,
         Guid idVeiculo,
-        List<OrdemServicoServico> servicos)
+        List<OrdemServicoServico> servicos,
+        List<OrdemServicoProduto> produtos)
     {
         Id = Guid.NewGuid();
         IdCliente = idCliente;
@@ -42,6 +43,7 @@ public class OrdemServico : Entity
         DataCriacao = DateTime.UtcNow;
 
         Servicos.AddRange(servicos);
+        Produtos.AddRange(produtos);
         
         CalcularTotal();
     }
@@ -143,6 +145,16 @@ public class OrdemServico : Entity
         
         DataInicioExecucao = DateTime.UtcNow;
         Status = StatusOrdemServico.EmExecucao;
+    }
+    
+    public void ReprovarOrcamento()
+    {
+        if (Status != StatusOrdemServico.AguardandoAprovacao)
+        {
+            throw new DomainException("O orçamento não está aguardando aprovação.");
+        }
+   
+        Status = StatusOrdemServico.Finalizada;
     }
 
     public void IniciarExecucaoServico(Guid idServico)

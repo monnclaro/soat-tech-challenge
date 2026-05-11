@@ -222,8 +222,31 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
                     return new OrdemServicoServico(ordemServico.Id, servico.Id, servico.Nome, servico.Valor);
                 }).ToList();
         }
+        
+        var produtos = new List<OrdemServicoProduto>();
+        if (request.Produtos.Any())
+        {
+            var idsProdutos = request.Produtos
+                .Select(p => p.IdProduto)
+                .Distinct()
+                .ToList();
 
-        ordemServico.Inserir(request.IdCliente, request.IdVeiculo, servicos);
+            var dicionarioProdutos = await _produtoRepository
+                .GetQueryable()
+                .AsNoTracking()
+                .Where(p => idsProdutos.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id);
+
+            produtos = request.Produtos
+                .Where(p => dicionarioProdutos.ContainsKey(p.IdProduto))
+                .Select(p =>
+                {
+                    var produto = dicionarioProdutos[p.IdProduto];
+                    return new OrdemServicoProduto(ordemServico.Id, produto.Id, produto.Nome, produto.Valor, p.Quantidade);
+                }).ToList();
+        }
+
+        ordemServico.Inserir(request.IdCliente, request.IdVeiculo, servicos, produtos);
 
         await _repository.InsertAsync(ordemServico);
         await _repository.SaveChangesAsync();
@@ -328,6 +351,15 @@ public class OrdemServicoService : IOrdemServicoService, IScopedService
         if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
 
         ordemServico.AprovarOrcamento();
+        await _repository.SaveChangesAsync();
+    }
+    
+    public async Task ReprovarOrcamento(Guid id)
+    {
+        var ordemServico = await _repository.GetQueryable().FirstOrDefaultAsync(l => l.Id == id);
+        if (ordemServico is null) throw new NotFoundException("Ordem de serviço não encontrada.");
+
+        ordemServico.ReprovarOrcamento();
         await _repository.SaveChangesAsync();
     }
 
