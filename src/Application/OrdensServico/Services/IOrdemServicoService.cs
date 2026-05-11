@@ -23,6 +23,7 @@ public interface IOrdemServicoService
     Task IniciarDiagnostico(Guid id);
     Task FinalizarDiagnostico(Guid id);
     Task AprovarOrcamento(Guid id);
+    Task ReprovarOrcamento(Guid id);
     Task IniciarExecucaoServico(Guid id, Guid idServico);
     Task FinalizarExecucaoServico(Guid id, Guid idServico);
     Task Entregar(Guid id);

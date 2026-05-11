@@ -552,7 +552,7 @@ public class OrdemServicoServiceTests
 
         var servicoOS = new OrdemServicoServico(Guid.NewGuid(), Guid.NewGuid(), "Serviço", 100m);
         var os = new OrdemServico();
-        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico> { servicoOS });
+        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico> { servicoOS }, new List<OrdemServicoProduto>());
 
         return (os, cliente, veiculo);
     }
@@ -561,7 +561,7 @@ public class OrdemServicoServiceTests
     {
         var os = new OrdemServico();
         os.Inserir(Guid.NewGuid(), Guid.NewGuid(),
-            new List<OrdemServicoServico> { new(Guid.NewGuid(), Guid.NewGuid(), "Serviço", 100m) });
+            new List<OrdemServicoServico> { new(Guid.NewGuid(), Guid.NewGuid(), "Serviço", 100m) }, new List<OrdemServicoProduto>());
         return os;
     }
 
@@ -586,7 +586,7 @@ public class OrdemServicoServiceTests
         todos.AddRange(extras);
 
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), todos);
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), todos, new List<OrdemServicoProduto>());
         os.IniciarDiagnostico();
         os.FinalizarDiagnostico();
         os.AprovarOrcamento();
@@ -597,7 +597,7 @@ public class OrdemServicoServiceTests
     {
         var servico = new OrdemServicoServico(Guid.NewGuid(), Guid.NewGuid(), "Serviço", 100m);
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico });
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico }, new List<OrdemServicoProduto>());
         os.IniciarDiagnostico();
         os.FinalizarDiagnostico();
         os.AprovarOrcamento();

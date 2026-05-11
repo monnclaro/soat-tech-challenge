@@ -23,7 +23,7 @@ public class OrdemServicoTests
         var antes = DateTime.UtcNow;
 
         var os = new OrdemServico();
-        os.Inserir(idCliente, idVeiculo, servicos);
+        os.Inserir(idCliente, idVeiculo, servicos, new List<OrdemServicoProduto>());
 
         Assert.NotEqual(Guid.Empty, os.Id);
         Assert.Equal(idCliente, os.IdCliente);
@@ -46,7 +46,7 @@ public class OrdemServicoTests
         };
 
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), servicos);
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), servicos, new List<OrdemServicoProduto>());
 
         Assert.Equal(500m, os.ValorTotal);
         Assert.Empty(os.Produtos);
@@ -226,7 +226,7 @@ public class OrdemServicoTests
     public void FinalizarDiagnostico_QuandoSemServicos_LancaDomainException()
     {
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico>());
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico>(), new List<OrdemServicoProduto>());
         os.IniciarDiagnostico();
 
         Assert.Throws<DomainException>(() => os.FinalizarDiagnostico());
@@ -406,7 +406,7 @@ public class OrdemServicoTests
         var s1 = CriarServico(100m);
         var s2 = CriarServico(200m);
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { s1, s2 });
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { s1, s2 }, new List<OrdemServicoProduto>());
 
         Assert.Contains(s1.IdServico, os.IdsServicos);
         Assert.Contains(s2.IdServico, os.IdsServicos);
@@ -422,7 +422,7 @@ public class OrdemServicoTests
     {
         var servico = CriarServico(500m);
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico });
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico }, new List<OrdemServicoProduto>());
 
         os.IniciarDiagnostico();
         os.InserirProdutos(new List<OrdemServicoProduto> { CriarProduto(os.Id, 100m) });
@@ -456,7 +456,7 @@ public class OrdemServicoTests
     private static OrdemServico OSRecebida(decimal valorServico = 100m)
     {
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { CriarServico(valorServico) });
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { CriarServico(valorServico) }, new List<OrdemServicoProduto>());
         return os;
     }
 
@@ -481,7 +481,7 @@ public class OrdemServicoTests
         todos.AddRange(servicosExtras);
 
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), todos);
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), todos, new List<OrdemServicoProduto>());
         os.IniciarDiagnostico();
         os.FinalizarDiagnostico();
         os.AprovarOrcamento();
@@ -492,7 +492,7 @@ public class OrdemServicoTests
     {
         var servico = CriarServico(100m);
         var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico });
+        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico }, new List<OrdemServicoProduto>());
         os.IniciarDiagnostico();
         os.FinalizarDiagnostico();
         os.AprovarOrcamento();

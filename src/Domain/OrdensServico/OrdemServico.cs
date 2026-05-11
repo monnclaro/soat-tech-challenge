@@ -20,12 +20,12 @@ public class OrdemServico : Entity
     public decimal ValorTotal { get; private set; }
     public List<OrdemServicoServico> Servicos { get; init; } = new();
     public List<OrdemServicoProduto> Produtos { get; init; } = new();
-    
+
     #region NotMapped
-    
+
     public List<Guid> IdsProdutos => Produtos.Select(p => p.IdProduto).ToList();
     public List<Guid> IdsServicos => Servicos.Select(p => p.IdServico).ToList();
-    
+
     #endregion
 
     public OrdemServico() { }
@@ -33,7 +33,8 @@ public class OrdemServico : Entity
     public void Inserir(
         Guid idCliente,
         Guid idVeiculo,
-        List<OrdemServicoServico> servicos)
+        List<OrdemServicoServico> servicos,
+        List<OrdemServicoProduto> produtos)
     {
         Id = Guid.NewGuid();
         IdCliente = idCliente;
@@ -42,7 +43,8 @@ public class OrdemServico : Entity
         DataCriacao = DateTime.UtcNow;
 
         Servicos.AddRange(servicos);
-        
+        Produtos.AddRange(produtos);
+
         CalcularTotal();
     }
 
@@ -52,7 +54,7 @@ public class OrdemServico : Entity
         {
             throw new DomainException("Só é possível adicionar produtos enquanto a ordem de serviço estiver em diagnóstico.");
         }
-        
+
         Produtos.AddRange(produtos);
         CalcularTotal();
     }
@@ -67,7 +69,7 @@ public class OrdemServico : Entity
         Servicos.AddRange(servicos);
         CalcularTotal();
     }
-    
+
     public void RemoverProduto(Guid idProduto)
     {
         if (Status != StatusOrdemServico.EmDiagnostico)
@@ -80,7 +82,7 @@ public class OrdemServico : Entity
         {
             throw new DomainException("O produto informado não se encontra vinculado a esta ordem de serviço.");
         }
-        
+
         Produtos.Remove(produto);
         CalcularTotal();
     }
@@ -101,7 +103,7 @@ public class OrdemServico : Entity
         Servicos.Remove(servico);
         CalcularTotal();
     }
-    
+
     public void IniciarDiagnostico()
     {
         if (Status != StatusOrdemServico.Recebida)
@@ -113,12 +115,12 @@ public class OrdemServico : Entity
     }
 
     public void FinalizarDiagnostico()
-    {      
+    {
         if (!Servicos.Any())
         {
             throw new DomainException("Não é possível enviar o orçamento sem serviços vinculados.");
         }
-        
+
         EnviarOrcamento();
     }
 
@@ -128,7 +130,7 @@ public class OrdemServico : Entity
         {
             throw new DomainException("O orçamento só pode ser enviado após diagnóstico.");
         }
-        
+
         // Método mockado, pois não é um requisito do projeto no momento
         EnviarEmailOrcamento("cliente@email.com", "Assunto", $"Orçamento: {ValorTotal}");
         Status = StatusOrdemServico.AguardandoAprovacao;
@@ -140,9 +142,19 @@ public class OrdemServico : Entity
         {
             throw new DomainException("O orçamento não está aguardando aprovação.");
         }
-        
+
         DataInicioExecucao = DateTime.UtcNow;
         Status = StatusOrdemServico.EmExecucao;
+    }
+
+    public void ReprovarOrcamento()
+    {
+        if (Status != StatusOrdemServico.AguardandoAprovacao)
+        {
+            throw new DomainException("O orçamento não está aguardando aprovação.");
+        }
+
+        Status = StatusOrdemServico.Finalizada;
     }
 
     public void IniciarExecucaoServico(Guid idServico)
@@ -185,7 +197,7 @@ public class OrdemServico : Entity
     {
         DataFinalizacao = DateTime.UtcNow;
         Status = StatusOrdemServico.Finalizada;
-        
+
         Raise(new OrdemServicoFinalizadaDomainEvent(Id, Produtos));
     }
 
@@ -195,10 +207,10 @@ public class OrdemServico : Entity
         {
             throw new DomainException("A entrega só pode ocorrer após a finalização de todos os serviços.");
         }
-       
+
         Status = StatusOrdemServico.Entregue;
     }
-    
+
     private void CalcularTotal()
     {
         ValorTotal = Servicos.Sum(s => s.Valor) + Produtos.Sum(p => p.Subtotal);

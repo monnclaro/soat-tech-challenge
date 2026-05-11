@@ -8,6 +8,7 @@ using Domain.Clientes.Veiculos;
 using Domain.Common.Exceptions;
 using Domain.Common.Interfaces;
 using Domain.OrdensServico;
+using Domain.OrdensServico.Produtos;
 using Domain.OrdensServico.Servicos;
 using DotNet.Testcontainers.Builders;
 using Microsoft.EntityFrameworkCore;
@@ -137,7 +138,7 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
         await veiculoRepo.InsertAsync(veiculo);
 
         var os = new OrdemServico();
-        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>());
+        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>(), new List<OrdemServicoProduto>());
         
         await osRepo.InsertAsync(os);
         await osRepo.SaveChangesAsync();
@@ -316,7 +317,7 @@ public class ServicoServiceIntegrationTests : IAsyncLifetime
         await veiculoRepo.SaveChangesAsync();
         
         var os = new OrdemServico();
-        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>());
+        os.Inserir(cliente.Id, veiculo.Id, new List<OrdemServicoServico>(), new List<OrdemServicoProduto>());
         await osRepo.InsertAsync(os);
         await osRepo.SaveChangesAsync();
         
