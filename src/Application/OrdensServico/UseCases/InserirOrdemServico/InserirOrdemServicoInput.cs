@@ -5,3 +5,5 @@ public record InserirOrdemServicoInput(
     Guid IdVeiculo,
     List<Guid> IdsServicos,
     List<InserirOrdemServicoProdutoInput> Produtos);
+
+public record InserirOrdemServicoProdutoInput(Guid IdProduto, int Quantidade);
