@@ -1,5 +1,6 @@
 ﻿using Domain.Clientes.Veiculos;
-using Domain.Common.Exceptions;
+using Domain.Clientes.Veiculos.ValueObjects;
+using SharedKernel.Exceptions;
 using Xunit;
 
 namespace Tests.Clientes.Veiculos;
@@ -7,6 +8,8 @@ namespace Tests.Clientes.Veiculos;
 public class VeiculoTests
 {
     private static readonly int AnoAtual = DateTime.Now.Year;
+
+    // ── Inserir
 
     [Theory]
     [InlineData("")]
@@ -16,7 +19,7 @@ public class VeiculoTests
     {
         var veiculo = new Veiculo();
         Assert.Throws<DomainException>(() =>
-            veiculo.Inserir(Guid.NewGuid(), "ABC1234", marca!, "Civic", AnoAtual));
+            veiculo.Inserir(Guid.NewGuid(), Placa.Criar("ABC1234"), marca!, "Civic", AnoAtual));
     }
 
     [Theory]
@@ -27,18 +30,7 @@ public class VeiculoTests
     {
         var veiculo = new Veiculo();
         Assert.Throws<DomainException>(() =>
-            veiculo.Inserir(Guid.NewGuid(), "ABC1234", "Honda", modelo!, AnoAtual));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    [InlineData(null)]
-    public void Inserir_QuandoPlacaInvalida_LancaDomainException(string? placa)
-    {
-        var veiculo = new Veiculo();
-        Assert.Throws<DomainException>(() =>
-            veiculo.Inserir(Guid.NewGuid(), placa!, "Honda", "Civic", AnoAtual));
+            veiculo.Inserir(Guid.NewGuid(), Placa.Criar("ABC1234"), "Honda", modelo!, AnoAtual));
     }
 
     [Theory]
@@ -49,7 +41,7 @@ public class VeiculoTests
     {
         var veiculo = new Veiculo();
         Assert.Throws<DomainException>(() =>
-            veiculo.Inserir(Guid.NewGuid(), "ABC1234", "Honda", "Civic", ano));
+            veiculo.Inserir(Guid.NewGuid(), Placa.Criar("ABC1234"), "Honda", "Civic", ano));
     }
 
     [Fact]
@@ -57,7 +49,7 @@ public class VeiculoTests
     {
         var veiculo = new Veiculo();
         Assert.Throws<DomainException>(() =>
-            veiculo.Inserir(Guid.NewGuid(), "ABC1234", "Honda", "Civic", AnoAtual + 2));
+            veiculo.Inserir(Guid.NewGuid(), Placa.Criar("ABC1234"), "Honda", "Civic", AnoAtual + 2));
     }
 
     [Theory]
@@ -67,7 +59,7 @@ public class VeiculoTests
     {
         var veiculo = new Veiculo();
         var ex = Record.Exception(() =>
-            veiculo.Inserir(Guid.NewGuid(), "ABC1234", "Ford", "Model T", ano));
+            veiculo.Inserir(Guid.NewGuid(), Placa.Criar("ABC1234"), "Ford", "Model T", ano));
 
         Assert.Null(ex);
     }
@@ -77,7 +69,7 @@ public class VeiculoTests
     {
         var veiculo = new Veiculo();
         var ex = Record.Exception(() =>
-            veiculo.Inserir(Guid.NewGuid(), "ABC1234", "Honda", "Civic", AnoAtual + 1));
+            veiculo.Inserir(Guid.NewGuid(), Placa.Criar("ABC1234"), "Honda", "Civic", AnoAtual + 1));
 
         Assert.Null(ex);
     }
@@ -86,14 +78,15 @@ public class VeiculoTests
     public void Inserir_QuandoDadosValidos_PopulaPropriedadesCorretamente()
     {
         var idCliente = Guid.NewGuid();
-        var antes = DateTime.UtcNow;
-        var veiculo = new Veiculo();
+        var antes     = DateTime.UtcNow;
+        var veiculo   = new Veiculo();
+        var placa     = Placa.Criar("ABC1D23");
 
-        veiculo.Inserir(idCliente, "abc1d23", "Honda", "Civic", AnoAtual);
+        veiculo.Inserir(idCliente, placa, "Honda", "Civic", AnoAtual);
 
         Assert.NotEqual(Guid.Empty, veiculo.Id);
         Assert.Equal(idCliente, veiculo.IdCliente);
-        Assert.Equal("ABC1D23", veiculo.Placa);   // normalizado para maiúsculo
+        Assert.Equal("ABC1D23", veiculo.Placa);
         Assert.Equal("Honda", veiculo.Marca);
         Assert.Equal("Civic", veiculo.Modelo);
         Assert.Equal(AnoAtual, veiculo.Ano);
@@ -102,24 +95,17 @@ public class VeiculoTests
     }
 
     [Fact]
-    public void Inserir_PlacaComEspacos_NormalizaParaMaiusculoSemEspacos()
-    {
-        var veiculo = new Veiculo();
-        veiculo.Inserir(Guid.NewGuid(), "  abc1234  ", "Honda", "Civic", AnoAtual);
-
-        Assert.Equal("ABC1234", veiculo.Placa);
-    }
-
-    [Fact]
     public void Inserir_GeraIdUnico_CadaInstancia()
     {
         var v1 = new Veiculo();
         var v2 = new Veiculo();
-        v1.Inserir(Guid.NewGuid(), "AAA1111", "Honda", "Civic", AnoAtual);
-        v2.Inserir(Guid.NewGuid(), "BBB2222", "Toyota", "Corolla", AnoAtual);
+        v1.Inserir(Guid.NewGuid(), Placa.Criar("AAA1111"), "Honda", "Civic", AnoAtual);
+        v2.Inserir(Guid.NewGuid(), Placa.Criar("BBB2222"), "Toyota", "Corolla", AnoAtual);
 
         Assert.NotEqual(v1.Id, v2.Id);
     }
+
+    // ── Atualizar ────────────────────────────────────────────────
 
     [Theory]
     [InlineData("")]
@@ -129,7 +115,7 @@ public class VeiculoTests
     {
         var veiculo = VeiculoValido();
         Assert.Throws<DomainException>(() =>
-            veiculo.Atualizar("ABC1234", marca!, "Civic", AnoAtual));
+            veiculo.Atualizar(Placa.Criar("ABC1234"), marca!, "Civic", AnoAtual));
     }
 
     [Theory]
@@ -140,18 +126,7 @@ public class VeiculoTests
     {
         var veiculo = VeiculoValido();
         Assert.Throws<DomainException>(() =>
-            veiculo.Atualizar("ABC1234", "Honda", modelo!, AnoAtual));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    [InlineData(null)]
-    public void Atualizar_QuandoPlacaInvalida_LancaDomainException(string? placa)
-    {
-        var veiculo = VeiculoValido();
-        Assert.Throws<DomainException>(() =>
-            veiculo.Atualizar(placa!, "Honda", "Civic", AnoAtual));
+            veiculo.Atualizar(Placa.Criar("ABC1234"), "Honda", modelo!, AnoAtual));
     }
 
     [Fact]
@@ -159,38 +134,64 @@ public class VeiculoTests
     {
         var veiculo = VeiculoValido();
         Assert.Throws<DomainException>(() =>
-            veiculo.Atualizar("ABC1234", "Honda", "Civic", AnoAtual + 2));
+            veiculo.Atualizar(Placa.Criar("ABC1234"), "Honda", "Civic", AnoAtual + 2));
     }
 
     [Fact]
     public void Atualizar_QuandoDadosValidos_AlteraPropriedadesEMantemIdEIdCliente()
     {
-        var veiculo = VeiculoValido();
-        var idOriginal = veiculo.Id;
+        var veiculo           = VeiculoValido();
+        var idOriginal        = veiculo.Id;
         var idClienteOriginal = veiculo.IdCliente;
 
-        veiculo.Atualizar("xyz9w87", "Toyota", "Corolla", AnoAtual - 1);
+        veiculo.Atualizar(Placa.Criar("XYZ9W87"), "Toyota", "Corolla", AnoAtual - 1);
 
         Assert.Equal("XYZ9W87", veiculo.Placa);
         Assert.Equal("Toyota", veiculo.Marca);
         Assert.Equal("Corolla", veiculo.Modelo);
         Assert.Equal(AnoAtual - 1, veiculo.Ano);
-        
-        // Imutáveis
         Assert.Equal(idOriginal, veiculo.Id);
         Assert.Equal(idClienteOriginal, veiculo.IdCliente);
     }
 
-    [Fact]
-    public void Atualizar_PlacaComEspacos_NormalizaParaMaiusculoSemEspacos()
-    {
-        var veiculo = VeiculoValido();
-        veiculo.Atualizar("  xyz1234  ", "Honda", "Civic", AnoAtual);
+    // ── Placa Value Object ───────────────────────────────────────
 
-        Assert.Equal("XYZ1234", veiculo.Placa);
+    [Theory]
+    [InlineData("ABC1234")]   // antiga sem hífen
+    [InlineData("ABC-1234")]  // antiga com hífen
+    [InlineData("ABC1D23")]   // Mercosul
+    public void Placa_QuandoFormatoValido_CriaCorretamente(string placa)
+    {
+        var resultado = Placa.Criar(placa);
+        Assert.False(string.IsNullOrWhiteSpace(resultado.Valor));
+        Assert.Equal(resultado.Valor, resultado.Valor.ToUpper());
     }
 
-    #region Helpers
+    [Theory]
+    [InlineData("INVALIDA")]
+    [InlineData("12345")]
+    [InlineData("")]
+    public void Placa_QuandoFormatoInvalido_LancaDomainException(string? placa)
+    {
+        Assert.Throws<DomainException>(() => Placa.Criar(placa!));
+    }
+
+    [Fact]
+    public void Placa_NormalizaParaMaiusculoESemEspacos()
+    {
+        var placa = Placa.Criar("  abc1234  ");
+        Assert.Equal("ABC1234", placa.Valor);
+    }
+
+    [Fact]
+    public void Placa_Igualdade_QuandoMesmoValor_SaoIguais()
+    {
+        var p1 = Placa.Criar("ABC1234");
+        var p2 = Placa.Criar("ABC1234");
+        Assert.Equal(p1, p2);
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────
 
     private static Veiculo VeiculoValido(
         string placa = "ABC1D23",
@@ -199,9 +200,7 @@ public class VeiculoTests
         int? ano = null)
     {
         var veiculo = new Veiculo();
-        veiculo.Inserir(Guid.NewGuid(), placa, marca, modelo, ano ?? AnoAtual);
+        veiculo.Inserir(Guid.NewGuid(), Placa.Criar(placa), marca, modelo, ano ?? AnoAtual);
         return veiculo;
     }
-    
-    #endregion
 }

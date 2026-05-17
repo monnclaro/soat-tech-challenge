@@ -1,9 +1,0 @@
-﻿using SharedKernel;
-using SoatTechChallenge.Infrastucture.DomainEvents;
-
-namespace Tests;
-
-public class NoopDomainEventsDispatcher : IDomainEventsDispatcher
-{
-    public Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken = default) => Task.CompletedTask;
-}

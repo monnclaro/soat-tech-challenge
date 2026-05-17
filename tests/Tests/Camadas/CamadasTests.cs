@@ -2,7 +2,7 @@ using FluentAssertions;
 using NetArchTest.Rules;
 using Xunit;
 
-namespace SoatTechChallenge.Tests.Layers;
+namespace Tests.Camadas;
 
 public class LayerTests : BaseTest
 {

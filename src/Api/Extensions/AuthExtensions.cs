@@ -1,7 +1,8 @@
 ﻿using System.Text;
-using Application.Common.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using SoatTechChallenge.Infrastucture.Security;
+using SoatTechChallenge.Infrastucture.Security.Jwt;
 
 namespace Api.Extensions;
 

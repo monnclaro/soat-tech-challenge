@@ -1,7 +1,8 @@
 ﻿using Domain.Clientes.Enums;
+using Domain.Clientes.ValueObjects;
 using Domain.Clientes.Veiculos;
-using Domain.Common.Exceptions;
 using SharedKernel;
+using SharedKernel.Exceptions;
 
 namespace Domain.Clientes;
 
@@ -16,18 +17,15 @@ public class Cliente : Entity
 
     public Cliente() { }
 
-    public void Inserir(string nome, string documento, TipoDocumentoCliente tipoDocumento)
+    public void Inserir(string nome, DocumentoCliente documento)
     { 
         if (string.IsNullOrWhiteSpace(nome))
             throw new DomainException("O nome é obrigatório.");
         
-        if (string.IsNullOrWhiteSpace(documento))
-            throw new DomainException("O documento é obrigatório.");
-        
         Id = Guid.NewGuid();
         Nome = nome;
-        Documento = documento;
-        TipoDocumento = tipoDocumento;
+        Documento = documento.Numero;
+        TipoDocumento = documento.Tipo;
         DataCriacao = DateTime.UtcNow;
     }
 

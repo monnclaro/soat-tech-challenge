@@ -1,324 +1,287 @@
-﻿using Application.Common.DTOs;
-using Application.OrdensServico.DTOs.Requests;
-using Application.OrdensServico.Services;
-using Application.OrdensServico.Services.Validators;
+﻿using Application.OrdensServico.Queries;
 using Domain.Clientes;
-using Domain.Clientes.Enums;
+using Domain.Clientes.Gateways;
+using Domain.Clientes.ValueObjects;
 using Domain.Clientes.Veiculos;
-using Domain.Common.Exceptions;
-using Domain.Common.Interfaces;
+using Domain.Clientes.Veiculos.ValueObjects;
 using Domain.OrdensServico;
 using Domain.OrdensServico.Enums;
+using Domain.OrdensServico.Gateways;
+using Domain.OrdensServico.Produtos;
+using Domain.OrdensServico.Servicos;
 using Domain.Produtos;
+using Domain.Produtos.Gateways;
 using Domain.Servicos;
-using DotNet.Testcontainers.Builders;
+using Domain.Servicos.Gateways;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel;
 using SoatTechChallenge.Infrastucture.Database;
 using SoatTechChallenge.Infrastucture.DomainEvents;
-using SoatTechChallenge.Infrastucture.Persistence;
+using SoatTechChallenge.Infrastucture.Gateways.Clientes;
+using SoatTechChallenge.Infrastucture.Gateways.OrdensServico;
+using SoatTechChallenge.Infrastucture.Gateways.Produtos;
+using SoatTechChallenge.Infrastucture.Gateways.Servicos;
 using Testcontainers.PostgreSql;
+using Tests.Infrastructure;
 using Xunit;
 
 namespace Tests.OrdensServico.Integration;
 
-[Collection(nameof(IntegrationTestCollection))]
-public class OrdemServicoServiceIntegrationTests : IAsyncLifetime
+public class OrdemServicoGatewayIntegrationTests : IntegrationTestBase
 {
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
-        .WithDatabase("soattest_os")
-        .WithUsername("soatuser")
-        .WithPassword("soatpass")
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(5432))
-        .Build();
-
-    private ServiceProvider _provider = null!;
-
-    // ────────────────────────────────────────────────────────────
-    // Lifecycle
-    // ────────────────────────────────────────────────────────────
-
-    public async Task InitializeAsync()
+    protected override void RegisterServices(IServiceCollection services)
     {
-        await _postgres.StartAsync();
-
-        var services = new ServiceCollection();
-        services.AddDbContext<SoatTechChallengeDbContext>(o => o.UseNpgsql(_postgres.GetConnectionString()));
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IOrdemServicoValidatorService, OrdemServicoValidatorService>();
-        services.AddScoped<OrdemServicoService>();
-        services.AddScoped<IDomainEventsDispatcher, NoopDomainEventsDispatcher>();
-
-        _provider = services.BuildServiceProvider();
-
-        using var scope = _provider.CreateScope();
-        await scope.ServiceProvider.GetRequiredService<SoatTechChallengeDbContext>().Database.MigrateAsync();
+        services.AddScoped<IClienteGateway, ClienteGateway>();
+        services.AddScoped<IServicoGateway, ServicoGateway>();
+        services.AddScoped<IProdutoGateway, ProdutoGateway>();
+        services.AddScoped<IOrdemServicoGateway, OrdemServicoGateway>();
+        services.AddScoped<IOrdemServicoQueryGateway, OrdemServicoQueryGateway>();
     }
+    
+    private static readonly int AnoAtual = DateTime.Now.Year;
 
-    public async Task DisposeAsync()
-    {
-        await _provider.DisposeAsync();
-        await _postgres.DisposeAsync();
-    }
-
-    // ────────────────────────────────────────────────────────────
-    // Seed helpers
-    // ────────────────────────────────────────────────────────────
-
-    private async Task<Cliente> SeedClienteComVeiculoAsync()
-    {
-        using var scope = _provider.CreateScope();
-        var repo = scope.ServiceProvider.GetRequiredService<IRepository<Cliente>>();
-
-        var cliente = new Cliente();
-        cliente.Inserir("Cliente Integração", "98765432100", TipoDocumentoCliente.Cpf);
-
-        var veiculo = new Veiculo();
-        veiculo.Inserir(cliente.Id, "INT1A23", "Toyota", "Corolla", DateTime.Now.Year);
-        cliente.Veiculos.Add(veiculo);
-
-        await repo.InsertAsync(cliente);
-        await repo.SaveChangesAsync();
-
-        return cliente;
-    }
-
-    private async Task<Servico> SeedServicoAsync(string nome = "Serviço Int", decimal valor = 200m)
-    {
-        using var scope = _provider.CreateScope();
-        var repo = scope.ServiceProvider.GetRequiredService<IRepository<Servico>>();
-        var s = new Servico();
-        s.Inserir(nome, "", valor);
-        await repo.InsertAsync(s);
-        await repo.SaveChangesAsync();
-        return s;
-    }
-
-    private async Task<Produto> SeedProdutoAsync(string nome = "Produto Int", decimal valor = 50m, decimal estoque = 20m)
-    {
-        using var scope = _provider.CreateScope();
-        var repo = scope.ServiceProvider.GetRequiredService<IRepository<Produto>>();
-        var p = new Produto();
-        p.Inserir(nome, "Desc", valor, estoque);
-
-        await repo.InsertAsync(p);
-        await repo.SaveChangesAsync();
-
-        return p;
-    }
-
-    private async Task<OrdemServico> SeedOSAsync(Guid idCliente, Guid idVeiculo, List<Guid>? idsServicos = null)
-    {
-        using var scope = _provider.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<OrdemServicoService>();
-        var request = new InserirOrdemServicoRequest(idCliente, idVeiculo, idsServicos ?? new List<Guid>());
-        await service.Inserir(request);
-
-        // Recuperar a OS recém-criada
-        var repo = scope.ServiceProvider.GetRequiredService<IRepository<OrdemServico>>();
-        return await repo.GetQueryable()
-            .Include(o => o.Servicos)
-            .Include(o => o.Produtos)
-            .OrderByDescending(o => o.DataCriacao)
-            .FirstAsync();
-    }
-
-    private OrdemServicoService CreateService(IServiceScope scope) =>
-        scope.ServiceProvider.GetRequiredService<OrdemServicoService>();
-
-    // ────────────────────────────────────────────────────────────
-    // Inserir + Validator integrado
-    // ────────────────────────────────────────────────────────────
+    // ── Salvar / BuscarPorId ─────────────────────────────────────
 
     [Fact]
-    public async Task Inserir_QuandoClienteNaoExiste_LancaDomainException()
+    public async Task Salvar_QuandoDadosValidos_PersisteBanco()
     {
-        using var scope = _provider.CreateScope();
-        var request = new InserirOrdemServicoRequest(Guid.NewGuid(), Guid.NewGuid(), new List<Guid>());
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var os = CriarOrdemServico(cliente.Id, veiculo.Id);
+        await SeedOSAsync(os);
 
-        await Assert.ThrowsAsync<DomainException>(() => CreateService(scope).Inserir(request));
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IOrdemServicoGateway>();
+        var resultado = await gateway.BuscarPorId(os.Id, CancellationToken.None);
+
+        Assert.NotNull(resultado);
+        Assert.Equal(StatusOrdemServico.Recebida, resultado!.Status);
+        Assert.Equal(cliente.Id, resultado.IdCliente);
     }
 
     [Fact]
-    public async Task Inserir_QuandoVeiculoNaoPertenceAoCliente_LancaDomainException()
+    public async Task BuscarPorId_QuandoNaoExiste_RetornaNull()
     {
-        var cliente = await SeedClienteComVeiculoAsync();
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IOrdemServicoGateway>();
+        var resultado = await gateway.BuscarPorId(Guid.NewGuid(), CancellationToken.None);
 
-        using var scope = _provider.CreateScope();
-        var request = new InserirOrdemServicoRequest(cliente.Id, Guid.NewGuid(), new List<Guid>());
-
-        await Assert.ThrowsAsync<DomainException>(() => CreateService(scope).Inserir(request));
+        Assert.Null(resultado);
     }
+
+    // ── BuscarComServicos ────────────────────────────────────────
 
     [Fact]
-    public async Task Inserir_QuandoDadosValidos_PersistOSComServicos()
+    public async Task BuscarComServicos_RetornaComServicosCarregados()
     {
-        var cliente = await SeedClienteComVeiculoAsync();
-        var servico = await SeedServicoAsync();
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var servico            = await SeedServicoAsync();
+        var servicoOs          = new OrdemServicoServico(Guid.NewGuid(), servico.Id, servico.Nome, servico.Valor);
+        var os                 = CriarOrdemServico(cliente.Id, veiculo.Id, [servicoOs]);
+        await SeedOSAsync(os);
 
-        using var scope = _provider.CreateScope();
-        var request = new InserirOrdemServicoRequest(
-            cliente.Id,
-            cliente.Veiculos[0].Id,
-            new List<Guid> { servico.Id });
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IOrdemServicoGateway>();
+        var resultado = await gateway.BuscarComServicos(os.Id, CancellationToken.None);
 
-        await CreateService(scope).Inserir(request);
-
-        // Verificar persistência
-        using var verifyScope = _provider.CreateScope();
-        var os = await verifyScope.ServiceProvider
-            .GetRequiredService<IRepository<OrdemServico>>()
-            .GetQueryable()
-            .Include(o => o.Servicos)
-            .FirstAsync();
-
-        Assert.Equal(StatusOrdemServico.Recebida, os.Status);
-        Assert.Single(os.Servicos);
-        Assert.Equal(servico.Valor, os.ValorTotal);
+        Assert.NotNull(resultado);
+        Assert.Single(resultado!.Servicos);
     }
 
-    // ────────────────────────────────────────────────────────────
-    // Buscar
-    // ────────────────────────────────────────────────────────────
+    // ── BuscarComServicosProdutos ────────────────────────────────
 
     [Fact]
-    public async Task Buscar_QuandoExiste_RetornaDadosComJoinsCorretamente()
+    public async Task BuscarComServicosProdutos_RetornaComAmbosCarregados()
     {
-        var cliente = await SeedClienteComVeiculoAsync();
-        var os = await SeedOSAsync(cliente.Id, cliente.Veiculos[0].Id);
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var servico            = await SeedServicoAsync();
+        var produto            = await SeedProdutoAsync();
+        var servicoOs          = new OrdemServicoServico(Guid.NewGuid(), servico.Id, servico.Nome, servico.Valor);
+        var produtoOs          = new OrdemServicoProduto(Guid.NewGuid(), produto.Id, produto.Nome, produto.Valor, 2);
+        var os                 = CriarOrdemServico(cliente.Id, veiculo.Id, [servicoOs], [produtoOs]);
+        await SeedOSAsync(os);
 
-        using var scope = _provider.CreateScope();
-        var result = await CreateService(scope).Buscar(os.Id);
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IOrdemServicoGateway>();
+        var resultado = await gateway.BuscarComServicosProdutos(os.Id, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal(cliente.Nome, result!.Cliente.Nome);
-        Assert.Equal(cliente.Veiculos[0].Placa, result.Veiculo.Placa);
+        Assert.NotNull(resultado);
+        Assert.Single(resultado!.Servicos);
+        Assert.Single(resultado.Produtos);
     }
+
+    // ── BuscarComDetalhes (QueryGateway) ─────────────────────────
 
     [Fact]
-    public async Task Buscar_QuandoNaoExiste_RetornaNull()
+    public async Task BuscarComDetalhes_RetornaComJoinsDeClienteEVeiculo()
     {
-        using var scope = _provider.CreateScope();
-        var result = await CreateService(scope).Buscar(Guid.NewGuid());
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var os                 = CriarOrdemServico(cliente.Id, veiculo.Id);
+        await SeedOSAsync(os);
 
-        Assert.Null(result);
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IOrdemServicoQueryGateway>();
+        var resultado = await gateway.BuscarComDetalhes(os.Id, CancellationToken.None);
+
+        Assert.NotNull(resultado);
+        Assert.Equal(cliente.Nome, resultado!.Cliente.Nome);
+        Assert.Equal(veiculo.Placa, resultado.Veiculo.Placa);
     }
 
-    // ────────────────────────────────────────────────────────────
-    // Fluxo completo: Inserir → Diagnóstico → Execução → Entrega    // 
-    // ────────────────────────────────────────────────────────────
+    // ── BuscarStatus ─────────────────────────────────────────────
 
     [Fact]
-    public async Task FluxoCompleto()
+    public async Task BuscarStatus_RetornaStatusCorreto()
     {
-        var cliente = await SeedClienteComVeiculoAsync();
-        var servico = await SeedServicoAsync();
-        var produto = await SeedProdutoAsync(estoque: 15m);
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var os                 = CriarOrdemServico(cliente.Id, veiculo.Id);
+        await SeedOSAsync(os);
 
-        // 1. Inserir
-        var os = await SeedOSAsync(cliente.Id, cliente.Veiculos[0].Id, new List<Guid> { servico.Id });
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IOrdemServicoQueryGateway>();
+        var resultado = await gateway.BuscarStatus(os.Id, CancellationToken.None);
 
-        // 2. Iniciar diagnóstico
-        using (var s = _provider.CreateScope())
-            await CreateService(s).IniciarDiagnostico(os.Id);
-
-        // 3. Inserir produto
-        using (var s = _provider.CreateScope())
-            await CreateService(s).InserirProdutos(os.Id, new InserirProdutosOrdemServicoRequest(
-                new List<InserirProdutosOrdemServicoProdutoRequest> { new(produto.Id, 3m) }));
-
-        // 4. Finalizar diagnóstico
-        using (var s = _provider.CreateScope())
-            await CreateService(s).FinalizarDiagnostico(os.Id);
-
-        // 5. Aprovar orçamento
-        using (var s = _provider.CreateScope())
-            await CreateService(s).AprovarOrcamento(os.Id);
-
-        // 6. Iniciar serviço
-        var osAtual = await ObterOSAsync(os.Id);
-        var idServicoOS = osAtual.Servicos[0].Id;
-
-        using (var s = _provider.CreateScope())
-            await CreateService(s).IniciarExecucaoServico(os.Id, idServicoOS);
-
-        // 7. Finalizar serviço
-        using (var s = _provider.CreateScope())
-            await CreateService(s).FinalizarExecucaoServico(os.Id, idServicoOS);
-
-        // 8. Verificar OS finalizada
-        var osFinal = await ObterOSAsync(os.Id);
-        Assert.Equal(StatusOrdemServico.Finalizada, osFinal.Status);
-
-        // 9. Verificar estoque decrementado
-        using var verifyScope = _provider.CreateScope();        
-
-        // 10. Entregar
-        using (var s = _provider.CreateScope()) await CreateService(s).Entregar(os.Id);
-
-        var osEntregue = await ObterOSAsync(os.Id);
-        Assert.Equal(StatusOrdemServico.Entregue, osEntregue.Status);
+        Assert.NotNull(resultado);
+        Assert.Equal("Recebida", resultado!.Status);
     }
 
-    // ────────────────────────────────────────────────────────────
-    // BuscarListaPaginadaPorDocumento
-    // ────────────────────────────────────────────────────────────
+    // ── BuscarPaginado ───────────────────────────────────────────
 
     [Fact]
-    public async Task BuscarListaPaginadaPorDocumento_ComMascara_RetornaOSDoCliente()
+    public async Task BuscarPaginado_RetornaApenasNaoFinalizadas()
     {
-        var cliente = await SeedClienteComVeiculoAsync();
-        await SeedOSAsync(cliente.Id, cliente.Veiculos[0].Id);
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var os1 = CriarOrdemServico(cliente.Id, veiculo.Id);
+        await SeedOSAsync(os1);
 
-        using var scope = _provider.CreateScope();
-        // Passa com máscara — deve limpar e filtrar corretamente
-        var result = await CreateService(scope)
-            .BuscarListaPaginadaPorDocumento("987.654.321-00", new PagedRequest(1, 10));
+        using var scope = CreateScope();
+        var gateway = scope.ServiceProvider.GetRequiredService<IOrdemServicoQueryGateway>();
 
-        Assert.Equal(1, result.Total);
-        Assert.Equal(cliente.Nome, result.Itens[0].Cliente.Nome);
+        var (items, total) = await gateway.BuscarPaginado(new PagedRequest(1, 10), CancellationToken.None);
+
+        Assert.Equal(1, total);
+        Assert.Single(items);
     }
 
-    // ────────────────────────────────────────────────────────────
-    // Remover
-    // ────────────────────────────────────────────────────────────
+    // ── Atualizar ────────────────────────────────────────────────
+
+    [Fact]
+    public async Task Atualizar_QuandoStatusMuda_PersisteMudanca()
+    {
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var os                 = CriarOrdemServico(cliente.Id, veiculo.Id);
+        await SeedOSAsync(os);
+
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IOrdemServicoGateway>();
+        var carregado = await gateway.BuscarPorId(os.Id, CancellationToken.None);
+        carregado!.IniciarDiagnostico();
+        await gateway.Atualizar(carregado, CancellationToken.None);
+
+        using var verifyScope = CreateScope();
+        var verificado = await verifyScope.ServiceProvider
+            .GetRequiredService<IOrdemServicoGateway>()
+            .BuscarPorId(os.Id, CancellationToken.None);
+
+        Assert.Equal(StatusOrdemServico.EmDiagnostico, verificado!.Status);
+    }
+
+    // ── Remover ──────────────────────────────────────────────────
 
     [Fact]
     public async Task Remover_QuandoExiste_ExcluiDoBanco()
     {
-        var cliente = await SeedClienteComVeiculoAsync();
-        var os = await SeedOSAsync(cliente.Id, cliente.Veiculos[0].Id);
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var os                 = CriarOrdemServico(cliente.Id, veiculo.Id);
+        await SeedOSAsync(os);
 
-        using (var s = _provider.CreateScope())
-            await CreateService(s).Remover(os.Id);
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IOrdemServicoGateway>();
+        var carregado = await gateway.BuscarPorId(os.Id, CancellationToken.None);
+        await gateway.Remover(carregado!, CancellationToken.None);
 
-        using var verifyScope = _provider.CreateScope();
-        var result = await CreateService(verifyScope).Buscar(os.Id);
-        Assert.Null(result);
+        using var verifyScope = CreateScope();
+        var resultado = await verifyScope.ServiceProvider
+            .GetRequiredService<IOrdemServicoGateway>()
+            .BuscarPorId(os.Id, CancellationToken.None);
+
+        Assert.Null(resultado);
     }
+
+    // ── BuscarPaginadoPorDocumento ───────────────────────────────
 
     [Fact]
-    public async Task Remover_QuandoNaoExiste_LancaNotFoundException()
+    public async Task BuscarPaginadoPorDocumento_FiltraPorDocumentoDoCliente()
     {
-        using var scope = _provider.CreateScope();
-        await Assert.ThrowsAsync<NotFoundException>(() => CreateService(scope).Remover(Guid.NewGuid()));
+        var (cliente, veiculo) = await SeedClienteComVeiculoAsync();
+        var os                 = CriarOrdemServico(cliente.Id, veiculo.Id);
+        await SeedOSAsync(os);
+
+        using var scope = CreateScope();
+        var gateway = scope.ServiceProvider.GetRequiredService<IOrdemServicoQueryGateway>();
+
+        var (items, total) = await gateway.BuscarPaginadoPorDocumento(
+            "52998224725", new PagedRequest(1, 10), CancellationToken.None);
+
+        Assert.Equal(1, total);
+        Assert.Equal(cliente.Nome, items[0].Cliente.Nome);
     }
 
-    // ────────────────────────────────────────────────────────────
-    // Helper
-    // ────────────────────────────────────────────────────────────
+    // ── Helpers ──────────────────────────────────────────────────
 
-    private async Task<OrdemServico> ObterOSAsync(Guid id)
+    private static OrdemServico CriarOrdemServico(
+        Guid idCliente,
+        Guid idVeiculo,
+        List<OrdemServicoServico>? servicos = null,
+        List<OrdemServicoProduto>? produtos = null)
     {
-        using var scope = _provider.CreateScope();
-        return await scope.ServiceProvider
-            .GetRequiredService<IRepository<OrdemServico>>()
-            .GetQueryable()
-            .AsSplitQuery()
-            .Include(o => o.Servicos)
-            .Include(o => o.Produtos)
-            .FirstAsync(o => o.Id == id);
+        var os = new OrdemServico();
+        os.Inserir(idCliente, idVeiculo, servicos ?? [], produtos ?? []);
+        return os;
+    }
+
+    private async Task<(Cliente cliente, Veiculo veiculo)> SeedClienteComVeiculoAsync()
+    {
+        using var scope         = CreateScope();
+        var clienteGateway      = scope.ServiceProvider.GetRequiredService<IClienteGateway>();
+        var db                  = scope.ServiceProvider.GetRequiredService<SoatTechChallengeDbContext>();
+
+        var cliente = new Cliente();
+        cliente.Inserir("Cliente Teste", DocumentoCliente.Criar("52998224725"));
+        await clienteGateway.Salvar(cliente, CancellationToken.None);
+
+        var veiculo = new Veiculo();
+        veiculo.Inserir(cliente.Id, Placa.Criar("ABC1234"), "Honda", "Civic", AnoAtual);
+        db.Set<Veiculo>().Add(veiculo);
+        await db.SaveChangesAsync();
+
+        return (cliente, veiculo);
+    }
+
+    private async Task<Servico> SeedServicoAsync()
+    {
+        using var scope = CreateScope();
+        var gateway     = scope.ServiceProvider.GetRequiredService<IServicoGateway>();
+        var s           = new Servico();
+        s.Inserir("Serviço Teste", "Desc", 100m);
+        await gateway.Salvar(s, CancellationToken.None);
+        return s;
+    }
+
+    private async Task<Produto> SeedProdutoAsync()
+    {
+        using var scope = CreateScope();
+        var gateway     = scope.ServiceProvider.GetRequiredService<IProdutoGateway>();
+        var p           = new Produto();
+        p.Inserir("Produto Teste", "Desc", 50m, 20);
+        await gateway.Salvar(p, CancellationToken.None);
+        return p;
+    }
+
+    private async Task SeedOSAsync(OrdemServico os)
+    {
+        using var scope = CreateScope();
+        var gateway     = scope.ServiceProvider.GetRequiredService<IOrdemServicoGateway>();
+        await gateway.Salvar(os, CancellationToken.None);
     }
 }

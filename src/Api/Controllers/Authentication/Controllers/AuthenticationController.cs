@@ -1,6 +1,7 @@
-﻿using Application.Authentication.DTOs.Requests;
-using Application.Authentication.DTOs.Responses;
-using Application.Authentication.Services;
+﻿using Api.Controllers.Authentication.Controllers.Requests;
+using Api.Controllers.Authentication.Presenters;
+using Application.Login.Controllers;
+using Application.Login.UseCases.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.Authentication.Controllers;
@@ -10,25 +11,22 @@ namespace Api.Controllers.Authentication.Controllers;
 [Produces("application/json")]
 public class AuthenticationController : ControllerBase
 {
-    private readonly IAuthenticationService _authenticationService;
-    
-    public AuthenticationController(IAuthenticationService authenticationService)
+    private readonly LoginController _controller;
+    private readonly LoginPresenter _presenter;
+
+    public AuthenticationController(LoginController controller, LoginPresenter presenter)
     {
-        _authenticationService = authenticationService;
+        _controller = controller;
+        _presenter  = presenter;
     }
-    
+
     [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request, CancellationToken ct)
     {
-        var resultado = await _authenticationService.Login(request);
-        return resultado.Status switch
-        {
-            LoginResponseStatusResultado.UsuarioNaoEncontrado => NotFound(),
-            LoginResponseStatusResultado.SenhaInvalida => Unauthorized(),
-            _ => Ok(new { resultado.Token })
-        };
+        await _controller.Execute(new LoginInput(request.Email, request.Senha), ct);
+        return _presenter.Result!;
     }
 }

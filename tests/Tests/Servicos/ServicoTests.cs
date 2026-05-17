@@ -1,15 +1,11 @@
-﻿using Domain.Common.Exceptions;
-using Domain.Servicos;
+﻿using Domain.Servicos;
+using SharedKernel.Exceptions;
 using Xunit;
 
 namespace Tests.Servicos;
 
 public class ServicoTests
 {
-    // ────────────────────────────────────────────────────────────
-    // Inserir — guards
-    // ────────────────────────────────────────────────────────────
-
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
@@ -60,10 +56,6 @@ public class ServicoTests
         Assert.NotEqual(s1.Id, s2.Id);
     }
 
-    // ────────────────────────────────────────────────────────────
-    // Atualizar — guards
-    // ────────────────────────────────────────────────────────────
-
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
@@ -93,12 +85,8 @@ public class ServicoTests
         Assert.Equal("Balanceamento", servico.Nome);
         Assert.Equal("Balanceamento completo", servico.Descricao);
         Assert.Equal(200m, servico.Valor);
-        Assert.Equal(idOriginal, servico.Id); // Id imutável
+        Assert.Equal(idOriginal, servico.Id);
     }
-
-    // ────────────────────────────────────────────────────────────
-    // Helper
-    // ────────────────────────────────────────────────────────────
 
     private static Servico ServicoValido(string nome = "Serviço Teste", decimal valor = 100m)
     {

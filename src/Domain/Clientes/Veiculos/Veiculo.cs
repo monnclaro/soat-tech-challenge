@@ -1,5 +1,6 @@
-﻿using Domain.Common.Exceptions;
+﻿using Domain.Clientes.Veiculos.ValueObjects;
 using SharedKernel;
+using SharedKernel.Exceptions;
 
 namespace Domain.Clientes.Veiculos;
 
@@ -7,7 +8,7 @@ public class Veiculo : Entity
 {
     public Guid Id { get; private set; }
     public Guid IdCliente { get; private set; }
-    public string Placa { get; private set; }
+    public string Placa { get; private set; } = null!;
     public string Marca { get; private set; }
     public string Modelo { get; private set; }
     public int Ano { get; private set; }
@@ -15,7 +16,7 @@ public class Veiculo : Entity
 
     public Veiculo() { }
 
-    public void Inserir(Guid idCliente, string placa, string marca, string modelo, int ano)
+    public void Inserir(Guid idCliente, Placa placa, string marca, string modelo, int ano)
     {
         if (string.IsNullOrWhiteSpace(marca))
             throw new DomainException("A marca do veículo é obrigatória.");
@@ -23,7 +24,7 @@ public class Veiculo : Entity
         if (string.IsNullOrWhiteSpace(modelo))
             throw new DomainException("O modelo do veículo é obrigatório.");
 
-        if (string.IsNullOrWhiteSpace(placa))
+        if (string.IsNullOrWhiteSpace(placa.Valor))
             throw new DomainException("A placa do veículo é obrigatória.");
 
         var anoAtual = DateTime.Now.Year;
@@ -34,14 +35,14 @@ public class Veiculo : Entity
         
         Id = Guid.NewGuid();
         IdCliente = idCliente;
-        Placa = placa.Trim().ToUpper();
+        Placa = placa.Valor;
         Marca = marca;
         Modelo = modelo;
         Ano = ano;
         DataCriacao = DateTime.UtcNow;
     }
 
-    public void Atualizar(string placa, string marca, string modelo, int ano)
+    public void Atualizar(Placa placa, string marca, string modelo, int ano)
     {
         if (string.IsNullOrWhiteSpace(marca))
             throw new DomainException("A marca do veículo é obrigatória.");
@@ -49,7 +50,7 @@ public class Veiculo : Entity
         if (string.IsNullOrWhiteSpace(modelo))
             throw new DomainException("O modelo do veículo é obrigatória.");
 
-        if (string.IsNullOrWhiteSpace(placa))
+        if (string.IsNullOrWhiteSpace(placa.Valor))
             throw new DomainException("A placa do veículo é obrigatória.");
 
         var anoAtual = DateTime.Now.Year;
@@ -58,7 +59,7 @@ public class Veiculo : Entity
             throw new DomainException($"Ano do veículo inválido. Informe um ano entre 1886 e {anoAtual + 1}.");
         }
         
-        Placa = placa.Trim().ToUpper();
+        Placa = placa.Valor;
         Marca = marca;
         Modelo = modelo;
         Ano = ano;

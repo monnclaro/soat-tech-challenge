@@ -1,6 +1,7 @@
 ﻿using Domain.Clientes;
-using Domain.Clientes.Enums;
+using Domain.Clientes.ValueObjects;
 using Domain.Clientes.Veiculos;
+using Domain.Clientes.Veiculos.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using SoatTechChallenge.Infrastucture.Database;
 
@@ -14,48 +15,49 @@ public static class ClienteSeeder
 
         var cliente1 = CriarCliente(
             "João Silva",
-            "12345678909",
-            TipoDocumentoCliente.Cpf,
-            new List<Veiculo>
-            {
+            DocumentoCliente.Criar("12345678909"),
+            [
                 CriarVeiculo("ABC1234", "Toyota", "Corolla", 2019),
                 CriarVeiculo("BRA2E19", "Honda", "Civic", 2021)
-            });
+            ]);
 
         var cliente2 = CriarCliente(
             "Maria Oliveira",
-            "98765432100",
-            TipoDocumentoCliente.Cpf,
-            new List<Veiculo>
-            {
+            DocumentoCliente.Criar("98765432100"),
+            [
                 CriarVeiculo("DEF5678", "Volkswagen", "Golf", 2018)
-            });
+            ]);
 
         var cliente3 = CriarCliente(
             "Oficina Mecânica Brasil LTDA",
-            "11222333000181",
-            TipoDocumentoCliente.Cnpj,
-            new List<Veiculo>
-            {
+            DocumentoCliente.Criar("11222333000181"),
+            [
                 CriarVeiculo("DCF5678", "Volkswagen", "Golf", 2014)
-            });
+            ]);
 
         await context.Cliente.AddRangeAsync(cliente1, cliente2, cliente3);
         await context.SaveChangesAsync();
     }
 
-    private static Cliente CriarCliente(string nome, string documento, TipoDocumentoCliente tipo, List<Veiculo> veiculos)
+    private static Cliente CriarCliente(
+        string nome,
+        DocumentoCliente documento,
+        List<Veiculo> veiculos)
     {
         var cliente = new Cliente();
-        cliente.Inserir(nome, documento, tipo);
+        cliente.Inserir(nome, documento);
         cliente.Veiculos.AddRange(veiculos);
         return cliente;
     }
 
-    private static Veiculo CriarVeiculo(string placa, string marca, string modelo, int ano)
+    private static Veiculo CriarVeiculo(
+        string placa,
+        string marca,
+        string modelo,
+        int ano)
     {
         var veiculo = new Veiculo();
-        veiculo.Inserir(Guid.Empty, placa, marca, modelo, ano);
+        veiculo.Inserir(Guid.Empty, Placa.Criar(placa), marca, modelo, ano);
         return veiculo;
     }
 }

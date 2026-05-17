@@ -1,5 +1,5 @@
-﻿using Domain.Common.Exceptions;
-using SharedKernel;
+﻿using SharedKernel;
+using SharedKernel.Exceptions;
 
 namespace Domain.Produtos;
 

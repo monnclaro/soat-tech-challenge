@@ -1,5 +1,5 @@
-﻿using Domain.Common.Exceptions;
-using Domain.Produtos;
+﻿using Domain.Produtos;
+using SharedKernel.Exceptions;
 using Xunit;
 
 namespace Tests.Produtos;

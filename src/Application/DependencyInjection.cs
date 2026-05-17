@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using Application.Common.Markers;
+using Application.Servicos.Queries.BuscarServico;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel;
 
@@ -13,19 +15,10 @@ public static class DependencyInjection
             .ToArray();
 
         services.Scan(scan => scan
-            .FromAssemblies(assemblies)
-            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
-            .AsImplementedInterfaces()
-            .WithScopedLifetime()
-            .AddClasses(c => c.AssignableTo<IScopedService>())
-            .AsImplementedInterfaces()
-            .WithScopedLifetime()
-            .AddClasses(c => c.AssignableTo<ITransientService>())
-            .AsImplementedInterfaces()
-            .WithTransientLifetime()
-            .AddClasses(c => c.AssignableTo<ISingletonService>())
-            .AsImplementedInterfaces()
-            .WithSingletonLifetime());
+            .FromAssemblyOf<BuscarServicoUseCase>()
+            .AddClasses(c => c.AssignableTo<IUseCase>())
+            .AsSelf()
+            .WithScopedLifetime());
 
         return services;
     }

@@ -1,0 +1,4 @@
+﻿namespace Application.OrdensServico.UseCases.InserirServicos;
+
+public record InserirServicosOrdemServicoInput(Guid IdOrdemServico, List<InserirServicosOrdemServicoItemInput> Servicos);
+public record InserirServicosOrdemServicoItemInput(Guid IdServico);

@@ -1,6 +1,6 @@
-﻿using Domain.Common.Exceptions;
-using Domain.Usuarios.Roles;
+﻿using Domain.Usuarios.Roles;
 using SharedKernel;
+using SharedKernel.Exceptions;
 
 namespace Domain.Usuarios;
 

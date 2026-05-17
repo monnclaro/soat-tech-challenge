@@ -1,11 +1,19 @@
-﻿namespace Api.Extensions;
+﻿using Api.Extensions.Markers;
+
+namespace Api.Extensions;
 
 public static class PresentationExtensions
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
         services.AddControllers();
-
+        
+        services.Scan(scan => scan
+            .FromApplicationDependencies()
+            .AddClasses(c => c.AssignableTo<IPresenter>())
+            .AsSelfWithInterfaces()
+            .WithScopedLifetime());
+        
         services.AddOpenApi(options =>
         {
             /*options.AddDocumentTransformer((document, _, _) =>

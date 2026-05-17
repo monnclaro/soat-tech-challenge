@@ -1,9 +1,9 @@
-﻿using Domain.Common.Exceptions;
-using Domain.OrdensServico;
+﻿using Domain.OrdensServico;
 using Domain.OrdensServico.Enums;
 using Domain.OrdensServico.Produtos;
 using Domain.OrdensServico.Servicos;
 using Domain.OrdensServico.Servicos.Enums;
+using SharedKernel.Exceptions;
 using Xunit;
 
 namespace Tests.OrdensServico;
@@ -22,18 +22,18 @@ public class OrdemServicoTests
         var servicos = new List<OrdemServicoServico> { CriarServico(100m) };
         var antes = DateTime.UtcNow;
 
-        var os = new OrdemServico();
-        os.Inserir(idCliente, idVeiculo, servicos, new List<OrdemServicoProduto>());
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(idCliente, idVeiculo, servicos, new List<OrdemServicoProduto>());
 
-        Assert.NotEqual(Guid.Empty, os.Id);
-        Assert.Equal(idCliente, os.IdCliente);
-        Assert.Equal(idVeiculo, os.IdVeiculo);
-        Assert.Equal(StatusOrdemServico.Recebida, os.Status);
-        Assert.True(os.DataCriacao >= antes);
-        Assert.Null(os.DataInicioExecucao);
-        Assert.Null(os.DataFinalizacao);
-        Assert.Single(os.Servicos);
-        Assert.Equal(100m, os.ValorTotal);
+        Assert.NotEqual(Guid.Empty, ordemServico.Id);
+        Assert.Equal(idCliente, ordemServico.IdCliente);
+        Assert.Equal(idVeiculo, ordemServico.IdVeiculo);
+        Assert.Equal(StatusOrdemServico.Recebida, ordemServico.Status);
+        Assert.True(ordemServico.DataCriacao >= antes);
+        Assert.Null(ordemServico.DataInicioExecucao);
+        Assert.Null(ordemServico.DataFinalizacao);
+        Assert.Single(ordemServico.Servicos);
+        Assert.Equal(100m, ordemServico.ValorTotal);
     }
 
     [Fact]
@@ -45,11 +45,11 @@ public class OrdemServicoTests
             CriarServico(300m),
         };
 
-        var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), servicos, new List<OrdemServicoProduto>());
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(Guid.NewGuid(), Guid.NewGuid(), servicos, new List<OrdemServicoProduto>());
 
-        Assert.Equal(500m, os.ValorTotal);
-        Assert.Empty(os.Produtos);
+        Assert.Equal(500m, ordemServico.ValorTotal);
+        Assert.Empty(ordemServico.Produtos);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -59,10 +59,10 @@ public class OrdemServicoTests
     [Fact]
     public void IniciarDiagnostico_QuandoStatusRecebida_MudaParaEmDiagnostico()
     {
-        var os = OSRecebida();
-        os.IniciarDiagnostico();
+        var ordemServico = OSRecebida();
+        ordemServico.IniciarDiagnostico();
 
-        Assert.Equal(StatusOrdemServico.EmDiagnostico, os.Status);
+        Assert.Equal(StatusOrdemServico.EmDiagnostico, ordemServico.Status);
     }
 
     [Theory]
@@ -73,8 +73,8 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void IniciarDiagnostico_QuandoStatusDiferenteDeRecebida_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
-        Assert.Throws<DomainException>(() => os.IniciarDiagnostico());
+        var ordemServico = OSEmStatus(status);
+        Assert.Throws<DomainException>(() => ordemServico.IniciarDiagnostico());
     }
 
     // ────────────────────────────────────────────────────────────
@@ -84,17 +84,17 @@ public class OrdemServicoTests
     [Fact]
     public void InserirProdutos_QuandoEmDiagnostico_AdicionaProdutosERecalculaTotal()
     {
-        var os = OSEmDiagnostico(valorServico: 100m);
+        var ordemServico = OSEmDiagnostico(valorServico: 100m);
         var produtos = new List<OrdemServicoProduto>
         {
-            CriarProduto(os.Id, 50m),
-            CriarProduto(os.Id, 30m),
+            CriarProduto(ordemServico.Id, 50m),
+            CriarProduto(ordemServico.Id, 30m),
         };
 
-        os.InserirProdutos(produtos);
+        ordemServico.InserirProdutos(produtos);
 
-        Assert.Equal(2, os.Produtos.Count);
-        Assert.Equal(180m, os.ValorTotal);
+        Assert.Equal(2, ordemServico.Produtos.Count);
+        Assert.Equal(180m, ordemServico.ValorTotal);
     }
 
     [Theory]
@@ -105,9 +105,9 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void InserirProdutos_QuandoStatusDiferenteDeEmDiagnostico_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
+        var ordemServico = OSEmStatus(status);
         Assert.Throws<DomainException>(() =>
-            os.InserirProdutos(new List<OrdemServicoProduto> { CriarProduto(os.Id, 10m) }));
+            ordemServico.InserirProdutos(new List<OrdemServicoProduto> { CriarProduto(ordemServico.Id, 10m) }));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -117,11 +117,11 @@ public class OrdemServicoTests
     [Fact]
     public void InserirServicos_QuandoEmDiagnostico_AdicionaServicosERecalculaTotal()
     {
-        var os = OSEmDiagnostico(valorServico: 100m);
-        os.InserirServicos(new List<OrdemServicoServico> { CriarServico(os.Id, 200m) });
+        var ordemServico = OSEmDiagnostico(valorServico: 100m);
+        ordemServico.InserirServicos(new List<OrdemServicoServico> { CriarServico(ordemServico.Id, 200m) });
 
-        Assert.Equal(2, os.Servicos.Count);
-        Assert.Equal(300m, os.ValorTotal);
+        Assert.Equal(2, ordemServico.Servicos.Count);
+        Assert.Equal(300m, ordemServico.ValorTotal);
     }
 
     [Theory]
@@ -132,9 +132,9 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void InserirServicos_QuandoStatusDiferenteDeEmDiagnostico_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
+        var ordemServico = OSEmStatus(status);
         Assert.Throws<DomainException>(() =>
-            os.InserirServicos(new List<OrdemServicoServico> { CriarServico(os.Id, 10m) }));
+            ordemServico.InserirServicos(new List<OrdemServicoServico> { CriarServico(ordemServico.Id, 10m) }));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -144,21 +144,21 @@ public class OrdemServicoTests
     [Fact]
     public void RemoverProduto_QuandoEmDiagnosticoEProdutoExiste_RemoveEAtualizaTotal()
     {
-        var os = OSEmDiagnostico(valorServico: 100m);
-        var produto = CriarProduto(os.Id, 50m);
-        os.InserirProdutos(new List<OrdemServicoProduto> { produto });
+        var ordemServico = OSEmDiagnostico(valorServico: 100m);
+        var produto = CriarProduto(ordemServico.Id, 50m);
+        ordemServico.InserirProdutos(new List<OrdemServicoProduto> { produto });
 
-        os.RemoverProduto(produto.Id);
+        ordemServico.RemoverProduto(produto.Id);
 
-        Assert.Empty(os.Produtos);
-        Assert.Equal(100m, os.ValorTotal);
+        Assert.Empty(ordemServico.Produtos);
+        Assert.Equal(100m, ordemServico.ValorTotal);
     }
 
     [Fact]
     public void RemoverProduto_QuandoProdutoNaoVinculado_LancaDomainException()
     {
-        var os = OSEmDiagnostico();
-        Assert.Throws<DomainException>(() => os.RemoverProduto(Guid.NewGuid()));
+        var ordemServico = OSEmDiagnostico();
+        Assert.Throws<DomainException>(() => ordemServico.RemoverProduto(Guid.NewGuid()));
     }
 
     [Theory]
@@ -169,8 +169,8 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void RemoverProduto_QuandoStatusDiferenteDeEmDiagnostico_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
-        Assert.Throws<DomainException>(() => os.RemoverProduto(Guid.NewGuid()));
+        var ordemServico = OSEmStatus(status);
+        Assert.Throws<DomainException>(() => ordemServico.RemoverProduto(Guid.NewGuid()));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -180,21 +180,21 @@ public class OrdemServicoTests
     [Fact]
     public void RemoverServico_QuandoEmDiagnosticoEServicoExiste_RemoveEAtualizaTotal()
     {
-        var os = OSEmDiagnostico(valorServico: 100m);
-        var novoServico = CriarServico(os.Id, 200m);
-        os.InserirServicos(new List<OrdemServicoServico> { novoServico });
+        var ordemServico = OSEmDiagnostico(valorServico: 100m);
+        var novoServico = CriarServico(ordemServico.Id, 200m);
+        ordemServico.InserirServicos(new List<OrdemServicoServico> { novoServico });
 
-        os.RemoverServico(novoServico.Id);
+        ordemServico.RemoverServico(novoServico.Id);
 
-        Assert.Single(os.Servicos);
-        Assert.Equal(100m, os.ValorTotal);
+        Assert.Single(ordemServico.Servicos);
+        Assert.Equal(100m, ordemServico.ValorTotal);
     }
 
     [Fact]
     public void RemoverServico_QuandoServicoNaoVinculado_LancaDomainException()
     {
-        var os = OSEmDiagnostico();
-        Assert.Throws<DomainException>(() => os.RemoverServico(Guid.NewGuid()));
+        var ordemServico = OSEmDiagnostico();
+        Assert.Throws<DomainException>(() => ordemServico.RemoverServico(Guid.NewGuid()));
     }
 
     [Theory]
@@ -205,8 +205,8 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void RemoverServico_QuandoStatusDiferenteDeEmDiagnostico_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
-        Assert.Throws<DomainException>(() => os.RemoverServico(Guid.NewGuid()));
+        var ordemServico = OSEmStatus(status);
+        Assert.Throws<DomainException>(() => ordemServico.RemoverServico(Guid.NewGuid()));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -216,27 +216,27 @@ public class OrdemServicoTests
     [Fact]
     public void FinalizarDiagnostico_QuandoEmDiagnosticoComServicos_MudaParaAguardandoAprovacao()
     {
-        var os = OSEmDiagnostico();
-        os.FinalizarDiagnostico();
+        var ordemServico = OSEmDiagnostico();
+        ordemServico.FinalizarDiagnostico();
 
-        Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status);
+        Assert.Equal(StatusOrdemServico.AguardandoAprovacao, ordemServico.Status);
     }
 
     [Fact]
     public void FinalizarDiagnostico_QuandoSemServicos_LancaDomainException()
     {
-        var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico>(), new List<OrdemServicoProduto>());
-        os.IniciarDiagnostico();
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico>(), new List<OrdemServicoProduto>());
+        ordemServico.IniciarDiagnostico();
 
-        Assert.Throws<DomainException>(() => os.FinalizarDiagnostico());
+        Assert.Throws<DomainException>(() => ordemServico.FinalizarDiagnostico());
     }
 
     [Fact]
     public void FinalizarDiagnostico_QuandoStatusRecebida_LancaDomainException()
     {
-        var os = OSRecebida();
-        Assert.Throws<DomainException>(() => os.FinalizarDiagnostico());
+        var ordemServico = OSRecebida();
+        Assert.Throws<DomainException>(() => ordemServico.FinalizarDiagnostico());
     }
 
     // ────────────────────────────────────────────────────────────
@@ -246,14 +246,14 @@ public class OrdemServicoTests
     [Fact]
     public void AprovarOrcamento_QuandoAguardandoAprovacao_MudaParaEmExecucaoESetaDataInicio()
     {
-        var os = OSAguardandoAprovacao();
+        var ordemServico = OSAguardandoAprovacao();
         var antes = DateTime.UtcNow;
 
-        os.AprovarOrcamento();
+        ordemServico.AprovarOrcamento();
 
-        Assert.Equal(StatusOrdemServico.EmExecucao, os.Status);
-        Assert.NotNull(os.DataInicioExecucao);
-        Assert.True(os.DataInicioExecucao >= antes);
+        Assert.Equal(StatusOrdemServico.EmExecucao, ordemServico.Status);
+        Assert.NotNull(ordemServico.DataInicioExecucao);
+        Assert.True(ordemServico.DataInicioExecucao >= antes);
     }
 
     [Theory]
@@ -264,8 +264,8 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void AprovarOrcamento_QuandoStatusDiferenteDeAguardandoAprovacao_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
-        Assert.Throws<DomainException>(() => os.AprovarOrcamento());
+        var ordemServico = OSEmStatus(status);
+        Assert.Throws<DomainException>(() => ordemServico.AprovarOrcamento());
     }
 
     // ────────────────────────────────────────────────────────────
@@ -276,9 +276,9 @@ public class OrdemServicoTests
     public void IniciarExecucaoServico_QuandoEmExecucaoEServicoExiste_IniciaExecucaoDoServico()
     {
         var servico = CriarServico(100m);
-        var os = OSEmExecucao(servico);
+        var ordemServico = OSEmExecucao(servico);
 
-        os.IniciarExecucaoServico(servico.Id);
+        ordemServico.IniciarExecucaoServico(servico.Id);
 
         Assert.Equal(StatusOrdemServicoServico.EmExecucao, servico.Status);
         Assert.NotNull(servico.DataInicioExecucao);
@@ -287,8 +287,8 @@ public class OrdemServicoTests
     [Fact]
     public void IniciarExecucaoServico_QuandoServicoNaoVinculado_LancaDomainException()
     {
-        var os = OSEmExecucao();
-        Assert.Throws<DomainException>(() => os.IniciarExecucaoServico(Guid.NewGuid()));
+        var ordemServico = OSEmExecucao();
+        Assert.Throws<DomainException>(() => ordemServico.IniciarExecucaoServico(Guid.NewGuid()));
     }
 
     [Theory]
@@ -299,8 +299,8 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void IniciarExecucaoServico_QuandoStatusDiferenteDeEmExecucao_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
-        Assert.Throws<DomainException>(() => os.IniciarExecucaoServico(Guid.NewGuid()));
+        var ordemServico = OSEmStatus(status);
+        Assert.Throws<DomainException>(() => ordemServico.IniciarExecucaoServico(Guid.NewGuid()));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -312,17 +312,17 @@ public class OrdemServicoTests
     {
         var servico = CriarServico(100m);
         
-        var os = OSEmExecucao(servico);
+        var ordemServico = OSEmExecucao(servico);
         var antes = DateTime.UtcNow;
         
-        os.IniciarExecucaoServico(os.Servicos[0].Id);
-        os.FinalizarExecucaoServico(os.Servicos[0].Id);
-        os.IniciarExecucaoServico(os.Servicos[1].Id);
-        os.FinalizarExecucaoServico(os.Servicos[1].Id);
+        ordemServico.IniciarExecucaoServico(ordemServico.Servicos[0].Id);
+        ordemServico.FinalizarExecucaoServico(ordemServico.Servicos[0].Id);
+        ordemServico.IniciarExecucaoServico(ordemServico.Servicos[1].Id);
+        ordemServico.FinalizarExecucaoServico(ordemServico.Servicos[1].Id);
         
-        Assert.Equal(StatusOrdemServico.Finalizada, os.Status);
-        Assert.NotNull(os.DataFinalizacao);
-        Assert.True(os.DataFinalizacao >= antes);
+        Assert.Equal(StatusOrdemServico.Finalizada, ordemServico.Status);
+        Assert.NotNull(ordemServico.DataFinalizacao);
+        Assert.True(ordemServico.DataFinalizacao >= antes);
     }
 
     [Fact]
@@ -330,20 +330,20 @@ public class OrdemServicoTests
     {
         var s1 = CriarServico(100m);
         var s2 = CriarServico(200m);
-        var os = OSEmExecucao(s1, s2);
+        var ordemServico = OSEmExecucao(s1, s2);
 
-        os.IniciarExecucaoServico(s1.Id);
-        os.FinalizarExecucaoServico(s1.Id);
+        ordemServico.IniciarExecucaoServico(s1.Id);
+        ordemServico.FinalizarExecucaoServico(s1.Id);
 
-        Assert.Equal(StatusOrdemServico.EmExecucao, os.Status);
-        Assert.Null(os.DataFinalizacao);
+        Assert.Equal(StatusOrdemServico.EmExecucao, ordemServico.Status);
+        Assert.Null(ordemServico.DataFinalizacao);
     }
 
     [Fact]
     public void FinalizarExecucaoServico_QuandoServicoNaoVinculado_LancaDomainException()
     {
-        var os = OSEmExecucao();
-        Assert.Throws<DomainException>(() => os.FinalizarExecucaoServico(Guid.NewGuid()));
+        var ordemServico = OSEmExecucao();
+        Assert.Throws<DomainException>(() => ordemServico.FinalizarExecucaoServico(Guid.NewGuid()));
     }
 
     [Theory]
@@ -354,8 +354,8 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void FinalizarExecucaoServico_QuandoStatusDiferenteDeEmExecucao_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
-        Assert.Throws<DomainException>(() => os.FinalizarExecucaoServico(Guid.NewGuid()));
+        var ordemServico = OSEmStatus(status);
+        Assert.Throws<DomainException>(() => ordemServico.FinalizarExecucaoServico(Guid.NewGuid()));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -365,10 +365,10 @@ public class OrdemServicoTests
     [Fact]
     public void Entregar_QuandoFinalizada_MudaParaEntregue()
     {
-        var os = OSFinalizada();
-        os.Entregar();
+        var ordemServico = OSFinalizada();
+        ordemServico.Entregar();
 
-        Assert.Equal(StatusOrdemServico.Entregue, os.Status);
+        Assert.Equal(StatusOrdemServico.Entregue, ordemServico.Status);
     }
 
     [Theory]
@@ -379,8 +379,8 @@ public class OrdemServicoTests
     [InlineData(StatusOrdemServico.Entregue)]
     public void Entregar_QuandoStatusDiferenteDeFinalizada_LancaDomainException(StatusOrdemServico status)
     {
-        var os = OSEmStatus(status);
-        Assert.Throws<DomainException>(() => os.Entregar());
+        var ordemServico = OSEmStatus(status);
+        Assert.Throws<DomainException>(() => ordemServico.Entregar());
     }
 
     // ────────────────────────────────────────────────────────────
@@ -390,14 +390,14 @@ public class OrdemServicoTests
     [Fact]
     public void IdsProdutos_RetornaIdsProdutoDosProdutosVinculados()
     {
-        var os = OSEmDiagnostico();
-        var p1 = CriarProduto(os.Id, 10m);
-        var p2 = CriarProduto(os.Id, 20m);
-        os.InserirProdutos(new List<OrdemServicoProduto> { p1, p2 });
+        var ordemServico = OSEmDiagnostico();
+        var p1 = CriarProduto(ordemServico.Id, 10m);
+        var p2 = CriarProduto(ordemServico.Id, 20m);
+        ordemServico.InserirProdutos(new List<OrdemServicoProduto> { p1, p2 });
 
-        Assert.Contains(p1.IdProduto, os.IdsProdutos);
-        Assert.Contains(p2.IdProduto, os.IdsProdutos);
-        Assert.Equal(2, os.IdsProdutos.Count);
+        Assert.Contains(p1.IdProduto, ordemServico.IdsProdutos);
+        Assert.Contains(p2.IdProduto, ordemServico.IdsProdutos);
+        Assert.Equal(2, ordemServico.IdsProdutos.Count);
     }
 
     [Fact]
@@ -405,12 +405,12 @@ public class OrdemServicoTests
     {
         var s1 = CriarServico(100m);
         var s2 = CriarServico(200m);
-        var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { s1, s2 }, new List<OrdemServicoProduto>());
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { s1, s2 }, new List<OrdemServicoProduto>());
 
-        Assert.Contains(s1.IdServico, os.IdsServicos);
-        Assert.Contains(s2.IdServico, os.IdsServicos);
-        Assert.Equal(2, os.IdsServicos.Count);
+        Assert.Contains(s1.IdServico, ordemServico.IdsServicos);
+        Assert.Contains(s2.IdServico, ordemServico.IdsServicos);
+        Assert.Equal(2, ordemServico.IdsServicos.Count);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -421,21 +421,21 @@ public class OrdemServicoTests
     public void FluxoCompleto_DeRecebidaAteEntregue_SemExcecoes()
     {
         var servico = CriarServico(500m);
-        var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico }, new List<OrdemServicoProduto>());
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico }, new List<OrdemServicoProduto>());
 
-        os.IniciarDiagnostico();
-        os.InserirProdutos(new List<OrdemServicoProduto> { CriarProduto(os.Id, 100m) });
-        os.FinalizarDiagnostico();
-        os.AprovarOrcamento();
-        os.IniciarExecucaoServico(servico.Id);
-        os.FinalizarExecucaoServico(servico.Id);
-        os.Entregar();
+        ordemServico.IniciarDiagnostico();
+        ordemServico.InserirProdutos(new List<OrdemServicoProduto> { CriarProduto(ordemServico.Id, 100m) });
+        ordemServico.FinalizarDiagnostico();
+        ordemServico.AprovarOrcamento();
+        ordemServico.IniciarExecucaoServico(servico.Id);
+        ordemServico.FinalizarExecucaoServico(servico.Id);
+        ordemServico.Entregar();
 
-        Assert.Equal(StatusOrdemServico.Entregue, os.Status);
-        Assert.Equal(600m, os.ValorTotal);
-        Assert.NotNull(os.DataInicioExecucao);
-        Assert.NotNull(os.DataFinalizacao);
+        Assert.Equal(StatusOrdemServico.Entregue, ordemServico.Status);
+        Assert.Equal(600m, ordemServico.ValorTotal);
+        Assert.NotNull(ordemServico.DataInicioExecucao);
+        Assert.NotNull(ordemServico.DataFinalizacao);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -455,23 +455,23 @@ public class OrdemServicoTests
 
     private static OrdemServico OSRecebida(decimal valorServico = 100m)
     {
-        var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { CriarServico(valorServico) }, new List<OrdemServicoProduto>());
-        return os;
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { CriarServico(valorServico) }, new List<OrdemServicoProduto>());
+        return ordemServico;
     }
 
     private static OrdemServico OSEmDiagnostico(decimal valorServico = 100m)
     {
-        var os = OSRecebida(valorServico);
-        os.IniciarDiagnostico();
-        return os;
+        var ordemServico = OSRecebida(valorServico);
+        ordemServico.IniciarDiagnostico();
+        return ordemServico;
     }
 
     private static OrdemServico OSAguardandoAprovacao()
     {
-        var os = OSEmDiagnostico();
-        os.FinalizarDiagnostico();
-        return os;
+        var ordemServico = OSEmDiagnostico();
+        ordemServico.FinalizarDiagnostico();
+        return ordemServico;
     }
 
     private static OrdemServico OSEmExecucao(params OrdemServicoServico[] servicosExtras)
@@ -480,25 +480,25 @@ public class OrdemServicoTests
         var todos = new List<OrdemServicoServico> { servicoBase };
         todos.AddRange(servicosExtras);
 
-        var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), todos, new List<OrdemServicoProduto>());
-        os.IniciarDiagnostico();
-        os.FinalizarDiagnostico();
-        os.AprovarOrcamento();
-        return os;
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(Guid.NewGuid(), Guid.NewGuid(), todos, new List<OrdemServicoProduto>());
+        ordemServico.IniciarDiagnostico();
+        ordemServico.FinalizarDiagnostico();
+        ordemServico.AprovarOrcamento();
+        return ordemServico;
     }
 
     private static OrdemServico OSFinalizada()
     {
         var servico = CriarServico(100m);
-        var os = new OrdemServico();
-        os.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico }, new List<OrdemServicoProduto>());
-        os.IniciarDiagnostico();
-        os.FinalizarDiagnostico();
-        os.AprovarOrcamento();
-        os.IniciarExecucaoServico(servico.Id);
-        os.FinalizarExecucaoServico(servico.Id);
-        return os;
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { servico }, new List<OrdemServicoProduto>());
+        ordemServico.IniciarDiagnostico();
+        ordemServico.FinalizarDiagnostico();
+        ordemServico.AprovarOrcamento();
+        ordemServico.IniciarExecucaoServico(servico.Id);
+        ordemServico.FinalizarExecucaoServico(servico.Id);
+        return ordemServico;
     }
 
     /// <summary>
@@ -506,10 +506,11 @@ public class OrdemServicoTests
     /// </summary>
     private static OrdemServico OSEmStatus(StatusOrdemServico status)
     {
-        var os = OSRecebida();
+        var ordemServico = OSRecebida();
         typeof(OrdemServico)
             .GetProperty(nameof(OrdemServico.Status))!
-            .SetValue(os, status);
-        return os;
+            .SetValue(ordemServico, status);
+        
+        return ordemServico;
     }
 }

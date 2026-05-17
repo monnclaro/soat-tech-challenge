@@ -1,10 +1,10 @@
-﻿using Domain.Common.Exceptions;
-using Domain.OrdensServico.Enums;
+﻿using Domain.OrdensServico.Enums;
 using Domain.OrdensServico.Events;
 using Domain.OrdensServico.Produtos;
 using Domain.OrdensServico.Servicos;
 using Domain.OrdensServico.Servicos.Enums;
 using SharedKernel;
+using SharedKernel.Exceptions;
 
 namespace Domain.OrdensServico;
 

@@ -1,4 +1,5 @@
 ﻿using Domain.Clientes.Veiculos;
+using Domain.Clientes.Veiculos.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,11 +15,12 @@ public class VeiculoConfiguration : IEntityTypeConfiguration<Veiculo>
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.IdCliente).HasColumnName("id_cliente");
         
-        builder.HasIndex(x => x.Placa).IsUnique();
-        builder.Property(x => x.Placa)
+        builder.Property(v => v.Placa)
             .HasColumnName("placa")
             .HasMaxLength(8)
             .IsRequired();
+
+        builder.HasIndex(v => v.Placa).IsUnique();
         
         builder.Property(x => x.Marca)
             .HasColumnName("marca")

@@ -1,6 +1,6 @@
-﻿using Domain.Common.Exceptions;
-using Domain.OrdensServico.Servicos.Enums;
+﻿using Domain.OrdensServico.Servicos.Enums;
 using SharedKernel;
+using SharedKernel.Exceptions;
 
 namespace Domain.OrdensServico.Servicos;
 

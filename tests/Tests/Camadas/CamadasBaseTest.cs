@@ -4,7 +4,7 @@ using Domain.Usuarios;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using SoatTechChallenge.Infrastucture.Database;
 
-namespace SoatTechChallenge.Tests.Layers;
+namespace Tests.Camadas;
 
 public abstract class BaseTest
 {

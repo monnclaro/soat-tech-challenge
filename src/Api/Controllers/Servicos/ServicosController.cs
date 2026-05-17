@@ -1,78 +1,99 @@
-﻿using Application.Common.DTOs;
-using Application.Servicos.DTOs.Requests;
-using Application.Servicos.DTOs.Responses;
-using Application.Servicos.Services;
+﻿using Api.Controllers.Servicos.Presenters;
+using Api.Controllers.Servicos.Requests;
+using Application.Servicos.Controllers;
+using Application.Servicos.DTOs;
+using Application.Servicos.Queries.BuscarListaPaginada;
+using Application.Servicos.Queries.BuscarServico;
+using Application.Servicos.UseCases;
+using Application.Servicos.UseCases.AtualizarServico;
+using Application.Servicos.UseCases.InserirServico;
+using Application.Servicos.UseCases.RemoverServico;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel;
 
 namespace Api.Controllers.Servicos;
 
 [ApiController]
 [Route("api/v1/servicos")]
-[Authorize(Roles = "Admin")] 
+[Authorize(Roles = "Admin")]
 [Produces("application/json")]
 public class ServicosController : ControllerBase
 {
-    private readonly IServicoService _servicoService;
+    private readonly ServicoController _controller;
+    private readonly BuscarServicoPresenter _buscarPresenter;
+    private readonly BuscarListaPaginadaPresenter _listarPresenter;
+    private readonly BuscarTempoMedioExecucaoPresenter _tempoMedioPresenter;
+    private readonly InserirServicoPresenter _inserirPresenter;
+    private readonly AtualizarServicoPresenter _atualizarPresenter;
+    private readonly RemoverServicoPresenter _removerPresenter;
 
-    public ServicosController(IServicoService servicoService)
+    public ServicosController(
+        ServicoController controller,
+        BuscarServicoPresenter buscarPresenter,
+        BuscarListaPaginadaPresenter listarPresenter,
+        BuscarTempoMedioExecucaoPresenter tempoMedioPresenter,
+        InserirServicoPresenter inserirPresenter,
+        AtualizarServicoPresenter atualizarPresenter,
+        RemoverServicoPresenter removerPresenter)
     {
-        _servicoService = servicoService;
+        _controller          = controller;
+        _buscarPresenter     = buscarPresenter;
+        _listarPresenter     = listarPresenter;
+        _tempoMedioPresenter = tempoMedioPresenter;
+        _inserirPresenter    = inserirPresenter;
+        _atualizarPresenter  = atualizarPresenter;
+        _removerPresenter    = removerPresenter;
     }
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(ServicoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ServicoOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Buscar([FromRoute] Guid id)
+    public async Task<IActionResult> Buscar([FromRoute] Guid id, CancellationToken ct)
     {
-        var resultado = await _servicoService.Buscar(id);
-        return Ok(resultado);
+        await _controller.Buscar(new BuscarServicoInput(id), ct);
+        return _buscarPresenter.Result!;
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<ServicoResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> BuscarListaPaginada([FromQuery] PagedRequest request)
+    [ProducesResponseType(typeof(PagedResult<ServicoOutput>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> BuscarListaPaginada([FromQuery] PagedRequest request, CancellationToken ct)
     {
-        var resultado = await _servicoService.BuscarListaPaginada(request);
-        return Ok(resultado);
+        await _controller.BuscarListaPaginada(new BuscarListaPaginadaInput(request), ct);
+        return _listarPresenter.Result!;
     }
-    
+
     [HttpGet("tempo-medio-execucao")]
-    [Authorize(Roles = "Admin")] 
-    [ProducesResponseType(typeof(TempoMedioExecucaoServicosResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> BuscarTempoMedioExecucao()
+    [ProducesResponseType(typeof(IReadOnlyList<TempoMedioExecucaoOutput>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> BuscarTempoMedioExecucao(CancellationToken ct)
     {
-        var resultado = await _servicoService.BuscarTempoMedioExecucao();
-        return Ok(resultado);
+        await _controller.BuscarTempoMedioExecucao(ct);
+        return _tempoMedioPresenter.Result!;
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(ServicoResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ServicoOutput), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Inserir([FromBody] InserirServicoRequest request)
+    public async Task<IActionResult> Inserir([FromBody] InserirServicoRequest request, CancellationToken ct)
     {
-        var resultado = await _servicoService.Inserir(request);
-        return CreatedAtAction(nameof(Buscar), new { id = resultado.Id }, resultado);
+        await _controller.Inserir(new InserirServicoInput(request.Nome, request.Descricao, request.Valor), ct);
+        return _inserirPresenter.Result!;
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(ServicoResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ServicoOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Atualizar([FromRoute] Guid id, [FromBody] AtualizarServicoRequest request)
+    public async Task<IActionResult> Atualizar([FromRoute] Guid id, [FromBody] AtualizarServicoRequest request, CancellationToken ct)
     {
-        var resultado = await _servicoService.Atualizar(id, request);
-        return Ok(resultado);
+        await _controller.Atualizar(new AtualizarServicoInput(id, request.Nome, request.Descricao, request.Valor), ct);
+        return _atualizarPresenter.Result!;
     }
 
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Remover([FromRoute] Guid id)
+    public async Task<IActionResult> Remover([FromRoute] Guid id, CancellationToken ct)
     {
-        await _servicoService.Remover(id);
-        return NoContent();
+        await _controller.Remover(new RemoverServicoInput(id), ct);
+        return _removerPresenter.Result!;
     }
 }

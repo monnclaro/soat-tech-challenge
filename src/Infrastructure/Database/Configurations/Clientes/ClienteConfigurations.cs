@@ -1,4 +1,5 @@
 ﻿using Domain.Clientes;
+using Domain.Clientes.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,18 +19,17 @@ public class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
                .HasMaxLength(150)
                .IsRequired();
         
-        builder.HasIndex(x => x.Documento).IsUnique();
-        builder.Property(x => x.Documento)
+        builder.Property(c => c.Documento)
                .HasColumnName("documento")
                .HasMaxLength(14)
                .IsRequired();
-
-        builder.Property(x => x.TipoDocumento)
+        
+        builder.HasIndex(c => c.Documento).IsUnique();
+        
+        builder.Property(c => c.TipoDocumento)
                .HasColumnName("tipo_documento")
-               .HasConversion<string>()
-               .HasMaxLength(4)
                .IsRequired();
-
+        
         builder.Property(x => x.DataCriacao)
                .HasColumnName("data_criacao")
                .IsRequired();
