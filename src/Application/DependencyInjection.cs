@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Application.Common.Markers;
+using Application.Login.Controllers;
 using Application.Servicos.Queries.BuscarServico;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel;
@@ -17,6 +18,12 @@ public static class DependencyInjection
         services.Scan(scan => scan
             .FromAssemblyOf<BuscarServicoUseCase>()
             .AddClasses(c => c.AssignableTo<IUseCase>())
+            .AsSelf()
+            .WithScopedLifetime());
+
+        services.Scan(scan => scan
+            .FromAssemblyOf<LoginController>()
+            .AddClasses(c => c.AssignableTo<IScoped>())
             .AsSelf()
             .WithScopedLifetime());
 

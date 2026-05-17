@@ -3,10 +3,11 @@ using Application.Clientes.Veiculos.UseCases.BuscarListaPaginada;
 using Application.Clientes.Veiculos.UseCases.BuscarVeiculo;
 using Application.Clientes.Veiculos.UseCases.InserirVeiculo;
 using Application.Clientes.Veiculos.UseCases.RemoverVeiculo;
+using SharedKernel;
 
 namespace Application.Clientes.Veiculos.Controllers;
 
-public class VeiculoController
+public class VeiculoController : IScoped
 {
     private readonly BuscarVeiculoUseCase _buscar;
     private readonly BuscarListaPaginadaVeiculoUseCase _listar;
@@ -21,11 +22,11 @@ public class VeiculoController
         AtualizarVeiculoUseCase atualizar,
         RemoverVeiculoUseCase remover)
     {
-        _buscar    = buscar;
-        _listar    = listar;
-        _inserir   = inserir;
+        _buscar = buscar;
+        _listar = listar;
+        _inserir = inserir;
         _atualizar = atualizar;
-        _remover   = remover;
+        _remover = remover;
     }
 
     public async Task Buscar(BuscarVeiculoInput input, CancellationToken ct = default)

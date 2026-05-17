@@ -3,7 +3,7 @@ using SharedKernel;
 
 namespace SoatTechChallenge.Infrastucture.Security.BCrypt;
 
-public class BCryptPasswordHasher : IPasswordHasher, IScopedService
+public class BCryptPasswordHasher : IPasswordHasher, IScoped
 {
     public bool Verificar(string senha, string hash)
     {

@@ -1,9 +1,10 @@
 ﻿using Application.Login.UseCases;
 using Application.Login.UseCases.DTOs;
+using SharedKernel;
 
 namespace Application.Login.Controllers;
 
-public class LoginController
+public class LoginController : IScoped
 {
     private readonly LoginUseCase _useCase;
 

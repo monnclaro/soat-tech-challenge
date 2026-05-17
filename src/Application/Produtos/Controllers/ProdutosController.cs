@@ -4,10 +4,11 @@ using Application.Produtos.UseCases.BuscarProduto;
 using Application.Produtos.UseCases.IncrementarEstoque;
 using Application.Produtos.UseCases.InserirProduto;
 using Application.Produtos.UseCases.RemoverProduto;
+using SharedKernel;
 
 namespace Application.Produtos.Controllers;
 
-public class ProdutoController
+public class ProdutoController : IScoped
 {
     private readonly BuscarProdutoUseCase _buscar;
     private readonly BuscarListaPaginadaProdutoUseCase _listar;
@@ -24,12 +25,12 @@ public class ProdutoController
         IncrementarEstoqueUseCase incrementar,
         RemoverProdutoUseCase remover)
     {
-        _buscar      = buscar;
-        _listar      = listar;
-        _inserir     = inserir;
-        _atualizar   = atualizar;
+        _buscar = buscar;
+        _listar = listar;
+        _inserir = inserir;
+        _atualizar = atualizar;
         _incrementar = incrementar;
-        _remover     = remover;
+        _remover = remover;
     }
 
     public async Task Buscar(BuscarProdutoInput input, CancellationToken ct = default)

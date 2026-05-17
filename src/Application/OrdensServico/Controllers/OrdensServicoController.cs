@@ -15,10 +15,11 @@ using Application.OrdensServico.UseCases.Remover;
 using Application.OrdensServico.UseCases.RemoverProduto;
 using Application.OrdensServico.UseCases.RemoverServico;
 using Application.OrdensServico.UseCases.ReprovarOrcamento;
+using SharedKernel;
 
 namespace Application.OrdensServico.Controllers;
 
-public class OrdemServicoController
+public class OrdemServicoController : IScoped
 {
     private readonly BuscarOrdemServicoUseCase _buscar;
     private readonly BuscarStatusUseCase _buscarStatus;
@@ -57,23 +58,23 @@ public class OrdemServicoController
         RemoverProdutoUseCase removerProduto,
         RemoverServicoUseCase removerServico)
     {
-        _buscar             = buscar;
-        _buscarStatus       = buscarStatus;
-        _listar             = listar;
+        _buscar = buscar;
+        _buscarStatus = buscarStatus;
+        _listar = listar;
         _listarPorDocumento = listarPorDocumento;
-        _inserir            = inserir;
-        _inserirProdutos    = inserirProdutos;
-        _inserirServicos    = inserirServicos;
+        _inserir = inserir;
+        _inserirProdutos = inserirProdutos;
+        _inserirServicos = inserirServicos;
         _iniciarDiagnostico = iniciarDiagnostico;
         _finalizarDiagnostico = finalizarDiagnostico;
-        _aprovarOrcamento   = aprovarOrcamento;
-        _reprovarOrcamento  = reprovarOrcamento;
-        _iniciarExecucao    = iniciarExecucao;
-        _finalizarExecucao  = finalizarExecucao;
-        _entregar           = entregar;
-        _remover            = remover;
-        _removerProduto     = removerProduto;
-        _removerServico     = removerServico;
+        _aprovarOrcamento = aprovarOrcamento;
+        _reprovarOrcamento = reprovarOrcamento;
+        _iniciarExecucao = iniciarExecucao;
+        _finalizarExecucao = finalizarExecucao;
+        _entregar = entregar;
+        _remover = remover;
+        _removerProduto = removerProduto;
+        _removerServico = removerServico;
     }
 
     public async Task Buscar(BuscarOrdemServicoInput input, CancellationToken ct = default)

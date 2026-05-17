@@ -3,10 +3,11 @@ using Application.Clientes.UseCases.BuscarCliente;
 using Application.Clientes.UseCases.BuscarListaPaginada;
 using Application.Clientes.UseCases.InserirCliente;
 using Application.Clientes.UseCases.RemoverCliente;
+using SharedKernel;
 
 namespace Application.Clientes.Controllers;
 
-public class ClienteController
+public class ClienteController : IScoped
 {
     private readonly BuscarClienteUseCase _buscar;
     private readonly BuscarListaPaginadaClienteUseCase _listar;
@@ -21,11 +22,11 @@ public class ClienteController
         AtualizarClienteUseCase atualizar,
         RemoverClienteUseCase remover)
     {
-        _buscar    = buscar;
-        _listar    = listar;
-        _inserir   = inserir;
+        _buscar = buscar;
+        _listar = listar;
+        _inserir = inserir;
         _atualizar = atualizar;
-        _remover   = remover;
+        _remover = remover;
     }
 
     public async Task Buscar(BuscarClienteInput input, CancellationToken ct = default)

@@ -4,10 +4,11 @@ using Application.Servicos.Queries.BuscarTempoMedioExecucao;
 using Application.Servicos.UseCases.AtualizarServico;
 using Application.Servicos.UseCases.InserirServico;
 using Application.Servicos.UseCases.RemoverServico;
+using SharedKernel;
 
 namespace Application.Servicos.Controllers;
 
-public class ServicoController
+public class ServicoController : IScoped
 {
     private readonly BuscarServicoUseCase _buscar;
     private readonly BuscarListaPaginadaUseCase _listar;
@@ -24,12 +25,12 @@ public class ServicoController
         AtualizarServicoUseCase atualizar,
         RemoverServicoUseCase remover)
     {
-        _buscar     = buscar;
-        _listar     = listar;
+        _buscar = buscar;
+        _listar = listar;
         _tempoMedio = tempoMedio;
-        _inserir    = inserir;
-        _atualizar  = atualizar;
-        _remover    = remover;
+        _inserir = inserir;
+        _atualizar = atualizar;
+        _remover = remover;
     }
 
     public async Task Buscar(BuscarServicoInput input, CancellationToken ct = default)

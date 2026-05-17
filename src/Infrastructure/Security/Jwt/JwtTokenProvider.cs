@@ -9,7 +9,7 @@ using SharedKernel;
 
 namespace SoatTechChallenge.Infrastucture.Security.Jwt;
 
-public class JwtTokenProvider : ITokenProvider, IScopedService
+public class JwtTokenProvider : ITokenProvider, IScoped
 {
     private readonly JwtSettings _jwtSettings;
 
