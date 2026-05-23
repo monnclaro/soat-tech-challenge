@@ -1,6 +1,7 @@
 using Api.Extensions.Markers;
 using Application.OrdensServico.UseCases;
 using Application.OrdensServico.UseCases.AprovarOrcamento;
+using Application.OrdensServico.UseCases.AtualizarStatus;
 using Application.OrdensServico.UseCases.BuscarListaPaginada;
 using Application.OrdensServico.UseCases.BuscarListaPaginadaPorDocumento;
 using Application.OrdensServico.UseCases.BuscarOrdemServico;
@@ -139,4 +140,11 @@ public class RemoverServicoPresenter : IRemoverServicoOrdemServicoOutputPort, IP
     public IActionResult? Result { get; private set; }
     public void NaoEncontrado() => Result = new NotFoundResult();
     public void Ok() => Result = new OkResult();
+}
+
+public class AtualizarStatusPresenter : IAtualizarStatusOutputPort, IPresenter
+{
+    public IActionResult? Result { get; private set; }
+    public void NaoEncontrado() => Result = new NotFoundResult();
+    public void Ok()            => Result = new OkResult();
 }

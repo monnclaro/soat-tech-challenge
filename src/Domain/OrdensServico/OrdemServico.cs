@@ -211,6 +211,11 @@ public class OrdemServico : Entity
         Status = StatusOrdemServico.Entregue;
     }
 
+    public void AtualizarStatus(StatusOrdemServico novoStatus)
+    {
+        Status = novoStatus;
+    }
+    
     private void CalcularTotal()
     {
         ValorTotal = Servicos.Sum(s => s.Valor) + Produtos.Sum(p => p.Subtotal);

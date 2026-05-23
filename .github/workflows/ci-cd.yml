@@ -7,82 +7,75 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
-      # -------------------
-      # 1. Checkout code
-      # -------------------
+
+      # ── 1. CHECKOUT ──────────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
 
-      # -------------------
-      # 2. Setup .NET
-      # -------------------
+      # ── 2. BUILD DA APLICAÇÃO ────────────────────────────────
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      # -------------------
-      # 3. Build & Test
-      # -------------------
       - name: Restore
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore --configuration Release
 
-      - name: Test
-        run: dotnet test --no-build
+      # ── 3. TESTES AUTOMATIZADOS ──────────────────────────────
+      - name: Testes
+        run: dotnet test --no-build --configuration Release --verbosity normal
 
-      # -------------------
-      # 4. Docker build & push
-      # -------------------
-      - name: Docker Login
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build Docker Image
+      # ── 4. BUILD DA IMAGEM DOCKER ────────────────────────────
+      - name: Build da imagem
+        shell: pwsh
         run: |
-          docker build -t seuusuario/soat-api:latest \
-          -f SoatTechChallenge/Dockerfile .
+          docker build `
+            -t soat-api:latest `
+            -f SoatTechChallenge/Dockerfile .
 
-      - name: Push Docker Image
-        run: docker push seuusuario/soat-api:latest
+      # ── 5. CARREGAR IMAGEM NO MINIKUBE ───────────────────────
+      - name: Carregar imagem no Minikube
+        shell: pwsh
+        run: minikube image load soat-api:latest
 
-      # -------------------
-      # 5. Setup kubectl
-      # -------------------
-      - name: Configure Kubeconfig
+      # ── 6. DEPLOY DO BANCO DE DADOS ──────────────────────────
+      - name: Deploy PostgreSQL
+        shell: pwsh
+        run: kubectl apply -f k8s/postgres/
+
+      - name: Aguardar PostgreSQL
+        shell: pwsh
+        run: kubectl rollout status statefulset/postgres -n soat --timeout=120s
+
+      # ── 7. APLICAÇÃO DOS MANIFESTOS YAML ─────────────────────
+      - name: Aplicar manifestos
+        shell: pwsh
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/secret.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/hpa.yaml
 
-      - name: Setup Kubectl
-        uses: azure/setup-kubectl@v4
+      # ── 8. DEPLOY NO CLUSTER ─────────────────────────────────
+      - name: Atualizar imagem
+        shell: pwsh
+        run: |
+          kubectl set image deployment/soat-api `
+            soat-api=soat-api:latest `
+            -n soat
 
-      # -------------------
-      # 6. Terraform (DATABASE + INFRA)
-      # -------------------
-      - name: Terraform Init
-        working-directory: infra
-        run: terraform init
+      - name: Aguardar rollout
+        shell: pwsh
+        run: kubectl rollout status deployment/soat-api -n soat --timeout=180s
 
-      - name: Terraform Apply
-        working-directory: infra
-        run: terraform apply -auto-approve
-
-      # -------------------
-      # 7. Deploy Kubernetes manifests
-      # -------------------
-      - name: Apply K8s manifests
-        run: kubectl apply -f k8s/
-
-      # -------------------
-      # 8. Verify deployment
-      # -------------------
-      - name: Check rollout status
-        run: kubectl rollout status deployment/soat-api
+      # ── 9. VERIFICAÇÃO FINAL ──────────────────────────────────
+      - name: Status dos pods
+        shell: pwsh
+        run: kubectl get pods -n soat

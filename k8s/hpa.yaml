@@ -3,6 +3,7 @@ kind: HorizontalPodAutoscaler
 
 metadata:
   name: soat-api-hpa
+  namespace: soat
 
 spec:
   scaleTargetRef:
@@ -15,10 +16,15 @@ spec:
 
   metrics:
     - type: Resource
-
       resource:
         name: cpu
-
         target:
           type: Utilization
           averageUtilization: 70
+
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

@@ -1,4 +1,6 @@
 ﻿using Application.OrdensServico.UseCases.AprovarOrcamento;
+using Application.OrdensServico.UseCases.AtualizarStatus;
+using Application.OrdensServico.UseCases.AtualizarStatus.DTOs;
 using Application.OrdensServico.UseCases.BuscarListaPaginada;
 using Application.OrdensServico.UseCases.BuscarListaPaginadaPorDocumento;
 using Application.OrdensServico.UseCases.BuscarOrdemServico;
@@ -38,6 +40,7 @@ public class OrdemServicoController : IScoped
     private readonly RemoverOrdemServicoUseCase _remover;
     private readonly RemoverProdutoUseCase _removerProduto;
     private readonly RemoverServicoUseCase _removerServico;
+    private readonly AtualizarStatusUseCase _atualizarStatusUseCase;
 
     public OrdemServicoController(
         BuscarOrdemServicoUseCase buscar,
@@ -56,7 +59,8 @@ public class OrdemServicoController : IScoped
         EntregarUseCase entregar,
         RemoverOrdemServicoUseCase remover,
         RemoverProdutoUseCase removerProduto,
-        RemoverServicoUseCase removerServico)
+        RemoverServicoUseCase removerServico, 
+        AtualizarStatusUseCase atualizarStatusUseCase)
     {
         _buscar = buscar;
         _buscarStatus = buscarStatus;
@@ -75,6 +79,7 @@ public class OrdemServicoController : IScoped
         _remover = remover;
         _removerProduto = removerProduto;
         _removerServico = removerServico;
+        _atualizarStatusUseCase = atualizarStatusUseCase;
     }
 
     public async Task Buscar(BuscarOrdemServicoInput input, CancellationToken ct = default)
@@ -127,4 +132,7 @@ public class OrdemServicoController : IScoped
 
     public async Task RemoverServico(RemoverServicoOrdemServicoInput input, CancellationToken ct = default)
         => await _removerServico.Execute(input, ct);
+    
+    public async Task AtualizarStatus(AtualizarStatusOrdemServicoInput input, CancellationToken ct = default)
+        => await _atualizarStatusUseCase.Execute(input, ct);
 }

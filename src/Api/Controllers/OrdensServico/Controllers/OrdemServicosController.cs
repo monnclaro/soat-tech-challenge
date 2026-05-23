@@ -1,5 +1,5 @@
+using Api.Controllers.OrdensServico.Controllers.Requests;
 using Api.Controllers.OrdensServico.Presenters;
-using Api.Controllers.OrdensServico.Requests;
 using Application.OrdensServico.Controllers;
 using Application.OrdensServico.UseCases;
 using Application.OrdensServico.UseCases.AprovarOrcamento;
@@ -32,7 +32,6 @@ public class OrdemServicosController : ControllerBase
 {
     private readonly OrdemServicoController _controller;
     private readonly BuscarOrdemServicoPresenter _buscarPresenter;
-    private readonly BuscarStatusPresenter _buscarStatusPresenter;
     private readonly BuscarListaPaginadaOrdemServicoPresenter _listarPresenter;
     private readonly BuscarListaPaginadaPorDocumentoPresenter _listarPorDocumentoPresenter;
     private readonly InserirOrdemServicoPresenter _inserirPresenter;
@@ -40,8 +39,6 @@ public class OrdemServicosController : ControllerBase
     private readonly InserirServicosPresenter _inserirServicosPresenter;
     private readonly IniciarDiagnosticoPresenter _iniciarDiagnosticoPresenter;
     private readonly FinalizarDiagnosticoPresenter _finalizarDiagnosticoPresenter;
-    private readonly AprovarOrcamentoPresenter _aprovarOrcamentoPresenter;
-    private readonly ReprovarOrcamentoPresenter _reprovarOrcamentoPresenter;
     private readonly IniciarExecucaoServicoPresenter _iniciarExecucaoPresenter;
     private readonly FinalizarExecucaoServicoPresenter _finalizarExecucaoPresenter;
     private readonly EntregarPresenter _entregarPresenter;
@@ -52,7 +49,6 @@ public class OrdemServicosController : ControllerBase
     public OrdemServicosController(
         OrdemServicoController controller,
         BuscarOrdemServicoPresenter buscarPresenter,
-        BuscarStatusPresenter buscarStatusPresenter,
         BuscarListaPaginadaOrdemServicoPresenter listarPresenter,
         BuscarListaPaginadaPorDocumentoPresenter listarPorDocumentoPresenter,
         InserirOrdemServicoPresenter inserirPresenter,
@@ -60,8 +56,6 @@ public class OrdemServicosController : ControllerBase
         InserirServicosPresenter inserirServicosPresenter,
         IniciarDiagnosticoPresenter iniciarDiagnosticoPresenter,
         FinalizarDiagnosticoPresenter finalizarDiagnosticoPresenter,
-        AprovarOrcamentoPresenter aprovarOrcamentoPresenter,
-        ReprovarOrcamentoPresenter reprovarOrcamentoPresenter,
         IniciarExecucaoServicoPresenter iniciarExecucaoPresenter,
         FinalizarExecucaoServicoPresenter finalizarExecucaoPresenter,
         EntregarPresenter entregarPresenter,
@@ -71,7 +65,6 @@ public class OrdemServicosController : ControllerBase
     {
         _controller                  = controller;
         _buscarPresenter             = buscarPresenter;
-        _buscarStatusPresenter       = buscarStatusPresenter;
         _listarPresenter             = listarPresenter;
         _listarPorDocumentoPresenter = listarPorDocumentoPresenter;
         _inserirPresenter            = inserirPresenter;
@@ -79,8 +72,6 @@ public class OrdemServicosController : ControllerBase
         _inserirServicosPresenter    = inserirServicosPresenter;
         _iniciarDiagnosticoPresenter = iniciarDiagnosticoPresenter;
         _finalizarDiagnosticoPresenter = finalizarDiagnosticoPresenter;
-        _aprovarOrcamentoPresenter   = aprovarOrcamentoPresenter;
-        _reprovarOrcamentoPresenter  = reprovarOrcamentoPresenter;
         _iniciarExecucaoPresenter    = iniciarExecucaoPresenter;
         _finalizarExecucaoPresenter  = finalizarExecucaoPresenter;
         _entregarPresenter           = entregarPresenter;
@@ -97,15 +88,6 @@ public class OrdemServicosController : ControllerBase
     {
         await _controller.Buscar(new BuscarOrdemServicoInput(id), ct);
         return _buscarPresenter.Result!;
-    }
-
-    [HttpGet("{id:guid}/status")]
-    [ProducesResponseType(typeof(OrdemServicoStatusOutput), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> BuscarStatus([FromRoute] Guid id, CancellationToken ct)
-    {
-        await _controller.BuscarStatus(new BuscarStatusInput(id), ct);
-        return _buscarStatusPresenter.Result!;
     }
 
     [HttpGet]
@@ -179,24 +161,6 @@ public class OrdemServicosController : ControllerBase
     {
         await _controller.FinalizarDiagnostico(new FinalizarDiagnosticoInput(id), ct);
         return _finalizarDiagnosticoPresenter.Result!;
-    }
-
-    [HttpPatch("{id:guid}/orcamento/aprovacao")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AprovarOrcamento([FromRoute] Guid id, CancellationToken ct)
-    {
-        await _controller.AprovarOrcamento(new AprovarOrcamentoInput(id), ct);
-        return _aprovarOrcamentoPresenter.Result!;
-    }
-
-    [HttpPatch("{id:guid}/orcamento/reprovacao")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ReprovarOrcamento([FromRoute] Guid id, CancellationToken ct)
-    {
-        await _controller.ReprovarOrcamento(new ReprovarOrcamentoInput(id), ct);
-        return _reprovarOrcamentoPresenter.Result!;
     }
 
     [HttpPatch("{id:guid}/servicos/{idServico:guid}/iniciar-execucao")]
