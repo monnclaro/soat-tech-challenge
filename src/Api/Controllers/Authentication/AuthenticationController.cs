@@ -1,10 +1,10 @@
-﻿using Api.Controllers.Authentication.Controllers.Requests;
-using Api.Controllers.Authentication.Presenters;
+﻿using Api.Controllers.Authentication.Presenters;
+using Api.Controllers.Authentication.Requests;
 using Application.Login.Controllers;
 using Application.Login.UseCases.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.Authentication.Controllers;
+namespace Api.Controllers.Authentication;
 
 [ApiController]
 [Route("api/auth")]

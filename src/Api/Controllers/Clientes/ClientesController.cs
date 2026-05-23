@@ -1,5 +1,5 @@
-using Api.Controllers.Clientes.Controllers.Requests;
 using Api.Controllers.Clientes.Presenters;
+using Api.Controllers.Clientes.Requests;
 using Application.Clientes.Controllers;
 using Application.Clientes.UseCases;
 using Application.Clientes.UseCases.AtualizarCliente;
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel;
 
-namespace Api.Controllers.Clientes.Controllers;
+namespace Api.Controllers.Clientes;
 
 [ApiController]
 [Route("api/v1/clientes")]

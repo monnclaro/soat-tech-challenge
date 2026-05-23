@@ -20,6 +20,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.Use(async (context, next) =>
+{
+    context.Request.EnableBuffering();
+    await next();
+});
+
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseAuthentication();

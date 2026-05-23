@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel;
 
-namespace Api.Controllers.Clientes.Veiculos.Controllers;
+namespace Api.Controllers.Clientes.Veiculos;
 
 [ApiController]
 [Route("api/v1/clientes/{idCliente:guid}/veiculos")]

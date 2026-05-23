@@ -1,12 +1,12 @@
-﻿using Api.Controllers.OrdensServico.Controllers.Requests;
-using Api.Controllers.OrdensServico.Presenters;
+﻿using Api.Controllers.OrdensServico.Presenters;
+using Api.Controllers.OrdensServico.Requests;
 using Application.OrdensServico.Controllers;
 using Application.OrdensServico.UseCases;
 using Application.OrdensServico.UseCases.AtualizarStatus.DTOs;
 using Application.OrdensServico.UseCases.BuscarStatus;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.OrdensServico.Controllers;
+namespace Api.Controllers.OrdensServico;
 
 [ApiController]
 [Route("api/v1/ordens-servico/{idOrdemServico:guid}/status")]

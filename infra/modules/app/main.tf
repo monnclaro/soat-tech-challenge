@@ -15,6 +15,7 @@ resource "kubernetes_config_map" "app" {
     ConnectionStrings__Default   = "Host=postgres-service;Port=5432;Database=soattechchallenge;Username=${var.db_user};Password=${var.db_password}"
     JwtSettings__Secret          = var.jwt_secret
     JwtSettings__ExpirationHours = "2"
+    Webhook__Secret              = "secret_webhook"
   }
 }
 

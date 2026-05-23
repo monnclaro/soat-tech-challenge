@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Api.Controllers.Authentication.Controllers.Requests;
+namespace Api.Controllers.Authentication.Requests;
 
 public record LoginRequest(
     [property: JsonPropertyName("email")] string Email,

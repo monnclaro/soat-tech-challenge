@@ -1,4 +1,5 @@
 ﻿using Api.Extensions.Markers;
+using SharedKernel;
 
 namespace Api.Extensions;
 
@@ -11,6 +12,12 @@ public static class PresentationExtensions
         services.Scan(scan => scan
             .FromApplicationDependencies()
             .AddClasses(c => c.AssignableTo<IPresenter>())
+            .AsSelfWithInterfaces()
+            .WithScopedLifetime());
+        
+        services.Scan(scan => scan
+            .FromApplicationDependencies()
+            .AddClasses(c => c.AssignableTo<IScoped>())
             .AsSelfWithInterfaces()
             .WithScopedLifetime());
         

@@ -11,3 +11,5 @@ data:
 
   JwtSettings__Secret: "SuaChaveSuperSecretaComMinimo32Caracteres"
   JwtSettings__ExpirationHours: "2"
+
+  Webhook__Secret: "secret_webhook"

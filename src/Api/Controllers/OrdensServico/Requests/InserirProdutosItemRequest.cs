@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Api.Controllers.OrdensServico.Controllers.Requests;
+namespace Api.Controllers.OrdensServico.Requests;
 
 public record InserirProdutosItemRequest(
     [property: JsonPropertyName("idProduto")] Guid IdProduto,

@@ -1,12 +1,11 @@
-using Api.Controllers.OrdensServico.Controllers.Requests;
 using Api.Controllers.OrdensServico.Presenters;
+using Api.Controllers.OrdensServico.Requests;
 using Application.OrdensServico.Controllers;
 using Application.OrdensServico.UseCases;
 using Application.OrdensServico.UseCases.AprovarOrcamento;
 using Application.OrdensServico.UseCases.BuscarListaPaginada;
 using Application.OrdensServico.UseCases.BuscarListaPaginadaPorDocumento;
 using Application.OrdensServico.UseCases.BuscarOrdemServico;
-using Application.OrdensServico.UseCases.BuscarStatus;
 using Application.OrdensServico.UseCases.Entregar;
 using Application.OrdensServico.UseCases.FinalizarDiagnostico;
 using Application.OrdensServico.UseCases.FinalizarExecucaoServico;
@@ -23,7 +22,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel;
 
-namespace Api.Controllers.OrdensServico.Controllers;
+namespace Api.Controllers.OrdensServico;
 
 [ApiController]
 [Route("api/v1/ordens-servico")]
@@ -45,6 +44,8 @@ public class OrdemServicosController : ControllerBase
     private readonly RemoverOrdemServicoPresenter _removerPresenter;
     private readonly RemoverProdutoPresenter _removerProdutoPresenter;
     private readonly RemoverServicoPresenter _removerServicoPresenter;
+    private readonly AprovarOrcamentoPresenter _aprovarPresenter;
+    private readonly ReprovarOrcamentoPresenter _reprovarPresenter;
 
     public OrdemServicosController(
         OrdemServicoController controller,
@@ -61,23 +62,27 @@ public class OrdemServicosController : ControllerBase
         EntregarPresenter entregarPresenter,
         RemoverOrdemServicoPresenter removerPresenter,
         RemoverProdutoPresenter removerProdutoPresenter,
-        RemoverServicoPresenter removerServicoPresenter)
+        RemoverServicoPresenter removerServicoPresenter,
+        AprovarOrcamentoPresenter aprovarPresenter,
+        ReprovarOrcamentoPresenter reprovarPresenter)
     {
-        _controller                  = controller;
-        _buscarPresenter             = buscarPresenter;
-        _listarPresenter             = listarPresenter;
+        _controller = controller;
+        _buscarPresenter = buscarPresenter;
+        _listarPresenter = listarPresenter;
         _listarPorDocumentoPresenter = listarPorDocumentoPresenter;
-        _inserirPresenter            = inserirPresenter;
-        _inserirProdutosPresenter    = inserirProdutosPresenter;
-        _inserirServicosPresenter    = inserirServicosPresenter;
+        _inserirPresenter = inserirPresenter;
+        _inserirProdutosPresenter = inserirProdutosPresenter;
+        _inserirServicosPresenter = inserirServicosPresenter;
         _iniciarDiagnosticoPresenter = iniciarDiagnosticoPresenter;
         _finalizarDiagnosticoPresenter = finalizarDiagnosticoPresenter;
-        _iniciarExecucaoPresenter    = iniciarExecucaoPresenter;
-        _finalizarExecucaoPresenter  = finalizarExecucaoPresenter;
-        _entregarPresenter           = entregarPresenter;
-        _removerPresenter            = removerPresenter;
-        _removerProdutoPresenter     = removerProdutoPresenter;
-        _removerServicoPresenter     = removerServicoPresenter;
+        _iniciarExecucaoPresenter = iniciarExecucaoPresenter;
+        _finalizarExecucaoPresenter = finalizarExecucaoPresenter;
+        _entregarPresenter = entregarPresenter;
+        _removerPresenter = removerPresenter;
+        _removerProdutoPresenter = removerProdutoPresenter;
+        _removerServicoPresenter = removerServicoPresenter;
+        _aprovarPresenter = aprovarPresenter;
+        _reprovarPresenter = reprovarPresenter;
     }
 
     [HttpGet("{id:guid}")]
@@ -161,6 +166,30 @@ public class OrdemServicosController : ControllerBase
     {
         await _controller.FinalizarDiagnostico(new FinalizarDiagnosticoInput(id), ct);
         return _finalizarDiagnosticoPresenter.Result!;
+    }
+
+    [HttpPatch("{id:guid}/orcamento/aprovacao")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AprovarOrcamento(
+       [FromRoute] Guid id,
+       CancellationToken ct)
+    {
+        await _controller.AprovarOrcamento(new AprovarOrcamentoInput(id), ct);
+        return _aprovarPresenter.Result!;
+    }
+
+    [HttpPatch("{id:guid}/orcamento/reprovacao")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ReprovarOrcamento(
+        [FromRoute] Guid id,
+        CancellationToken ct)
+    {
+        await _controller.ReprovarOrcamento(new ReprovarOrcamentoInput(id), ct);
+        return _reprovarPresenter.Result!;
     }
 
     [HttpPatch("{id:guid}/servicos/{idServico:guid}/iniciar-execucao")]
