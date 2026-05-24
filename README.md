@@ -9,21 +9,21 @@
 Nesta primeira etapa foi desenvolvido o MVP do sistema de gerenciamento da oficina mecânica, com foco em organização operacional, rastreabilidade dos serviços e centralização das informações.
 
 Objetivos da fase:
-- Gerenciar clientes e veículos
-- Controlar produtos e peças utilizadas nos serviços
-- Registrar ordens de serviço
-- Acompanhar o status dos atendimentos
-- Garantir persistência e integridade dos dados
-- Aplicar boas práticas de arquitetura e qualidade de software
+- Gerenciar clientes e veículos;
+- Controlar produtos e peças utilizadas nos serviços;
+- Registrar ordens de serviço;
+- Acompanhar o status dos atendimentos;
+- Garantir persistência e integridade dos dados;
+- Aplicar boas práticas de arquitetura e qualidade de software.
 
 ## Fase 2 — Infraestrutura, Escalabilidade e CI/CD
 
 Após a implantação do sistema inicial, com o aumento da demanda e a expansão para novas unidades, surgiu a necessidade de evoluir a aplicação. Os objetivos desta fase são:
 
-- Reduzir riscos operacionais por meio de infraestrutura escalável
-- Automatizar o provisionamento e o deploy do ambiente
-- Melhorar a qualidade e organização do código com **Clean Architecture**
-- Preparar a aplicação para suportar grandes volumes de ordens de serviço em horários de pico com escalabilidade dinâmica
+- Reduzir riscos operacionais por meio de infraestrutura escalável;
+- Automatizar o provisionamento e o deploy do ambiente;
+- Melhorar a qualidade e organização do código com **Clean Architecture**;
+- Preparar a aplicação para suportar grandes volumes de ordens de serviço em horários de pico com escalabilidade dinâmica.
 
 ### O que foi adicionado nesta fase
 
@@ -43,10 +43,10 @@ O projeto foi desenvolvido com **C# / .NET 9** e **PostgreSQL 16** como banco de
  
 A escolha do PostgreSQL foi feita considerando:
  
-- **Consistência transacional** — suporte completo a ACID
-- **Concorrência avançada** — controle de concorrência multiversão (MVCC)
-- **Modelagem de domínio** — recursos nativos que facilitam regras complexas de negócio
-- **Maturidade e confiabilidade** — amplamente utilizado em produção no mercado
+- **Consistência transacional** — suporte completo a ACID;
+- **Concorrência avançada** — controle de concorrência multiversão (MVCC);
+- **Modelagem de domínio** — recursos nativos que facilitam regras complexas de negócio;
+- **Maturidade e confiabilidade** — amplamente utilizado em produção no mercado.
 
 | Componente | Tecnologia | Descrição |
 |---|---|---|
@@ -71,11 +71,11 @@ src/
 
 ```
 
-- **Domain** não depende de nada — contém as entidades e contratos
-- **Application** depende apenas do Domain
-- **Infrastructure** implementa as interfaces do Domain
-- **API** orquestra tudo e expõe os endpoints REST
-- **SharedKernel** é referenciado por todas as camadas — contém tipos base, extensões e utilitários sem dependência de negócio
+- **Domain** não depende de nada — contém as entidades e contratos;
+- **Application** depende apenas do Domain;
+- **Infrastructure** implementa as interfaces do Domain;
+- **API** orquestra tudo e expõe os endpoints REST;
+- **SharedKernel** é referenciado por todas as camadas — contém tipos base, extensões e utilitários sem dependência de negócio.
 
 Para o detalhamento da infraestrutura provisionada e fluxo de deploy, veja [docs/infra.md](./docs/infra.md).
 
