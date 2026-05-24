@@ -55,17 +55,20 @@ A escolha do PostgreSQL foi feita considerando:
 O projeto segue os princípios da **Clean Architecture**, organizado em camadas com dependências apontando sempre para o centro:
 
 ```
-SoatTechChallenge/
+src/
 ├── Domain/              ← entidades, interfaces, regras de negócio puras
 ├── Application/         ← casos de uso, DTOs, serviços de aplicação
 ├── Infrastructure/      ← repositórios, banco de dados, serviços externos
-└── API/                 ← controllers, middlewares, configuração HTTP
+├── API/                 ← controllers, middlewares, configuração HTTP
+└── SharedKernel/        ← tipos comuns, extensões e utilitários compartilhados
+
 ```
 
 - **Domain** não depende de nada — contém as entidades e contratos
 - **Application** depende apenas do Domain
 - **Infrastructure** implementa as interfaces do Domain
 - **API** orquestra tudo e expõe os endpoints REST
+- **SharedKernel** é referenciado por todas as camadas — contém tipos base, extensões e utilitários sem dependência de negócio
 
 Para o detalhamento da infraestrutura provisionada e fluxo de deploy, veja [docs/infra.md](./docs/infra.md).
 

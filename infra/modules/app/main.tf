@@ -1,9 +1,9 @@
 # Recursos criados:
-#   - ConfigMap  soat-api-config  (mesmos valores dos seus YAMLs)
-#   - Secret     soat-api-secret  (mesmos valores dos seus YAMLs)
-#   - Deployment soat-api         (espelho do seu deployment.yaml)
-#   - Service    soat-api-service (espelho do seu service.yaml)
-#   - HPA        soat-api-hpa     (espelho do seu hpa.yaml)
+#   - ConfigMap  soat-api-config 
+#   - Secret     soat-api-secret 
+#   - Deployment soat-api       
+#   - Service    soat-api-service 
+#   - HPA        soat-api-hpa    
 
 resource "kubernetes_config_map" "app" {
   metadata {

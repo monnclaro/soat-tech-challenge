@@ -7,25 +7,28 @@
 │                    Kubernetes (Minikube)                     │
 │                      Namespace: soat                        │
 │                                                             │
-│  ┌─────────────────────┐     ┌─────────────────────────┐   │
-│  │     soat-api        │     │       postgres           │   │
-│  │   Deployment        │◄───►│      StatefulSet         │   │
-│  │   2–10 pods (HPA)   │     │      PVC 1Gi             │   │
-│  └──────────┬──────────┘     └──────────┬──────────────┘   │
-│             │                           │                   │
-│  ┌──────────▼──────────┐     ┌──────────▼──────────────┐   │
-│  │  soat-api-service   │     │   postgres-service       │   │
-│  │  NodePort :80       │     │   ClusterIP :5432        │   │
-│  └─────────────────────┘     └─────────────────────────┘   │
+│  ┌──────────────────────┐     ┌───────────────────────┐    │
+│  │  Deployment          │     │  StatefulSet           │    │
+│  │  soat-api            │◄───►│  postgres              │    │
+│  │  2–10 pods (HPA)     │     │  PostgreSQL 16         │    │
+│  └──────────┬───────────┘     └──────────┬────────────┘    │
+│             │                            │                  │
+│  ┌──────────▼───────────┐     ┌──────────▼────────────┐    │
+│  │  Service             │     │  Service               │    │
+│  │  soat-api-service    │     │  postgres-service      │    │
+│  │  NodePort :80        │     │  ClusterIP :5432       │    │
+│  └──────────────────────┘     └───────────────────────┘    │
 │                                                             │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  soat-api-config (ConfigMap) + soat-api-secret       │   │
-│  └──────────────────────────────────────────────────────┘   │
+│  ┌─────────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │  HPA            │  │  ConfigMap   │  │  Secret      │  │
+│  │  CPU > 70%      │  │  soat-api    │  │  soat-api    │  │
+│  │  Mem > 80%      │  │  -config     │  │  -secret     │  │
+│  │  min:2 max:10   │  └──────────────┘  └──────────────┘  │
+│  └─────────────────┘                                       │
 │                                                             │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  soat-api-hpa — CPU > 70% ou Memória > 80%           │   │
-│  │  min: 2 réplicas / max: 10 réplicas                  │   │
-│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  PVC · postgres-pvc · 1Gi · StorageClass standard    │  │
+│  └──────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -52,28 +55,42 @@
 git push → main
       │
       ▼
-GitHub Actions
+GitHub Actions detecta o push
       │
       ▼
 Self-hosted Runner (Windows + Minikube)
       │
-      ├── 1. dotnet restore
-      ├── 2. dotnet build --configuration Release
-      ├── 3. dotnet test --configuration Release
-      ├── 4. docker build -t soat-api:latest
-      ├── 5. minikube image load soat-api:latest
-      ├── 6. kubectl apply -f k8s/postgres/
-      ├── 7. kubectl rollout status statefulset/postgres
-      ├── 8. kubectl apply -f k8s/*.yaml
-      ├── 9. kubectl set image deployment/soat-api
-      └── 10. kubectl rollout status deployment/soat-api
+      ├─── Build e testes ──────────────────────────────┐
+      │    dotnet restore                               │
+      │    dotnet build --configuration Release         │
+      │    dotnet test --configuration Release          │
+      │                                                 │
+      ├─── Docker build ────────────────────────────────┤
+      │    docker build -t soat-api:latest              │
+      │                                                 │
+      ├─── Carregar no Minikube ────────────────────────┤
+      │    minikube image load soat-api:latest          │
+      │                                                 │
+      ├─── Deploy do banco ─────────────────────────────┤
+      │    kubectl apply -f k8s/postgres/               │
+      │    kubectl rollout status statefulset/postgres  │
+      │                                                 │
+      ├─── Apply manifestos ────────────────────────────┤
+      │    kubectl apply -f k8s/configmap.yaml          │
+      │    kubectl apply -f k8s/secret.yaml             │
+      │    kubectl apply -f k8s/deployment.yaml         │
+      │    kubectl apply -f k8s/service.yaml            │
+      │    kubectl apply -f k8s/hpa.yaml                │
+      │                                                 │
+      ├─── Rolling update ──────────────────────────────┤
+      │    kubectl set image deployment/soat-api        │
+      │                                                 │
+      └─── Verificar rollout ───────────────────────────┘
+           kubectl rollout status deployment/soat-api
+                 │
+                 ▼
+           Deploy concluído ✓
 ```
-
-### Por que Self-hosted Runner?
-
-O runner roda na mesma máquina que o Minikube, eliminando a necessidade de expor o cluster na internet ou usar um registry externo. A imagem é buildada e carregada diretamente via `minikube image load`.
-
----
 
 ## Terraform — Módulos
 
