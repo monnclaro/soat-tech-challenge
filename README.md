@@ -4,6 +4,18 @@
  
 ---
 
+## Fase 1 — MVP do Sistema da Oficina
+
+Nesta primeira etapa foi desenvolvido o MVP do sistema de gerenciamento da oficina mecânica, com foco em organização operacional, rastreabilidade dos serviços e centralização das informações.
+
+Objetivos da fase:
+- Gerenciar clientes e veículos
+- Controlar produtos e peças utilizadas nos serviços
+- Registrar ordens de serviço
+- Acompanhar o status dos atendimentos
+- Garantir persistência e integridade dos dados
+- Aplicar boas práticas de arquitetura e qualidade de software
+
 ## Fase 2 — Infraestrutura, Escalabilidade e CI/CD
 
 Após a implantação do sistema inicial, com o aumento da demanda e a expansão para novas unidades, surgiu a necessidade de evoluir a aplicação. Os objetivos desta fase são:
@@ -25,18 +37,6 @@ Após a implantação do sistema inicial, com o aumento da demanda e a expansão
 
 ---
 
-## Componentes da Aplicação
-
-| Componente | Tecnologia | Descrição |
-|---|---|---|
-| API | ASP.NET Core 9 | REST API principal da oficina |
-| Banco de Dados | PostgreSQL 16 | Persistência dos dados |
-| Orquestração | Kubernetes (Minikube) | Deploy e escalabilidade automática |
-| IaC | Terraform | Provisionamento da infraestrutura como código |
-| CI/CD | GitHub Actions | Automação de build, testes e deploy |
-
---- 
-
 ## Tech Stack
  
 O projeto foi desenvolvido com **C# / .NET 9** e **PostgreSQL 16** como banco de dados principal.
@@ -48,6 +48,13 @@ A escolha do PostgreSQL foi feita considerando:
 - **Modelagem de domínio** — recursos nativos que facilitam regras complexas de negócio
 - **Maturidade e confiabilidade** — amplamente utilizado em produção no mercado
 
+| Componente | Tecnologia | Descrição |
+|---|---|---|
+| API | ASP.NET Core 9 | REST API principal da oficina |
+| Banco de Dados | PostgreSQL 16 | Persistência dos dados |
+| Orquestração | Kubernetes (Minikube) | Deploy e escalabilidade automática |
+| IaC | Terraform | Provisionamento da infraestrutura como código |
+| CI/CD | GitHub Actions | Automação de build, testes e deploy |
 ---
 
 ## Arquitetura
@@ -131,7 +138,7 @@ minikube start
 minikube addons enable metrics-server
 
 # 2. Buildar e carregar a imagem
-docker build -t soat-api:latest -f SoatTechChallenge/Dockerfile .
+docker build -t soat-api:latest -f src/Api/Dockerfile .
 minikube image load soat-api:latest
 
 # 3. Aplicar os manifestos
