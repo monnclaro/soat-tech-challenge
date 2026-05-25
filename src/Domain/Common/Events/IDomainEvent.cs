@@ -1,4 +1,4 @@
-﻿namespace SharedKernel;
+﻿namespace Domain.Common.Events;
 
 public interface IDomainEvent
 {

@@ -1,5 +1,5 @@
-﻿using Domain.OrdensServico.Produtos;
-using SharedKernel;
+﻿using Domain.Common.Events;
+using Domain.OrdensServico.Produtos;
 
 namespace Domain.OrdensServico.Events;
 

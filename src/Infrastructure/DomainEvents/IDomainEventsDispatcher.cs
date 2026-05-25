@@ -1,4 +1,4 @@
-﻿using SharedKernel;
+﻿using Domain.Common.Events;
 
 namespace SoatTechChallenge.Infrastucture.DomainEvents;
 

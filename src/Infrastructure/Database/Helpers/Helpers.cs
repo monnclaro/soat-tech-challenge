@@ -1,4 +1,4 @@
-﻿using SharedKernel;
+﻿using Domain.Common.Events;
 using SoatTechChallenge.Infrastucture.DomainEvents;
 
 namespace SoatTechChallenge.Infrastucture.Database.Helpers;

@@ -1,6 +1,7 @@
 ﻿using Domain.Clientes;
 using Domain.Clientes.Veiculos;
 using Domain.Common;
+using Domain.Common.Events;
 using Domain.OrdensServico;
 using Domain.OrdensServico.Produtos;
 using Domain.OrdensServico.Servicos;
@@ -8,7 +9,6 @@ using Domain.Produtos;
 using Domain.Servicos;
 using Domain.Usuarios;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
 using SoatTechChallenge.Infrastucture.DomainEvents;
 
 namespace SoatTechChallenge.Infrastucture.Database;

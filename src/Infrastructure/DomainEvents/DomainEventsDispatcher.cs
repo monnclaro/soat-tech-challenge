@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Application.Common.Interfaces;
+using Domain.Common.Events;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
 
 namespace SoatTechChallenge.Infrastucture.DomainEvents;
 
