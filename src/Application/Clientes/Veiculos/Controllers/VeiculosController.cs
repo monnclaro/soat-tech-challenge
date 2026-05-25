@@ -3,7 +3,7 @@ using Application.Clientes.Veiculos.UseCases.BuscarListaPaginada;
 using Application.Clientes.Veiculos.UseCases.BuscarVeiculo;
 using Application.Clientes.Veiculos.UseCases.InserirVeiculo;
 using Application.Clientes.Veiculos.UseCases.RemoverVeiculo;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Application.Clientes.Veiculos.Controllers;
 

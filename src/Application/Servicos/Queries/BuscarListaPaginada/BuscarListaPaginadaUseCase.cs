@@ -1,7 +1,6 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Application.Servicos.DTOs;
-using Application.Servicos.UseCases;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Application.Servicos.Queries.BuscarListaPaginada;
 

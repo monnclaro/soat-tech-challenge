@@ -9,7 +9,7 @@ using Application.Clientes.Veiculos.UseCases.InserirVeiculo;
 using Application.Clientes.Veiculos.UseCases.RemoverVeiculo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Api.Controllers.Clientes.Veiculos;
 

@@ -10,7 +10,7 @@ using Domain.OrdensServico.Servicos;
 using Domain.Servicos;
 using Domain.Servicos.Gateways;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Database;
 using SoatTechChallenge.Infrastucture.Gateways.Clientes;
 using SoatTechChallenge.Infrastucture.Gateways.OrdensServico;

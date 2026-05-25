@@ -1,6 +1,5 @@
 ﻿using Domain.Clientes.Enums;
-
-using SharedKernel.Exceptions;
+using DomainException = Domain.Common.Exceptions.DomainException;
 
 namespace Domain.Clientes.ValueObjects;
 

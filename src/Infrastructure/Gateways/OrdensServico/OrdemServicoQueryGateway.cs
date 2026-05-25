@@ -2,7 +2,7 @@
 using Application.OrdensServico.UseCases;
 using Domain.OrdensServico.Enums;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Database;
 
 namespace SoatTechChallenge.Infrastucture.Gateways.OrdensServico;

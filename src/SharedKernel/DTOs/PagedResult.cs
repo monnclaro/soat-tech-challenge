@@ -1,4 +1,4 @@
-﻿namespace SharedKernel;
+﻿namespace SharedKernel.DTOs;
 
 public record PagedResult<T>(
     IReadOnlyList<T> Items,

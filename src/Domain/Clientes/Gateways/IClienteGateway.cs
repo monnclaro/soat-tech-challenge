@@ -1,6 +1,4 @@
-
-
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Domain.Clientes.Gateways;
 

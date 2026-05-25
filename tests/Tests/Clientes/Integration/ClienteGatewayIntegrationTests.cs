@@ -2,7 +2,7 @@
 using Domain.Clientes.Gateways;
 using Domain.Clientes.ValueObjects;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Gateways.Clientes;
 using Tests.Infrastructure;
 using Xunit;

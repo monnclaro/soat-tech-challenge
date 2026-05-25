@@ -1,6 +1,6 @@
 ﻿using Application.Servicos.DTOs;
 using Domain.Servicos;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Application.Servicos.Queries;
 

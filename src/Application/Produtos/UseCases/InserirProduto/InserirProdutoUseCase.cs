@@ -1,4 +1,4 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Application.Produtos.DTOs;
 using Domain.Produtos;
 using Domain.Produtos.Gateways;

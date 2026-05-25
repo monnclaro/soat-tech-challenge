@@ -1,5 +1,4 @@
-using Application.Common.Markers;
-using Application.Servicos.Queries;
+using Application.Common.Interfaces;
 using Domain.Servicos.Gateways;
 
 namespace Application.Servicos.UseCases.RemoverServico;

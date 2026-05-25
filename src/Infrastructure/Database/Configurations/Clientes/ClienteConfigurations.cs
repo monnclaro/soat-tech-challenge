@@ -1,5 +1,4 @@
 ﻿using Domain.Clientes;
-using Domain.Clientes.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

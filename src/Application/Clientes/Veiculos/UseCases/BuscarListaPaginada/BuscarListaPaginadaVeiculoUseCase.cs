@@ -1,6 +1,6 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Domain.Clientes.Veiculos.Gateways;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Application.Clientes.Veiculos.UseCases.BuscarListaPaginada;
 

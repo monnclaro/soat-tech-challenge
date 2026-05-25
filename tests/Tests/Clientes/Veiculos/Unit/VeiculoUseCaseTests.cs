@@ -10,8 +10,8 @@ using Domain.Clientes.ValueObjects;
 using Domain.Clientes.Veiculos;
 using Domain.Clientes.Veiculos.Gateways;
 using Domain.Clientes.Veiculos.ValueObjects;
-using SharedKernel;
-using SharedKernel.Exceptions;
+using Domain.Common.Exceptions;
+using SharedKernel.DTOs;
 using Xunit;
 
 namespace Tests.Clientes.Veiculos.Unit;

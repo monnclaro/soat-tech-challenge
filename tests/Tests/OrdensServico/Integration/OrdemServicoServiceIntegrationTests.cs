@@ -13,16 +13,13 @@ using Domain.Produtos;
 using Domain.Produtos.Gateways;
 using Domain.Servicos;
 using Domain.Servicos.Gateways;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Database;
-using SoatTechChallenge.Infrastucture.DomainEvents;
 using SoatTechChallenge.Infrastucture.Gateways.Clientes;
 using SoatTechChallenge.Infrastucture.Gateways.OrdensServico;
 using SoatTechChallenge.Infrastucture.Gateways.Produtos;
 using SoatTechChallenge.Infrastucture.Gateways.Servicos;
-using Testcontainers.PostgreSql;
 using Tests.Infrastructure;
 using Xunit;
 

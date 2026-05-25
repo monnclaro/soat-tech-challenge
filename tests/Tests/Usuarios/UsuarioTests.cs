@@ -1,6 +1,6 @@
-﻿using Domain.Usuarios;
+﻿using Domain.Common.Exceptions;
+using Domain.Usuarios;
 using Domain.Usuarios.Roles;
-using SharedKernel.Exceptions;
 using Xunit;
 
 namespace Tests.Usuarios;

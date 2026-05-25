@@ -1,5 +1,5 @@
-﻿using Domain.Servicos;
-using SharedKernel.Exceptions;
+﻿using Domain.Common.Exceptions;
+using Domain.Servicos;
 using Xunit;
 
 namespace Tests.Servicos;

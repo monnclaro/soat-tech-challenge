@@ -1,8 +1,8 @@
 ﻿using Domain.Clientes.Enums;
 using Domain.Clientes.ValueObjects;
 using Domain.Clientes.Veiculos;
-using SharedKernel;
-using SharedKernel.Exceptions;
+using Domain.Common;
+using DomainException = Domain.Common.Exceptions.DomainException;
 
 namespace Domain.Clientes;
 

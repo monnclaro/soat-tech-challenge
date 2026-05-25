@@ -1,4 +1,4 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Domain.Produtos.Gateways;
 
 namespace Application.Produtos.UseCases.DecrementarEstoque;

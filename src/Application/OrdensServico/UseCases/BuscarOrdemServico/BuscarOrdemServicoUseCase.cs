@@ -1,6 +1,5 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Application.OrdensServico.Queries;
-using Domain.OrdensServico.Gateways;
 
 namespace Application.OrdensServico.UseCases.BuscarOrdemServico;
 

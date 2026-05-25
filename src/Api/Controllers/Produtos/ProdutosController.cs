@@ -10,7 +10,7 @@ using Application.Produtos.UseCases.InserirProduto;
 using Application.Produtos.UseCases.RemoverProduto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Api.Controllers.Produtos;
 

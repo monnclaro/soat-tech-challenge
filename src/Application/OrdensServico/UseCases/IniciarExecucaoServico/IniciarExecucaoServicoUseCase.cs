@@ -1,4 +1,4 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Domain.OrdensServico.Gateways;
 
 namespace Application.OrdensServico.UseCases.IniciarExecucaoServico;

@@ -1,4 +1,4 @@
-﻿using Application.Common.Markers;
+﻿using Application.Common.Interfaces;
 using Application.Login.UseCases.DTOs;
 using Application.Login.UseCases.Interfaces;
 using Domain.Usuarios.Gateways;

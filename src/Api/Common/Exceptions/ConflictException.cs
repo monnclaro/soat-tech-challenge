@@ -1,4 +1,4 @@
-﻿namespace SharedKernel.Exceptions;
+﻿namespace Api.Common.Exceptions;
 
 public class ConflictException : Exception
 {

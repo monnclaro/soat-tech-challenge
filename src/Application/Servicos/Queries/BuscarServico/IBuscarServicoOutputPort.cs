@@ -1,5 +1,4 @@
 using Application.Servicos.DTOs;
-using Application.Servicos.UseCases;
 
 namespace Application.Servicos.Queries.BuscarServico;
 

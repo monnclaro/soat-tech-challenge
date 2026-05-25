@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Api.Extensions.Filters;
 

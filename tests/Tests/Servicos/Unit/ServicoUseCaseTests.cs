@@ -6,10 +6,10 @@ using Application.Servicos.Queries.BuscarTempoMedioExecucao;
 using Application.Servicos.UseCases.AtualizarServico;
 using Application.Servicos.UseCases.InserirServico;
 using Application.Servicos.UseCases.RemoverServico;
+using Domain.Common.Exceptions;
 using Domain.Servicos;
 using Domain.Servicos.Gateways;
-using SharedKernel;
-using SharedKernel.Exceptions;
+using SharedKernel.DTOs;
 using Xunit;
 
 namespace Tests.Servicos.Unit;

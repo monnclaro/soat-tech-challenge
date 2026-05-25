@@ -1,5 +1,4 @@
-using Application.Common.Markers;
-using Application.Servicos.Queries;
+using Application.Common.Interfaces;
 using Domain.OrdensServico.Gateways;
 using Domain.OrdensServico.Servicos;
 using Domain.Servicos.Gateways;

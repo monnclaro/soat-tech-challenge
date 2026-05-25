@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using SharedKernel;
+using Domain.Common;
 
 namespace Domain.OrdensServico.Produtos;
 

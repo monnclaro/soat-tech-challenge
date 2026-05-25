@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SoatTechChallenge.Infrastucture.Database;
 using SoatTechChallenge.Infrastucture.DomainEvents;
-using SoatTechChallenge.Infrastucture.Security;
 using SoatTechChallenge.Infrastucture.Security.BCrypt;
 using SoatTechChallenge.Infrastucture.Security.Jwt;
 using SoatTechChallenge.Infrastucture.Seeders;

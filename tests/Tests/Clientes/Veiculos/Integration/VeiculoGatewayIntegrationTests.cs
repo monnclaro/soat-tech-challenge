@@ -5,7 +5,7 @@ using Domain.Clientes.Veiculos;
 using Domain.Clientes.Veiculos.Gateways;
 using Domain.Clientes.Veiculos.ValueObjects;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Gateways.Clientes;
 using Tests.Infrastructure;
 using Xunit;

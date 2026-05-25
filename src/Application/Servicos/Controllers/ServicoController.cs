@@ -4,7 +4,7 @@ using Application.Servicos.Queries.BuscarTempoMedioExecucao;
 using Application.Servicos.UseCases.AtualizarServico;
 using Application.Servicos.UseCases.InserirServico;
 using Application.Servicos.UseCases.RemoverServico;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Application.Servicos.Controllers;
 

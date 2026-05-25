@@ -1,4 +1,4 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Application.OrdensServico.Queries;
 
 namespace Application.OrdensServico.UseCases.BuscarStatus;

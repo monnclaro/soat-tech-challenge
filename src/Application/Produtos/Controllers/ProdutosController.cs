@@ -4,7 +4,7 @@ using Application.Produtos.UseCases.BuscarProduto;
 using Application.Produtos.UseCases.IncrementarEstoque;
 using Application.Produtos.UseCases.InserirProduto;
 using Application.Produtos.UseCases.RemoverProduto;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Application.Produtos.Controllers;
 

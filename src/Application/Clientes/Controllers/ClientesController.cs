@@ -3,7 +3,7 @@ using Application.Clientes.UseCases.BuscarCliente;
 using Application.Clientes.UseCases.BuscarListaPaginada;
 using Application.Clientes.UseCases.InserirCliente;
 using Application.Clientes.UseCases.RemoverCliente;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Application.Clientes.Controllers;
 

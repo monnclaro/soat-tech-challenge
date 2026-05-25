@@ -20,7 +20,7 @@ using Application.OrdensServico.UseCases.RemoverServico;
 using Application.OrdensServico.UseCases.ReprovarOrcamento;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Api.Controllers.OrdensServico;
 

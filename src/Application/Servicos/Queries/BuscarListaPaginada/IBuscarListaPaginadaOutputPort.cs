@@ -1,6 +1,5 @@
 using Application.Servicos.DTOs;
-using Application.Servicos.UseCases;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Application.Servicos.Queries.BuscarListaPaginada;
 

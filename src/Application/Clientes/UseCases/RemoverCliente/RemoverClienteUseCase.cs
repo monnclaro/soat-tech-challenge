@@ -1,4 +1,4 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Domain.Clientes.Gateways;
 
 namespace Application.Clientes.UseCases.RemoverCliente;

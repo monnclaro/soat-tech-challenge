@@ -1,4 +1,4 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Domain.OrdensServico.Gateways;
 using Domain.OrdensServico.Produtos;
 using Domain.Produtos.Gateways;

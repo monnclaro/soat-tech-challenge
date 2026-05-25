@@ -1,4 +1,4 @@
-﻿using SharedKernel;
+﻿using SharedKernel.DTOs;
 
 namespace Application.OrdensServico.UseCases.BuscarListaPaginada;
 

@@ -9,7 +9,7 @@ using Application.Clientes.UseCases.InserirCliente;
 using Application.Clientes.UseCases.RemoverCliente;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Api.Controllers.Clientes;
 

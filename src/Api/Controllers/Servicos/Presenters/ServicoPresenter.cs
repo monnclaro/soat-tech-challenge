@@ -3,12 +3,11 @@ using Application.Servicos.DTOs;
 using Application.Servicos.Queries.BuscarListaPaginada;
 using Application.Servicos.Queries.BuscarServico;
 using Application.Servicos.Queries.BuscarTempoMedioExecucao;
-using Application.Servicos.UseCases;
 using Application.Servicos.UseCases.AtualizarServico;
 using Application.Servicos.UseCases.InserirServico;
 using Application.Servicos.UseCases.RemoverServico;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Api.Controllers.Servicos.Presenters;
 

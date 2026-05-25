@@ -1,5 +1,5 @@
 using Application.Produtos.DTOs;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Application.Produtos.UseCases.BuscarListaPaginada;
 

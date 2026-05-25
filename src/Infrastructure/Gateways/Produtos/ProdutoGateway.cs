@@ -1,7 +1,7 @@
 using Domain.Produtos;
 using Domain.Produtos.Gateways;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Database;
 
 namespace SoatTechChallenge.Infrastucture.Gateways.Produtos;

@@ -1,6 +1,6 @@
 ﻿using Application.Login.UseCases;
 using Application.Login.UseCases.DTOs;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Application.Login.Controllers;
 

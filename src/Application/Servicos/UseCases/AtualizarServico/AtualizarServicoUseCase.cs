@@ -1,6 +1,5 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Application.Servicos.DTOs;
-using Application.Servicos.Queries;
 using Domain.Servicos.Gateways;
 
 namespace Application.Servicos.UseCases.AtualizarServico;

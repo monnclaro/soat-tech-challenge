@@ -3,7 +3,7 @@ using Application.Servicos.Queries;
 using Domain.OrdensServico.Servicos.Enums;
 using Domain.Servicos;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Database;
 
 namespace SoatTechChallenge.Infrastucture.Gateways.Servicos;

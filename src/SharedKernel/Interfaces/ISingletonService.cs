@@ -1,4 +1,4 @@
-﻿namespace SharedKernel;
+﻿namespace SharedKernel.Interfaces;
 
 public interface ISingletonService
 {

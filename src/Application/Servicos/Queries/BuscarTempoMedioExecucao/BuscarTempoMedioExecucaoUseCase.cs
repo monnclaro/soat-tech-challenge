@@ -1,4 +1,4 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Application.Servicos.DTOs;
 
 namespace Application.Servicos.Queries.BuscarTempoMedioExecucao;

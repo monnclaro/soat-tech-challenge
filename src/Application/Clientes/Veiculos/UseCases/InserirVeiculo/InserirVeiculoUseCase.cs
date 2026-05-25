@@ -1,4 +1,4 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Domain.Clientes.Gateways;
 using Domain.Clientes.Veiculos;
 using Domain.Clientes.Veiculos.Gateways;

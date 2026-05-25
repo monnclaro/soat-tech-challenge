@@ -1,5 +1,5 @@
 ﻿using Application.OrdensServico.UseCases;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Application.OrdensServico.Queries;
 

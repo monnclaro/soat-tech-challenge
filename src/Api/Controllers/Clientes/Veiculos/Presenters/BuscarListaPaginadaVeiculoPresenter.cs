@@ -2,7 +2,7 @@
 using Application.Clientes.Veiculos.UseCases;
 using Application.Clientes.Veiculos.UseCases.BuscarListaPaginada;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Api.Controllers.Clientes.Veiculos.Presenters;
 

@@ -1,7 +1,7 @@
 using Domain.Clientes;
 using Domain.Clientes.Gateways;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Database;
 
 namespace SoatTechChallenge.Infrastucture.Gateways.Clientes;

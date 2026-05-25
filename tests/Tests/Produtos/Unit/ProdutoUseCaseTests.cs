@@ -6,10 +6,10 @@ using Application.Produtos.UseCases.DecrementarEstoque;
 using Application.Produtos.UseCases.IncrementarEstoque;
 using Application.Produtos.UseCases.InserirProduto;
 using Application.Produtos.UseCases.RemoverProduto;
+using Domain.Common.Exceptions;
 using Domain.Produtos;
 using Domain.Produtos.Gateways;
-using SharedKernel;
-using SharedKernel.Exceptions;
+using SharedKernel.DTOs;
 using Xunit;
 
 namespace Tests.Produtos.Unit;

@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Application.Login.Controllers;
 using Application.Servicos.Queries.BuscarServico;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Application;
 

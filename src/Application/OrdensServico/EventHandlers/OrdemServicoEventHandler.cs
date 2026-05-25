@@ -1,6 +1,6 @@
-﻿using Application.Produtos.UseCases.DecrementarEstoque;
+﻿using Application.Common.Interfaces;
+using Application.Produtos.UseCases.DecrementarEstoque;
 using Domain.OrdensServico.Events;
-using SharedKernel;
 
 namespace Application.OrdensServico.EventHandlers;
 

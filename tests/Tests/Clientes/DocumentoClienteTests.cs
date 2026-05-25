@@ -1,6 +1,6 @@
 ﻿using Domain.Clientes.Enums;
 using Domain.Clientes.ValueObjects;
-using SharedKernel.Exceptions;
+using Domain.Common.Exceptions;
 using Xunit;
 
 namespace Tests.Clientes;

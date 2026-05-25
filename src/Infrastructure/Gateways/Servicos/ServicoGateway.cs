@@ -1,8 +1,6 @@
-﻿using Domain.OrdensServico.Servicos.Enums;
-using Domain.Servicos;
+﻿using Domain.Servicos;
 using Domain.Servicos.Gateways;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
 using SoatTechChallenge.Infrastucture.Database;
 
 namespace SoatTechChallenge.Infrastucture.Gateways.Servicos;

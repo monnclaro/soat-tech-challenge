@@ -1,4 +1,4 @@
-﻿using Application.Common.Markers;
+﻿using Application.Common.Interfaces;
 using Application.OrdensServico.UseCases.AtualizarStatus.DTOs;
 using Domain.OrdensServico.Gateways;
 

@@ -1,6 +1,6 @@
-using Application.Common.Markers;
+using Application.Common.Interfaces;
 using Domain.Clientes.Gateways;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Application.Clientes.UseCases.BuscarListaPaginada;
 

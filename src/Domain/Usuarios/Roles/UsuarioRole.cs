@@ -1,4 +1,4 @@
-﻿using SharedKernel;
+﻿using Domain.Common;
 
 namespace Domain.Usuarios.Roles;
 

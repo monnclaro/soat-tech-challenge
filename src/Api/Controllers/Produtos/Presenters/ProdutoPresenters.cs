@@ -8,7 +8,7 @@ using Application.Produtos.UseCases.IncrementarEstoque;
 using Application.Produtos.UseCases.InserirProduto;
 using Application.Produtos.UseCases.RemoverProduto;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel;
+using SharedKernel.DTOs;
 
 namespace Api.Controllers.Produtos.Presenters;
 

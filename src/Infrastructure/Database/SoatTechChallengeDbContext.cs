@@ -1,5 +1,6 @@
 ﻿using Domain.Clientes;
 using Domain.Clientes.Veiculos;
+using Domain.Common;
 using Domain.OrdensServico;
 using Domain.OrdensServico.Produtos;
 using Domain.OrdensServico.Servicos;

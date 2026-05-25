@@ -1,5 +1,5 @@
 ﻿using Application.Login.UseCases.Interfaces;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace SoatTechChallenge.Infrastucture.Security.BCrypt;
 

@@ -17,7 +17,7 @@ using Application.OrdensServico.UseCases.Remover;
 using Application.OrdensServico.UseCases.RemoverProduto;
 using Application.OrdensServico.UseCases.RemoverServico;
 using Application.OrdensServico.UseCases.ReprovarOrcamento;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Application.OrdensServico.Controllers;
 

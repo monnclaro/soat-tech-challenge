@@ -1,12 +1,8 @@
 ﻿using Domain.Produtos;
 using Domain.Produtos.Gateways;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
-using SoatTechChallenge.Infrastucture.Database;
-using SoatTechChallenge.Infrastucture.DomainEvents;
+using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Gateways.Produtos;
-using Testcontainers.PostgreSql;
 using Tests.Infrastructure;
 using Xunit;
 

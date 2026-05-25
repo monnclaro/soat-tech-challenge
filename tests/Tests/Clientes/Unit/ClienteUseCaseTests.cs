@@ -7,8 +7,8 @@ using Application.Clientes.UseCases.RemoverCliente;
 using Domain.Clientes;
 using Domain.Clientes.Gateways;
 using Domain.Clientes.ValueObjects;
-using SharedKernel;
-using SharedKernel.Exceptions;
+using Domain.Common.Exceptions;
+using SharedKernel.DTOs;
 using Xunit;
 
 namespace Tests.Clientes.Unit;

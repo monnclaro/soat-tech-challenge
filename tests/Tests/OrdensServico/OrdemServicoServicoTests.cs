@@ -1,6 +1,6 @@
-﻿using Domain.OrdensServico.Servicos;
+﻿using Domain.Common.Exceptions;
+using Domain.OrdensServico.Servicos;
 using Domain.OrdensServico.Servicos.Enums;
-using SharedKernel.Exceptions;
 using Xunit;
 
 namespace Tests.OrdensServico;

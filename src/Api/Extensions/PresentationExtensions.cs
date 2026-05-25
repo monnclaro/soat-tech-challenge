@@ -1,5 +1,5 @@
 ﻿using Api.Extensions.Markers;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace Api.Extensions;
 

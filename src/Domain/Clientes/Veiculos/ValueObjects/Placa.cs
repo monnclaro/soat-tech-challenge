@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using SharedKernel.Exceptions;
+
+using DomainException = Domain.Common.Exceptions.DomainException;
 
 namespace Domain.Clientes.Veiculos.ValueObjects;
 

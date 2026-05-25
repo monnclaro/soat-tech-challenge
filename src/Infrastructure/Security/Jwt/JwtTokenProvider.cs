@@ -5,7 +5,7 @@ using Application.Login.UseCases.Interfaces;
 using Domain.Usuarios;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SharedKernel;
+using SharedKernel.Interfaces;
 
 namespace SoatTechChallenge.Infrastucture.Security.Jwt;
 

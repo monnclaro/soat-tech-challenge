@@ -1,6 +1,6 @@
 ﻿using Domain.Clientes.Veiculos.ValueObjects;
-using SharedKernel;
-using SharedKernel.Exceptions;
+using Domain.Common;
+using DomainException = Domain.Common.Exceptions.DomainException;
 
 namespace Domain.Clientes.Veiculos;
 
