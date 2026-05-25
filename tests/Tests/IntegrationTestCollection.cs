@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace Tests.Infrastructure;
+﻿namespace Tests;
  
 /// <summary>
 /// Garante que os testes de integração NÃO rodem em paralelo entre si,

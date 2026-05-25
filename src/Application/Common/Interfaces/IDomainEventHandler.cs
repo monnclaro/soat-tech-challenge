@@ -1,5 +1,4 @@
 using Domain.Common.Events;
-using SharedKernel;
 
 namespace Application.Common.Interfaces;
 

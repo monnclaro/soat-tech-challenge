@@ -1,6 +1,5 @@
 ﻿using Domain.Clientes.Veiculos.ValueObjects;
 using Domain.Common.Exceptions;
-using Xunit;
 
 namespace Tests.Clientes.Veiculos;
 

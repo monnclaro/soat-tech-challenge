@@ -9,7 +9,6 @@ using Domain.Clientes.Gateways;
 using Domain.Clientes.ValueObjects;
 using Domain.Common.Exceptions;
 using SharedKernel.DTOs;
-using Xunit;
 
 namespace Tests.Clientes.Unit;
 

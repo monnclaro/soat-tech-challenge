@@ -1,10 +1,9 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using Xunit;
 
 namespace Tests.Camadas;
 
-public class LayerTests : BaseTest
+public class CamadasTests : CamadasBaseTest
 {
     [Fact]
     public void CamadaDomain_NaoDeveTerDependencia_CamadaApplication()

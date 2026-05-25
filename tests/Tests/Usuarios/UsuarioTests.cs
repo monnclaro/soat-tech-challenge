@@ -1,7 +1,6 @@
 ﻿using Domain.Common.Exceptions;
 using Domain.Usuarios;
 using Domain.Usuarios.Roles;
-using Xunit;
 
 namespace Tests.Usuarios;
 

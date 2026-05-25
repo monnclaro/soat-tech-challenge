@@ -1,6 +1,5 @@
 ﻿using Domain.Common.Exceptions;
 using Domain.Servicos;
-using Xunit;
 
 namespace Tests.Servicos;
 

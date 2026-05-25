@@ -3,8 +3,6 @@ using Domain.Usuarios.Gateways;
 using Domain.Usuarios.Roles;
 using Microsoft.Extensions.DependencyInjection;
 using SoatTechChallenge.Infrastucture.Gateways.Usuarios;
-using Tests.Infrastructure;
-using Xunit;
 
 namespace Tests.Authentication.Integration;
 

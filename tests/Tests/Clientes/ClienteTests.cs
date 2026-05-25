@@ -2,7 +2,6 @@
 using Domain.Clientes.Enums;
 using Domain.Clientes.ValueObjects;
 using Domain.Common.Exceptions;
-using Xunit;
 
 namespace Tests.Clientes;
 

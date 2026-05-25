@@ -4,7 +4,6 @@ using Domain.OrdensServico.Enums;
 using Domain.OrdensServico.Produtos;
 using Domain.OrdensServico.Servicos;
 using Domain.OrdensServico.Servicos.Enums;
-using Xunit;
 
 namespace Tests.OrdensServico;
 

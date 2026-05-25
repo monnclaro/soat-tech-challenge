@@ -1,5 +1,4 @@
 ﻿using Domain.OrdensServico.Produtos;
-using Xunit;
 
 namespace Tests.OrdensServico;
 

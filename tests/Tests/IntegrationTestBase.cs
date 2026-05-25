@@ -4,9 +4,8 @@ using SoatTechChallenge.Infrastucture.Database;
 using SoatTechChallenge.Infrastucture.Database.Helpers;
 using SoatTechChallenge.Infrastucture.DomainEvents;
 using Testcontainers.PostgreSql;
-using Xunit;
 
-namespace Tests.Infrastructure;
+namespace Tests;
 
 public abstract class IntegrationTestBase : IAsyncLifetime
 {

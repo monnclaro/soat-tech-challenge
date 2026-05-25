@@ -33,7 +33,6 @@ using SharedKernel.DTOs;
 
 using Tests.Produtos.Unit;
 using Tests.Servicos.Unit;
-using Xunit;
 
 namespace Tests.OrdensServico.Unit;
 

@@ -4,7 +4,6 @@ using Domain.OrdensServico;
 using Domain.OrdensServico.Enums;
 using Domain.OrdensServico.Gateways;
 using Domain.OrdensServico.Servicos;
-using Xunit;
 
 namespace Tests.OrdensServico.Unit;
 

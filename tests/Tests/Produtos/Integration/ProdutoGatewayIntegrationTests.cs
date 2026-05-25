@@ -3,8 +3,6 @@ using Domain.Produtos.Gateways;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Gateways.Produtos;
-using Tests.Infrastructure;
-using Xunit;
 
 namespace Tests.Produtos.Integration;
 

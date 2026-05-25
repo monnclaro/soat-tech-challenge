@@ -10,7 +10,6 @@ using Domain.Common.Exceptions;
 using Domain.Produtos;
 using Domain.Produtos.Gateways;
 using SharedKernel.DTOs;
-using Xunit;
 
 namespace Tests.Produtos.Unit;
 

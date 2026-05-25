@@ -1,7 +1,6 @@
 ﻿using Domain.Common.Exceptions;
 using Domain.OrdensServico.Servicos;
 using Domain.OrdensServico.Servicos.Enums;
-using Xunit;
 
 namespace Tests.OrdensServico;
 

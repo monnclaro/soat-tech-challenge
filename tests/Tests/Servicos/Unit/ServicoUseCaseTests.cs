@@ -10,7 +10,6 @@ using Domain.Common.Exceptions;
 using Domain.Servicos;
 using Domain.Servicos.Gateways;
 using SharedKernel.DTOs;
-using Xunit;
 
 namespace Tests.Servicos.Unit;
 

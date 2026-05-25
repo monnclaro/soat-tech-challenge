@@ -7,8 +7,6 @@ using Domain.Clientes.Veiculos.ValueObjects;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Gateways.Clientes;
-using Tests.Infrastructure;
-using Xunit;
 
 namespace Tests.Clientes.Veiculos.Integration;
 

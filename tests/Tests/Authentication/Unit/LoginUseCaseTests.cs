@@ -3,7 +3,6 @@ using Application.Login.UseCases.DTOs;
 using Application.Login.UseCases.Interfaces;
 using Domain.Usuarios;
 using Domain.Usuarios.Gateways;
-using Xunit;
 
 namespace Tests.Authentication.Unit;
 

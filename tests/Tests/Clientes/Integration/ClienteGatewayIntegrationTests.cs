@@ -4,8 +4,6 @@ using Domain.Clientes.ValueObjects;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.DTOs;
 using SoatTechChallenge.Infrastucture.Gateways.Clientes;
-using Tests.Infrastructure;
-using Xunit;
 
 namespace Tests.Clientes.Integration;
 

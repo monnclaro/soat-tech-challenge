@@ -6,7 +6,7 @@ using SoatTechChallenge.Infrastucture.Database;
 
 namespace Tests.Camadas;
 
-public abstract class BaseTest
+public abstract class CamadasBaseTest
 {
     protected static readonly Assembly DomainAssembly = typeof(Usuario).Assembly;
     protected static readonly Assembly ApplicationAssembly = typeof(DependencyInjection).Assembly;

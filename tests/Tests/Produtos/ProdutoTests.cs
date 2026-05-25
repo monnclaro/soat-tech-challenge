@@ -1,6 +1,5 @@
 ﻿using Domain.Common.Exceptions;
 using Domain.Produtos;
-using Xunit;
 
 namespace Tests.Produtos;
 

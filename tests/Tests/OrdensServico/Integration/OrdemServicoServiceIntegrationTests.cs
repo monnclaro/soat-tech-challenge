@@ -20,8 +20,6 @@ using SoatTechChallenge.Infrastucture.Gateways.Clientes;
 using SoatTechChallenge.Infrastucture.Gateways.OrdensServico;
 using SoatTechChallenge.Infrastucture.Gateways.Produtos;
 using SoatTechChallenge.Infrastucture.Gateways.Servicos;
-using Tests.Infrastructure;
-using Xunit;
 
 namespace Tests.OrdensServico.Integration;
 
