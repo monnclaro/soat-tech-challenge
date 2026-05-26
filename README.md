@@ -187,4 +187,4 @@ O pipeline roda automaticamente a cada push na branch `main` via **GitHub Action
 
 A porta é exibida ao rodar `minikube service soat-api-service -n soat`.
 
-📄 Collection Postman: [postman/collection.json](./postman/collection.json)
+📄 Collection: [collection.json](./collection.json)
