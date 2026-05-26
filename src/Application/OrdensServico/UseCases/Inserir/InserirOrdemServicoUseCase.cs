@@ -7,7 +7,7 @@ using Domain.OrdensServico.Servicos;
 using Domain.Produtos.Gateways;
 using Domain.Servicos.Gateways;
 
-namespace Application.OrdensServico.UseCases.InserirOrdemServico;
+namespace Application.OrdensServico.UseCases.Inserir;
 
 public class InserirOrdemServicoUseCase : IUseCase
 {

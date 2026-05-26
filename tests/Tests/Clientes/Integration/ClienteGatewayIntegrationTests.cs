@@ -20,7 +20,7 @@ public class ClienteGatewayIntegrationTests : IntegrationTestBase
     private const string CnpjValido  = "11222333000181";
 
 
-    // ── BuscarPorId ──────────────────────────────────────────────
+    #region BuscarPorId
 
     [Fact]
     public async Task BuscarPorId_QuandoExiste_RetornaDadosCorretos()
@@ -47,7 +47,38 @@ public class ClienteGatewayIntegrationTests : IntegrationTestBase
         Assert.Null(resultado);
     }
 
-    // ── ExisteComDocumento ───────────────────────────────────────
+    #endregion
+
+    #region BuscarPorDocumento
+
+    [Fact]
+    public async Task BuscarPorDocumento_QuandoExiste_RetornaDadosCorretos()
+    {
+        var cliente = CriarCliente("João Silva", CpfValido1);
+        await SeedAsync(cliente);
+
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IClienteGateway>();
+        var resultado = await gateway.BuscarPorDocumento(CpfValido1, CancellationToken.None);
+
+        Assert.NotNull(resultado);
+        Assert.Equal("João Silva", resultado!.Nome);
+        Assert.Equal(CpfValido1, resultado.Documento);
+    }
+
+    [Fact]
+    public async Task BuscarPorDocumento_QuandoNaoExiste_RetornaNull()
+    {
+        using var scope = CreateScope();
+        var gateway   = scope.ServiceProvider.GetRequiredService<IClienteGateway>();
+        var resultado = await gateway.BuscarPorDocumento(CpfValido1, CancellationToken.None);
+
+        Assert.Null(resultado);
+    }
+
+    #endregion
+
+    #region ExisteComDocumento
 
     [Fact]
     public async Task ExisteComDocumento_QuandoExiste_RetornaTrue()
@@ -72,7 +103,9 @@ public class ClienteGatewayIntegrationTests : IntegrationTestBase
         Assert.False(resultado);
     }
 
-    // ── BuscarPaginado ───────────────────────────────────────────
+    #endregion
+
+    #region BuscarPaginado
 
     [Fact]
     public async Task BuscarPaginado_RetornaTotalEPaginacaoCorretos()
@@ -107,7 +140,9 @@ public class ClienteGatewayIntegrationTests : IntegrationTestBase
         Assert.Single(items);
     }
 
-    // ── Atualizar ────────────────────────────────────────────────
+    #endregion
+
+    #region Atualizar
 
     [Fact]
     public async Task Atualizar_QuandoExiste_PersisteMudancas()
@@ -130,7 +165,9 @@ public class ClienteGatewayIntegrationTests : IntegrationTestBase
         Assert.Equal(CpfValido1, verificado.Documento);
     }
 
-    // ── Remover ──────────────────────────────────────────────────
+    #endregion
+
+    #region Remover
 
     [Fact]
     public async Task Remover_QuandoExiste_ExcluiDoBanco()
@@ -172,7 +209,9 @@ public class ClienteGatewayIntegrationTests : IntegrationTestBase
         Assert.Null(ex);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
+    #endregion
+
+    #region Helpers
 
     private static Cliente CriarCliente(
         string nome = "Cliente Teste",
@@ -190,4 +229,6 @@ public class ClienteGatewayIntegrationTests : IntegrationTestBase
         foreach (var c in clientes)
             await gateway.Salvar(c, CancellationToken.None);
     }
+
+    #endregion
 }

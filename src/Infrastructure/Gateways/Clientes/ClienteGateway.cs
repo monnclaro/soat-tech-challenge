@@ -13,7 +13,8 @@ public class ClienteGateway : IClienteGateway
     public ClienteGateway(SoatTechChallengeDbContext db) => _db = db;
 
     public Task<Cliente?> BuscarPorId(Guid id, CancellationToken ct) => _db.Cliente.FirstOrDefaultAsync(c => c.Id == id, ct);
-
+    public Task<Cliente?> BuscarPorDocumento(string documento, CancellationToken ct) => _db.Cliente.FirstOrDefaultAsync(c => c.Documento == documento, ct);
+    
     public Task<Cliente?> BuscarComVeiculos(Guid id, CancellationToken ct) =>
         _db.Cliente
             .Include(c => c.Veiculos)

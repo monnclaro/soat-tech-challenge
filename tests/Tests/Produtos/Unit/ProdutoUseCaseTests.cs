@@ -1,4 +1,4 @@
-﻿using Application.Produtos.DTOs;
+using Application.Produtos.DTOs;
 using Application.Produtos.UseCases.AtualizarProduto;
 using Application.Produtos.UseCases.BuscarListaPaginada;
 using Application.Produtos.UseCases.BuscarProduto;
@@ -8,14 +8,14 @@ using Application.Produtos.UseCases.InserirProduto;
 using Application.Produtos.UseCases.RemoverProduto;
 using Domain.Common.Exceptions;
 using Domain.Produtos;
-using Domain.Produtos.Gateways;
 using SharedKernel.DTOs;
+using Tests.Fakes;
 
 namespace Tests.Produtos.Unit;
 
 public class ProdutoUseCaseTests
 {
-    // ── Buscar ───────────────────────────────────────────────────
+    #region Buscar
 
     [Fact]
     public async Task Buscar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -45,7 +45,9 @@ public class ProdutoUseCaseTests
         Assert.Equal(8, presenter.Output?.QuantidadeEmEstoque);
     }
 
-    // ── BuscarListaPaginada ──────────────────────────────────────
+    #endregion
+
+    #region BuscarListaPaginada
 
     [Fact]
     public async Task BuscarListaPaginada_QuandoSemProdutos_RetornaVazio()
@@ -76,7 +78,9 @@ public class ProdutoUseCaseTests
         Assert.Equal(3, presenter.Output?.Items.Count);
     }
 
-    // ── Inserir ──────────────────────────────────────────────────
+    #endregion
+
+    #region Inserir
 
     [Fact]
     public async Task Inserir_QuandoDadosValidos_ChamaOkEPersiste()
@@ -106,7 +110,9 @@ public class ProdutoUseCaseTests
         Assert.False(gateway.SalvarFoiChamado);
     }
 
-    // ── Atualizar ────────────────────────────────────────────────
+    #endregion
+
+    #region Atualizar
 
     [Fact]
     public async Task Atualizar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -150,7 +156,9 @@ public class ProdutoUseCaseTests
         Assert.False(gateway.AtualizarFoiChamado);
     }
 
-    // ── IncrementarEstoque ───────────────────────────────────────
+    #endregion
+
+    #region IncrementarEstoque
 
     [Fact]
     public async Task IncrementarEstoque_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -193,7 +201,9 @@ public class ProdutoUseCaseTests
         Assert.False(gateway.AtualizarFoiChamado);
     }
 
-    // ── DecrementarEstoque ───────────────────────────────────────
+    #endregion
+
+    #region DecrementarEstoque
 
     [Fact]
     public async Task DecrementarEstoque_QuandoExiste_AtualizaEstoque()
@@ -225,7 +235,9 @@ public class ProdutoUseCaseTests
         Assert.False(gateway.AtualizarLoteFoiChamado);
     }
 
-    // ── Remover ──────────────────────────────────────────────────
+    #endregion
+
+    #region Remover
 
     [Fact]
     public async Task Remover_QuandoNaoExiste_ChamaOkSemRemover()
@@ -254,7 +266,9 @@ public class ProdutoUseCaseTests
         Assert.True(gateway.RemoverFoiChamado);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
+    #endregion
+
+    #region Helpers
 
     private static Produto CriarProduto(
         string nome = "Produto Teste",
@@ -265,61 +279,11 @@ public class ProdutoUseCaseTests
         p.Inserir(nome, "Descrição", valor, estoque);
         return p;
     }
+
+    #endregion
 }
 
-// ── Fakes ────────────────────────────────────────────────────────────────────
-
-public class FakeProdutoGateway : IProdutoGateway
-{
-    private readonly List<Produto> _produtos;
-    public bool SalvarFoiChamado       { get; private set; }
-    public bool AtualizarFoiChamado    { get; private set; }
-    public bool AtualizarLoteFoiChamado { get; private set; }
-    public bool RemoverFoiChamado      { get; private set; }
-
-    public FakeProdutoGateway(params Produto[] produtos) => _produtos = [..produtos];
-
-    public Task<Produto?> BuscarPorId(Guid id, CancellationToken ct)
-        => Task.FromResult(_produtos.FirstOrDefault(p => p.Id == id));
-
-    public Task<IReadOnlyList<Produto>> BuscarPorIds(IReadOnlyList<Guid> ids, CancellationToken ct)
-        => Task.FromResult<IReadOnlyList<Produto>>(_produtos.Where(p => ids.Contains(p.Id)).ToList());
-
-    public Task<Dictionary<Guid, Produto>> BuscarDicionarioPorIds(IReadOnlyList<Guid> ids, CancellationToken ct)
-        => Task.FromResult(_produtos.Where(p => ids.Contains(p.Id)).ToDictionary(p => p.Id));
-
-    public Task<(IReadOnlyList<Produto> Items, int Total)> BuscarPaginado(string? filtro, PagedRequest p, CancellationToken ct)
-    {
-        var items = _produtos.Skip((p.Pagina - 1) * p.Tamanho).Take(p.Tamanho).ToList();
-        return Task.FromResult(((IReadOnlyList<Produto>)items, _produtos.Count));
-    }
-
-    public Task Salvar(Produto produto, CancellationToken ct)
-    {
-        SalvarFoiChamado = true;
-        _produtos.Add(produto);
-        return Task.CompletedTask;
-    }
-
-    public Task Atualizar(Produto produto, CancellationToken ct)
-    {
-        AtualizarFoiChamado = true;
-        return Task.CompletedTask;
-    }
-
-    public Task AtualizarLote(IReadOnlyList<Produto> produtos, CancellationToken ct)
-    {
-        AtualizarLoteFoiChamado = true;
-        return Task.CompletedTask;
-    }
-
-    public Task Remover(Produto produto, CancellationToken ct)
-    {
-        RemoverFoiChamado = true;
-        _produtos.Remove(produto);
-        return Task.CompletedTask;
-    }
-}
+#region Fake Presenters
 
 file class FakeBuscarProdutoPresenter : IBuscarProdutoOutputPort
 {
@@ -368,3 +332,5 @@ file class FakeRemoverProdutoPresenter : IRemoverProdutoOutputPort
     public bool OkChamado { get; private set; }
     public void Ok() => OkChamado = true;
 }
+
+#endregion

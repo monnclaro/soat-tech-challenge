@@ -1,4 +1,4 @@
-﻿using Application.OrdensServico.Queries;
+using Application.OrdensServico.Queries;
 using Application.OrdensServico.UseCases;
 using Application.OrdensServico.UseCases.AprovarOrcamento;
 using Application.OrdensServico.UseCases.BuscarOrdemServico;
@@ -8,7 +8,7 @@ using Application.OrdensServico.UseCases.FinalizarDiagnostico;
 using Application.OrdensServico.UseCases.FinalizarExecucaoServico;
 using Application.OrdensServico.UseCases.IniciarDiagnostico;
 using Application.OrdensServico.UseCases.IniciarExecucaoServico;
-using Application.OrdensServico.UseCases.InserirOrdemServico;
+using Application.OrdensServico.UseCases.Inserir;
 using Application.OrdensServico.UseCases.InserirProdutos;
 using Application.OrdensServico.UseCases.InserirServicos;
 using Application.OrdensServico.UseCases.Remover;
@@ -31,8 +31,7 @@ using Domain.Produtos;
 using Domain.Servicos;
 using SharedKernel.DTOs;
 
-using Tests.Produtos.Unit;
-using Tests.Servicos.Unit;
+using Tests.Fakes;
 
 namespace Tests.OrdensServico.Unit;
 
@@ -40,7 +39,7 @@ public class OrdemServicoUseCaseTests
 {
     private static readonly int AnoAtual = DateTime.Now.Year;
 
-    // ── BuscarOrdemServico ───────────────────────────────────────
+    #region BuscarOrdemServico
 
     [Fact]
     public async Task Buscar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -66,7 +65,9 @@ public class OrdemServicoUseCaseTests
         Assert.Equal(output.Id, presenter.Output?.Id);
     }
 
-    // ── BuscarStatus ─────────────────────────────────────────────
+    #endregion
+
+    #region BuscarStatus
 
     [Fact]
     public async Task BuscarStatus_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -79,7 +80,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(presenter.NaoEncontradoChamado);
     }
 
-    // ── Inserir ──────────────────────────────────────────────────
+    #endregion
+
+    #region Inserir
 
     [Fact]
     public async Task Inserir_QuandoClienteNaoExiste_ChamaClienteNaoEncontrado()
@@ -239,7 +242,9 @@ public class OrdemServicoUseCaseTests
         Assert.Equal(cliente.Veiculos[0].Id, os.OsSalva.IdVeiculo);
     }
 
-    // ── IniciarDiagnostico ───────────────────────────────────────
+    #endregion
+
+    #region IniciarDiagnostico
 
     [Fact]
     public async Task IniciarDiagnostico_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -269,7 +274,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(gateway.AtualizarFoiChamado);
     }
 
-    // ── FinalizarDiagnostico ─────────────────────────────────────
+    #endregion
+
+    #region FinalizarDiagnostico
 
     [Fact]
     public async Task FinalizarDiagnostico_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -296,7 +303,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(presenter.OkChamado);
     }
 
-    // ── AprovarOrcamento ─────────────────────────────────────────
+    #endregion
+
+    #region AprovarOrcamento
 
     [Fact]
     public async Task AprovarOrcamento_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -323,7 +332,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(presenter.OkChamado);
     }
 
-    // ── ReprovarOrcamento ────────────────────────────────────────
+    #endregion
+
+    #region ReprovarOrcamento
 
     [Fact]
     public async Task ReprovarOrcamento_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -350,7 +361,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(presenter.OkChamado);
     }
 
-    // ── IniciarExecucaoServico ───────────────────────────────────
+    #endregion
+
+    #region IniciarExecucaoServico
 
     [Fact]
     public async Task IniciarExecucaoServico_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -377,7 +390,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(presenter.OkChamado);
     }
 
-    // ── FinalizarExecucaoServico ─────────────────────────────────
+    #endregion
+
+    #region FinalizarExecucaoServico
 
     [Fact]
     public async Task FinalizarExecucaoServico_QuandoUltimoServico_FinalizaOS()
@@ -408,7 +423,9 @@ public class OrdemServicoUseCaseTests
         Assert.Equal(StatusOrdemServico.EmExecucao, os.Status);
     }
 
-    // ── Entregar ─────────────────────────────────────────────────
+    #endregion
+
+    #region Entregar
 
     [Fact]
     public async Task Entregar_QuandoFinalizada_MudaParaEntregue()
@@ -423,7 +440,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(presenter.OkChamado);
     }
 
-    // ── InserirProdutos ──────────────────────────────────────────
+    #endregion
+
+    #region InserirProdutos
 
     [Fact]
     public async Task InserirProdutos_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -468,7 +487,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(gateway.AtualizarFoiChamado);
     }
 
-    // ── InserirServicos ──────────────────────────────────────────
+    #endregion
+
+    #region InserirServicos
 
     [Fact]
     public async Task InserirServicos_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -593,7 +614,9 @@ public class OrdemServicoUseCaseTests
         Assert.False(gateway.AtualizarFoiChamado);
     }
 
-    // ── Remover ──────────────────────────────────────────────────
+    #endregion
+
+    #region Remover
 
     [Fact]
     public async Task Remover_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -620,7 +643,9 @@ public class OrdemServicoUseCaseTests
         Assert.True(gateway.RemoverFoiChamado);
     }
 
-    // ── RemoverProduto ───────────────────────────────────────────
+    #endregion
+
+    #region RemoverProduto
 
     [Fact]
     public async Task RemoverProduto_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -648,7 +673,9 @@ public class OrdemServicoUseCaseTests
         Assert.Empty(os.Produtos);
     }
 
-    // ── RemoverServico ───────────────────────────────────────────
+    #endregion
+
+    #region RemoverServico
 
     [Fact]
     public async Task RemoverServico_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -676,7 +703,9 @@ public class OrdemServicoUseCaseTests
         Assert.DoesNotContain(os.Servicos, s => s.Id == servicoOs.Id);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
+    #endregion
+
+    #region Helpers
 
     private static Cliente CriarCliente()
     {
@@ -767,9 +796,11 @@ public class OrdemServicoUseCaseTests
             new OrdemServicoClienteOutput(Guid.NewGuid(), "Cliente", "52998224725"),
             new OrdemServicoVeiculoOutput(Guid.NewGuid(), "ABC1234", "Honda", "Civic", AnoAtual),
             DateTime.UtcNow, null, null, "Recebida", 100m, [], []);
+
+    #endregion
 }
 
-// ── Builders ─────────────────────────────────────────────────────────────────
+#region Builders
 
 file class InserirOrdemServicoBuilder
 {
@@ -828,10 +859,6 @@ file class InserirServicosBuilder
     }
 }
 
-/// <summary>
-/// Builder genérico para use cases simples (gateway + presenter de estado).
-/// Usado por: FinalizarDiagnostico, AprovarOrcamento, ReprovarOrcamento.
-/// </summary>
 file class EstadoUseCaseBuilder<TUseCase, TInput>
 {
     private FakeOrdemServicoGateway _os        = new();
@@ -844,49 +871,9 @@ file class EstadoUseCaseBuilder<TUseCase, TInput>
         => (factory(_os, _presenter), _presenter);
 }
 
-// ── Fakes ─────────────────────────────────────────────────────────────────────
+#endregion
 
-file class FakeOrdemServicoGateway : IOrdemServicoGateway
-{
-    private readonly OrdemServico? _os;
-    public bool SalvarFoiChamado    { get; private set; }
-    public bool AtualizarFoiChamado { get; private set; }
-    public bool RemoverFoiChamado   { get; private set; }
-    public OrdemServico? OsSalva    { get; private set; }
-
-    public FakeOrdemServicoGateway(OrdemServico? os = null) => _os = os;
-
-    public Task<OrdemServico?> BuscarPorId(Guid id, CancellationToken ct)
-        => Task.FromResult(_os?.Id == id ? _os : null);
-
-    public Task<OrdemServico?> BuscarComServicos(Guid id, CancellationToken ct)
-        => Task.FromResult(_os?.Id == id ? _os : null);
-
-    public Task<OrdemServico?> BuscarComProdutos(Guid id, CancellationToken ct)
-        => Task.FromResult(_os?.Id == id ? _os : null);
-
-    public Task<OrdemServico?> BuscarComServicosProdutos(Guid id, CancellationToken ct)
-        => Task.FromResult(_os?.Id == id ? _os : null);
-
-    public Task Salvar(OrdemServico os, CancellationToken ct)
-    {
-        SalvarFoiChamado = true;
-        OsSalva = os;
-        return Task.CompletedTask;
-    }
-
-    public Task Atualizar(OrdemServico os, CancellationToken ct)
-    {
-        AtualizarFoiChamado = true;
-        return Task.CompletedTask;
-    }
-
-    public Task Remover(OrdemServico os, CancellationToken ct)
-    {
-        RemoverFoiChamado = true;
-        return Task.CompletedTask;
-    }
-}
+#region Fakes
 
 file class FakeOrdemServicoQueryGateway : IOrdemServicoQueryGateway
 {
@@ -906,26 +893,9 @@ file class FakeOrdemServicoQueryGateway : IOrdemServicoQueryGateway
         => Task.FromResult(((IReadOnlyList<OrdemServicoPorDocumentoOutput>)[], 0));
 }
 
-file class FakeClienteGateway : IClienteGateway
-{
-    private readonly List<Cliente> _clientes;
-    public FakeClienteGateway(params Cliente[] clientes) => _clientes = [..clientes];
+#endregion
 
-    public Task<Cliente?> BuscarPorId(Guid id, CancellationToken ct)
-        => Task.FromResult(_clientes.FirstOrDefault(c => c.Id == id));
-
-    public Task<Cliente?> BuscarComVeiculos(Guid id, CancellationToken ct)
-        => Task.FromResult(_clientes.FirstOrDefault(c => c.Id == id));
-
-    public Task<bool> ExisteComDocumento(string doc, CancellationToken ct) => Task.FromResult(false);
-    public Task<(IReadOnlyList<Cliente>, int)> BuscarPaginado(PagedRequest p, CancellationToken ct)
-        => Task.FromResult(((IReadOnlyList<Cliente>)_clientes, _clientes.Count));
-    public Task Salvar(Cliente c, CancellationToken ct)   => Task.CompletedTask;
-    public Task Atualizar(Cliente c, CancellationToken ct) => Task.CompletedTask;
-    public Task Remover(Cliente c, CancellationToken ct)  => Task.CompletedTask;
-}
-
-// ── Fake Presenters ───────────────────────────────────────────────────────────
+#region Fake Presenters
 
 file class FakeBuscarOrdemServicoPresenter : IBuscarOrdemServicoOutputPort
 {
@@ -989,3 +959,5 @@ file class FakeInserirServicosPresenter : IInserirServicosOutputPort
     public void NaoEncontrado() => NaoEncontradoChamado = true;
     public void Ok()            => OkChamado = true;
 }
+
+#endregion

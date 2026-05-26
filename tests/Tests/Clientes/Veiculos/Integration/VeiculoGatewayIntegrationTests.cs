@@ -1,4 +1,4 @@
-﻿using Domain.Clientes;
+using Domain.Clientes;
 using Domain.Clientes.Gateways;
 using Domain.Clientes.ValueObjects;
 using Domain.Clientes.Veiculos;
@@ -20,7 +20,7 @@ public class VeiculoGatewayIntegrationTests : IntegrationTestBase
 
     private static readonly int AnoAtual = DateTime.Now.Year;
 
-    // ── BuscarPorId ──────────────────────────────────────────────
+    #region BuscarPorId
 
     [Fact]
     public async Task BuscarPorId_QuandoExiste_RetornaDadosCorretos()
@@ -48,7 +48,39 @@ public class VeiculoGatewayIntegrationTests : IntegrationTestBase
         Assert.Null(resultado);
     }
 
-    // ── ExisteComPlaca ───────────────────────────────────────────
+    #endregion
+
+    #region BuscarPorPlaca
+
+    [Fact]
+    public async Task BuscarPorPlaca_QuandoExiste_RetornaDadosCorretos()
+    {
+        var cliente = await SeedClienteAsync();
+        var veiculo = CriarVeiculo("ABC1234", cliente.Id);
+        await SeedVeiculoAsync(veiculo);
+
+        using var scope = CreateScope();
+        var gateway = scope.ServiceProvider.GetRequiredService<IVeiculoGateway>();
+        var resultado = await gateway.BuscarPorPlaca("ABC1234", CancellationToken.None);
+
+        Assert.NotNull(resultado);
+        Assert.Equal("ABC1234", resultado!.Placa);
+        Assert.Equal(cliente.Id, resultado.IdCliente);
+    }
+
+    [Fact]
+    public async Task BuscarPorPlaca_QuandoNaoExiste_RetornaNull()
+    {
+        using var scope = CreateScope();
+        var gateway = scope.ServiceProvider.GetRequiredService<IVeiculoGateway>();
+        var resultado = await gateway.BuscarPorPlaca("ABC1234", CancellationToken.None);
+
+        Assert.Null(resultado);
+    }
+
+    #endregion
+
+    #region ExisteComPlaca
 
     [Fact]
     public async Task ExisteComPlaca_QuandoExiste_RetornaTrue()
@@ -73,7 +105,9 @@ public class VeiculoGatewayIntegrationTests : IntegrationTestBase
         Assert.False(resultado);
     }
 
-    // ── ExisteComPlacaExcetoId ───────────────────────────────────
+    #endregion
+
+    #region ExisteComPlacaExcetoId
 
     [Fact]
     public async Task ExisteComPlacaExcetoId_QuandoMesmoVeiculo_RetornaFalse()
@@ -104,7 +138,9 @@ public class VeiculoGatewayIntegrationTests : IntegrationTestBase
         Assert.True(resultado);
     }
 
-    // ── BuscarPaginadoPorCliente ─────────────────────────────────
+    #endregion
+
+    #region BuscarPaginadoPorCliente
 
     [Fact]
     public async Task BuscarPaginadoPorCliente_FiltraPorCliente()
@@ -143,7 +179,9 @@ public class VeiculoGatewayIntegrationTests : IntegrationTestBase
         Assert.Single(items);
     }
 
-    // ── Atualizar ────────────────────────────────────────────────
+    #endregion
+
+    #region Atualizar
 
     [Fact]
     public async Task Atualizar_QuandoExiste_PersisteMudancas()
@@ -167,7 +205,9 @@ public class VeiculoGatewayIntegrationTests : IntegrationTestBase
         Assert.Equal("Toyota", verificado.Marca);
     }
 
-    // ── Remover ──────────────────────────────────────────────────
+    #endregion
+
+    #region Remover
 
     [Fact]
     public async Task Remover_QuandoExiste_ExcluiDoBanco()
@@ -209,7 +249,9 @@ public class VeiculoGatewayIntegrationTests : IntegrationTestBase
         Assert.False(existe);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
+    #endregion
+
+    #region Helpers
 
     private static Veiculo CriarVeiculo(string placa, Guid idCliente)
     {
@@ -236,4 +278,6 @@ public class VeiculoGatewayIntegrationTests : IntegrationTestBase
         var gateway = scope.ServiceProvider.GetRequiredService<IVeiculoGateway>();
         foreach (var v in veiculos) await gateway.Inserir(v, CancellationToken.None);
     }
+
+    #endregion
 }

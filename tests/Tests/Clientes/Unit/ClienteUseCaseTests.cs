@@ -1,14 +1,14 @@
-﻿using Application.Clientes.UseCases;
+using Application.Clientes.UseCases;
 using Application.Clientes.UseCases.AtualizarCliente;
 using Application.Clientes.UseCases.BuscarCliente;
 using Application.Clientes.UseCases.BuscarListaPaginada;
 using Application.Clientes.UseCases.InserirCliente;
 using Application.Clientes.UseCases.RemoverCliente;
 using Domain.Clientes;
-using Domain.Clientes.Gateways;
 using Domain.Clientes.ValueObjects;
 using Domain.Common.Exceptions;
 using SharedKernel.DTOs;
+using Tests.Fakes;
 
 namespace Tests.Clientes.Unit;
 
@@ -17,7 +17,7 @@ public class ClienteUseCaseTests
     private const string CpfValido  = "52998224725";
     private const string CnpjValido = "11222333000181";
 
-    // ── Buscar ───────────────────────────────────────────────────
+    #region Buscar
 
     [Fact]
     public async Task Buscar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -46,7 +46,9 @@ public class ClienteUseCaseTests
         Assert.Equal(CpfValido, presenter.Output?.Documento);
     }
 
-    // ── BuscarListaPaginada ──────────────────────────────────────
+    #endregion
+
+    #region BuscarListaPaginada
 
     [Fact]
     public async Task BuscarListaPaginada_QuandoSemClientes_RetornaVazio()
@@ -77,6 +79,8 @@ public class ClienteUseCaseTests
         Assert.Equal(3, presenter.Output?.Items.Count);
     }
 
+    #endregion
+
     #region Inserir
 
     [Fact]
@@ -84,7 +88,7 @@ public class ClienteUseCaseTests
     {
         var gateway   = new FakeClienteGateway();
         var presenter = new FakeInserirClientePresenter();
-        var useCase   = new InserirClienteUseCase(gateway, presenter); // sem DocumentoService
+        var useCase   = new InserirClienteUseCase(gateway, presenter);
 
         await useCase.Execute(new InserirClienteInput("João Silva", CpfValido), CancellationToken.None);
 
@@ -135,9 +139,10 @@ public class ClienteUseCaseTests
 
         Assert.Equal(CnpjValido, presenter.Output?.Documento);
     }
+
     #endregion
 
-    #region Atualização
+    #region Atualizar
 
     [Fact]
     public async Task Atualizar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -178,9 +183,10 @@ public class ClienteUseCaseTests
 
         Assert.Equal(CpfValido, presenter.Output?.Documento);
     }
+
     #endregion
 
-    #region Remoção
+    #region Remover
 
     [Fact]
     public async Task Remover_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -208,6 +214,7 @@ public class ClienteUseCaseTests
         Assert.True(presenter.OkChamado);
         Assert.True(gateway.RemoverFoiChamado);
     }
+
     #endregion
 
     #region Helpers
@@ -220,60 +227,11 @@ public class ClienteUseCaseTests
         c.Inserir(nome, DocumentoCliente.Criar(documento));
         return c;
     }
+
     #endregion
 }
 
-file class FakeClienteGateway : IClienteGateway
-{
-    private readonly List<Cliente> _clientes;
-    private readonly bool _existeDocumento;
-    public bool SalvarFoiChamado    { get; private set; }
-    public bool AtualizarFoiChamado { get; private set; }
-    public bool RemoverFoiChamado   { get; private set; }
-
-    public FakeClienteGateway(bool existeDocumento = false, params Cliente[] clientes)
-    {
-        _clientes        = [..clientes];
-        _existeDocumento = existeDocumento;
-    }
-
-    public FakeClienteGateway(params Cliente[] clientes) : this(false, clientes) { }
-
-    public Task<Cliente?> BuscarPorId(Guid id, CancellationToken ct)
-        => Task.FromResult(_clientes.FirstOrDefault(c => c.Id == id));
-
-    public Task<Cliente?> BuscarComVeiculos(Guid id, CancellationToken ct)
-        => Task.FromResult(_clientes.FirstOrDefault(c => c.Id == id));
-
-    public Task<bool> ExisteComDocumento(string documento, CancellationToken ct)
-        => Task.FromResult(_existeDocumento);
-
-    public Task<(IReadOnlyList<Cliente> Items, int Total)> BuscarPaginado(PagedRequest p, CancellationToken ct)
-    {
-        var items = _clientes.Skip((p.Pagina - 1) * p.Tamanho).Take(p.Tamanho).ToList();
-        return Task.FromResult(((IReadOnlyList<Cliente>)items, _clientes.Count));
-    }
-
-    public Task Salvar(Cliente cliente, CancellationToken ct)
-    {
-        SalvarFoiChamado = true;
-        _clientes.Add(cliente);
-        return Task.CompletedTask;
-    }
-
-    public Task Atualizar(Cliente cliente, CancellationToken ct)
-    {
-        AtualizarFoiChamado = true;
-        return Task.CompletedTask;
-    }
-
-    public Task Remover(Cliente cliente, CancellationToken ct)
-    {
-        RemoverFoiChamado = true;
-        _clientes.Remove(cliente);
-        return Task.CompletedTask;
-    }
-}
+#region Fakes
 
 file class FakeBuscarClientePresenter : IBuscarClienteOutputPort
 {
@@ -312,3 +270,5 @@ file class FakeRemoverClientePresenter : IRemoverClienteOutputPort
     public void NaoEncontrado() => NaoEncontradoChamado = true;
     public void Ok() => OkChamado = true;
 }
+
+#endregion

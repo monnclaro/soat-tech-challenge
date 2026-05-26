@@ -1,17 +1,16 @@
-﻿using Application.Clientes.Veiculos.UseCases;
+using Application.Clientes.Veiculos.UseCases;
 using Application.Clientes.Veiculos.UseCases.AtualizarVeiculo;
 using Application.Clientes.Veiculos.UseCases.BuscarListaPaginada;
 using Application.Clientes.Veiculos.UseCases.BuscarVeiculo;
 using Application.Clientes.Veiculos.UseCases.InserirVeiculo;
 using Application.Clientes.Veiculos.UseCases.RemoverVeiculo;
 using Domain.Clientes;
-using Domain.Clientes.Gateways;
 using Domain.Clientes.ValueObjects;
 using Domain.Clientes.Veiculos;
-using Domain.Clientes.Veiculos.Gateways;
 using Domain.Clientes.Veiculos.ValueObjects;
 using Domain.Common.Exceptions;
 using SharedKernel.DTOs;
+using Tests.Fakes;
 
 namespace Tests.Clientes.Veiculos.Unit;
 
@@ -19,7 +18,7 @@ public class VeiculoUseCaseTests
 {
     private static readonly int AnoAtual = DateTime.Now.Year;
 
-    // ── Buscar ───────────────────────────────────────────────────
+    #region Buscar
 
     [Fact]
     public async Task Buscar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -48,7 +47,9 @@ public class VeiculoUseCaseTests
         Assert.Equal(veiculo.IdCliente, presenter.Output?.IdCliente);
     }
 
-    // ── BuscarListaPaginada ──────────────────────────────────────
+    #endregion
+
+    #region BuscarListaPaginada
 
     [Fact]
     public async Task BuscarListaPaginada_QuandoSemVeiculos_RetornaVazio()
@@ -81,7 +82,9 @@ public class VeiculoUseCaseTests
         Assert.All(presenter.Output!.Items, r => Assert.Equal(idCliente, r.IdCliente));
     }
 
-    // ── Inserir ──────────────────────────────────────────────────
+    #endregion
+
+    #region Inserir
 
     [Fact]
     public async Task Inserir_QuandoClienteNaoExiste_ChamaClienteNaoEncontrado()
@@ -101,7 +104,7 @@ public class VeiculoUseCaseTests
     public async Task Inserir_QuandoPlacaDuplicada_ChamaPlacaDuplicada()
     {
         var cliente        = CriarCliente();
-        var veiculoGateway = new FakeVeiculoGateway(placaEmUso: true);
+        var veiculoGateway = new FakeVeiculoGateway(placaEmUso: true, placaEmUsoExcetoId: false);
         var clienteGateway = new FakeClienteGateway(cliente);
         var presenter      = new FakeInserirVeiculoPresenter();
         var useCase        = new InserirVeiculoUseCase(veiculoGateway, clienteGateway, presenter);
@@ -147,7 +150,9 @@ public class VeiculoUseCaseTests
         Assert.False(veiculoGateway.InserirFoiChamado);
     }
 
-    // ── Atualizar ────────────────────────────────────────────────
+    #endregion
+
+    #region Atualizar
 
     [Fact]
     public async Task Atualizar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -166,7 +171,7 @@ public class VeiculoUseCaseTests
     public async Task Atualizar_QuandoPlacaDuplicada_ChamaPlacaDuplicada()
     {
         var veiculo   = CriarVeiculo("ABC1234");
-        var gateway   = new FakeVeiculoGateway(placaEmUsoExcetoId: true, veiculos: veiculo);
+        var gateway   = new FakeVeiculoGateway(placaEmUso: false, placaEmUsoExcetoId: true, veiculo);
         var presenter = new FakeAtualizarVeiculoPresenter();
         var useCase   = new AtualizarVeiculoUseCase(gateway, presenter);
 
@@ -191,7 +196,9 @@ public class VeiculoUseCaseTests
         Assert.True(gateway.AtualizarFoiChamado);
     }
 
-    // ── Remover ──────────────────────────────────────────────────
+    #endregion
+
+    #region Remover
 
     [Fact]
     public async Task Remover_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -220,7 +227,9 @@ public class VeiculoUseCaseTests
         Assert.True(gateway.RemoverFoiChamado);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
+    #endregion
+
+    #region Helpers
 
     private static Veiculo CriarVeiculo(string placa = "ABC1D23", Guid? idCliente = null)
     {
@@ -235,98 +244,11 @@ public class VeiculoUseCaseTests
         c.Inserir("Cliente Teste", DocumentoCliente.Criar("52998224725"));
         return c;
     }
+
+    #endregion
 }
 
-// ── Fakes ────────────────────────────────────────────────────────────────────
-
-file class FakeVeiculoGateway : IVeiculoGateway
-{
-    private readonly List<Veiculo> _veiculos;
-    private readonly bool _placaEmUso;
-    private readonly bool _placaEmUsoExcetoId;
-    public bool InserirFoiChamado  { get; private set; }
-    public bool AtualizarFoiChamado { get; private set; }
-    public bool RemoverFoiChamado  { get; private set; }
-
-    public FakeVeiculoGateway(
-        bool placaEmUso = false,
-        bool placaEmUsoExcetoId = false,
-        params Veiculo[] veiculos)
-    {
-        _veiculos           = [..veiculos];
-        _placaEmUso         = placaEmUso;
-        _placaEmUsoExcetoId = placaEmUsoExcetoId;
-    }
-
-    public FakeVeiculoGateway(params Veiculo[] veiculos) : this(false, false, veiculos) { }
-
-    public Task<Veiculo?> BuscarPorId(Guid id, CancellationToken ct)
-        => Task.FromResult(_veiculos.FirstOrDefault(v => v.Id == id));
-
-    public Task<bool> ExisteComPlaca(string placa, CancellationToken ct)
-        => Task.FromResult(_placaEmUso);
-
-    public Task<bool> ExisteComPlacaExcetoId(string placa, Guid idVeiculo, CancellationToken ct)
-        => Task.FromResult(_placaEmUsoExcetoId);
-
-    public Task<(IReadOnlyList<Veiculo> Items, int Total)> BuscarPaginadoPorCliente(
-        Guid idCliente, PagedRequest p, CancellationToken ct)
-    {
-        var filtered = _veiculos.Where(v => v.IdCliente == idCliente).ToList();
-        var items    = filtered.Skip((p.Pagina - 1) * p.Tamanho).Take(p.Tamanho).ToList();
-        return Task.FromResult(((IReadOnlyList<Veiculo>)items, filtered.Count));
-    }
-
-    public Task Inserir(Veiculo veiculo, CancellationToken ct)
-    {
-        InserirFoiChamado = true;
-        _veiculos.Add(veiculo);
-        return Task.CompletedTask;
-    }
-
-    public Task Salvar(Veiculo veiculo, CancellationToken ct)
-    {
-        InserirFoiChamado = true;
-        _veiculos.Add(veiculo);
-        return Task.CompletedTask;
-    }
-
-    public Task Atualizar(Veiculo veiculo, CancellationToken ct)
-    {
-        AtualizarFoiChamado = true;
-        return Task.CompletedTask;
-    }
-
-    public Task Remover(Veiculo veiculo, CancellationToken ct)
-    {
-        RemoverFoiChamado = true;
-        _veiculos.Remove(veiculo);
-        return Task.CompletedTask;
-    }
-}
-
-file class FakeClienteGateway : IClienteGateway
-{
-    private readonly List<Cliente> _clientes;
-
-    public FakeClienteGateway(params Cliente[] clientes) => _clientes = [..clientes];
-
-    public Task<Cliente?> BuscarPorId(Guid id, CancellationToken ct)
-        => Task.FromResult(_clientes.FirstOrDefault(c => c.Id == id));
-
-    public Task<Cliente?> BuscarComVeiculos(Guid id, CancellationToken ct)
-        => Task.FromResult(_clientes.FirstOrDefault(c => c.Id == id));
-
-    public Task<bool> ExisteComDocumento(string documento, CancellationToken ct)
-        => Task.FromResult(false);
-
-    public Task<(IReadOnlyList<Cliente> Items, int Total)> BuscarPaginado(PagedRequest p, CancellationToken ct)
-        => Task.FromResult(((IReadOnlyList<Cliente>)_clientes, _clientes.Count));
-
-    public Task Salvar(Cliente cliente, CancellationToken ct) => Task.CompletedTask;
-    public Task Atualizar(Cliente cliente, CancellationToken ct) => Task.CompletedTask;
-    public Task Remover(Cliente cliente, CancellationToken ct) => Task.CompletedTask;
-}
+#region Fakes
 
 file class FakeBuscarVeiculoPresenter : IBuscarVeiculoOutputPort
 {
@@ -369,3 +291,5 @@ file class FakeRemoverVeiculoPresenter : IRemoverVeiculoOutputPort
     public void NaoEncontrado() => NaoEncontradoChamado = true;
     public void Ok()            => OkChamado = true;
 }
+
+#endregion

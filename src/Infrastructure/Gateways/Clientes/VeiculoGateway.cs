@@ -14,6 +14,9 @@ public class VeiculoGateway : IVeiculoGateway
 
     public Task<Veiculo?> BuscarPorId(Guid id, CancellationToken ct) =>
         _db.Veiculo.FirstOrDefaultAsync(v => v.Id == id, ct);
+    
+    public Task<Veiculo?> BuscarPorPlaca(string placa, CancellationToken ct) =>
+        _db.Veiculo.FirstOrDefaultAsync(v => v.Placa == placa, ct);
 
     public Task<bool> ExisteComPlaca(string placa, CancellationToken ct) =>
         _db.Veiculo.AsNoTracking().AnyAsync(v => v.Placa == placa, ct);

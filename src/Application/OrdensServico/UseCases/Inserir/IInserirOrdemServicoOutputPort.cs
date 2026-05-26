@@ -1,4 +1,4 @@
-﻿namespace Application.OrdensServico.UseCases.InserirOrdemServico;
+﻿namespace Application.OrdensServico.UseCases.Inserir;
 
 public interface IInserirOrdemServicoOutputPort
 {

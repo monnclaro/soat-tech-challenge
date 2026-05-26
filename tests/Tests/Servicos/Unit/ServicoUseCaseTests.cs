@@ -1,4 +1,4 @@
-﻿using Application.Servicos.DTOs;
+using Application.Servicos.DTOs;
 using Application.Servicos.Queries;
 using Application.Servicos.Queries.BuscarListaPaginada;
 using Application.Servicos.Queries.BuscarServico;
@@ -8,14 +8,14 @@ using Application.Servicos.UseCases.InserirServico;
 using Application.Servicos.UseCases.RemoverServico;
 using Domain.Common.Exceptions;
 using Domain.Servicos;
-using Domain.Servicos.Gateways;
 using SharedKernel.DTOs;
+using Tests.Fakes;
 
 namespace Tests.Servicos.Unit;
 
 public class ServicoUseCaseTests
 {
-    // ── Buscar ───────────────────────────────────────────────────
+    #region Buscar
 
     [Fact]
     public async Task Buscar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -44,7 +44,9 @@ public class ServicoUseCaseTests
         Assert.Equal(150m, presenter.Output?.Valor);
     }
 
-    // ── BuscarListaPaginada ──────────────────────────────────────
+    #endregion
+
+    #region BuscarListaPaginada
 
     [Fact]
     public async Task BuscarListaPaginada_QuandoSemServicos_RetornaVazio()
@@ -77,7 +79,9 @@ public class ServicoUseCaseTests
         Assert.Equal(3, presenter.Output?.Items.Count);
     }
 
-    // ── BuscarTempoMedioExecucao ─────────────────────────────────
+    #endregion
+
+    #region BuscarTempoMedioExecucao
 
     [Fact]
     public async Task BuscarTempoMedioExecucao_QuandoSemDados_RetornaVazio()
@@ -106,7 +110,9 @@ public class ServicoUseCaseTests
         Assert.Equal(60.0, presenter.Output[0].TempoMedioMinutos);
     }
 
-    // ── Inserir ──────────────────────────────────────────────────
+    #endregion
+
+    #region Inserir
 
     [Fact]
     public async Task Inserir_QuandoDadosValidos_ChamaOkEPersiste()
@@ -149,7 +155,9 @@ public class ServicoUseCaseTests
         Assert.False(gateway.SalvarFoiChamado);
     }
 
-    // ── Atualizar ────────────────────────────────────────────────
+    #endregion
+
+    #region Atualizar
 
     [Fact]
     public async Task Atualizar_QuandoNaoExiste_ChamaNaoEncontrado()
@@ -193,7 +201,9 @@ public class ServicoUseCaseTests
         Assert.False(gateway.AtualizarFoiChamado);
     }
 
-    // ── Remover ──────────────────────────────────────────────────
+    #endregion
+
+    #region Remover
 
     [Fact]
     public async Task Remover_QuandoNaoExiste_ChamaOkSemRemover()
@@ -222,7 +232,9 @@ public class ServicoUseCaseTests
         Assert.True(gateway.RemoverFoiChamado);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
+    #endregion
+
+    #region Helpers
 
     private static Servico CriarServico(string nome = "Serviço Teste", decimal valor = 100m)
     {
@@ -230,47 +242,11 @@ public class ServicoUseCaseTests
         s.Inserir(nome, "Descrição", valor);
         return s;
     }
+
+    #endregion
 }
 
-// ── Fake IServicoGateway (escrita) ───────────────────────────────────────────
-
-public class FakeServicoGateway : IServicoGateway
-{
-    private readonly List<Servico> _servicos;
-    public bool SalvarFoiChamado    { get; private set; }
-    public bool AtualizarFoiChamado { get; private set; }
-    public bool RemoverFoiChamado   { get; private set; }
-
-    public FakeServicoGateway(params Servico[] servicos) => _servicos = [..servicos];
-
-    public Task<Servico?> BuscarPorId(Guid id, CancellationToken ct)
-        => Task.FromResult(_servicos.FirstOrDefault(s => s.Id == id));
-
-    public Task<Dictionary<Guid, Servico>> BuscarPorIds(IReadOnlyList<Guid> ids, CancellationToken ct)
-        => Task.FromResult(_servicos.Where(s => ids.Contains(s.Id)).ToDictionary(s => s.Id));
-
-    public Task Salvar(Servico servico, CancellationToken ct)
-    {
-        SalvarFoiChamado = true;
-        _servicos.Add(servico);
-        return Task.CompletedTask;
-    }
-
-    public Task Atualizar(Servico servico, CancellationToken ct)
-    {
-        AtualizarFoiChamado = true;
-        return Task.CompletedTask;
-    }
-
-    public Task Remover(Servico servico, CancellationToken ct)
-    {
-        RemoverFoiChamado = true;
-        _servicos.Remove(servico);
-        return Task.CompletedTask;
-    }
-}
-
-// ── Fake IServicoQueryGateway (leitura) ──────────────────────────────────────
+#region Fake IServicoQueryGateway
 
 file class FakeServicoQueryGateway : IServicoQueryGateway
 {
@@ -300,7 +276,9 @@ file class FakeServicoQueryGateway : IServicoQueryGateway
         => Task.FromResult(_tempoMedio);
 }
 
-// ── Fake Presenters ──────────────────────────────────────────────────────────
+#endregion
+
+#region Fake Presenters
 
 file class FakeBuscarServicoPresenter : IBuscarServicoOutputPort
 {
@@ -341,3 +319,5 @@ file class FakeRemoverServicoPresenter : IRemoverServicoOutputPort
     public bool OkChamado { get; private set; }
     public void Ok() => OkChamado = true;
 }
+
+#endregion

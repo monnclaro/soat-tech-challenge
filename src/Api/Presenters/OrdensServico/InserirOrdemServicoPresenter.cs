@@ -1,5 +1,5 @@
 ﻿using Api.Extensions.Markers;
-using Application.OrdensServico.UseCases.InserirOrdemServico;
+using Application.OrdensServico.UseCases.Inserir;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Presenters.OrdensServico;
