@@ -3,7 +3,7 @@ using Application.Login.UseCases;
 using Application.Login.UseCases.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.Authentication.Presenters;
+namespace Api.Presenters.Authentication;
 
 public class LoginPresenter : ILoginOutputPort, IPresenter
 {

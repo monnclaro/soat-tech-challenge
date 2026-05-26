@@ -3,7 +3,7 @@ using Application.Clientes.Veiculos.UseCases;
 using Application.Clientes.Veiculos.UseCases.BuscarVeiculo;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.Clientes.Veiculos.Presenters;
+namespace Api.Presenters.Clientes.Veiculos;
 
 public class BuscarVeiculoPresenter : IBuscarVeiculoOutputPort, IPresenter
 {

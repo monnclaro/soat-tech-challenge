@@ -1,5 +1,5 @@
-﻿using Api.Controllers.OrdensServico.Presenters;
-using Api.Extensions.Filters;
+﻿using Api.Extensions.Filters;
+using Api.Presenters.OrdensServico;
 using Application.OrdensServico.Controllers;
 using Application.OrdensServico.UseCases.AprovarOrcamento;
 using Application.OrdensServico.UseCases.ReprovarOrcamento;

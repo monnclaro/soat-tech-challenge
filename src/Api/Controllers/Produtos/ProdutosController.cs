@@ -1,5 +1,5 @@
-using Api.Controllers.Produtos.Presenters;
 using Api.Controllers.Produtos.Requests;
+using Api.Presenters.Produtos;
 using Application.Produtos.Controllers;
 using Application.Produtos.DTOs;
 using Application.Produtos.UseCases.AtualizarProduto;

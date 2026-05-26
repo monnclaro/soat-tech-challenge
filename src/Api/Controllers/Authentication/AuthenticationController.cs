@@ -1,5 +1,5 @@
-﻿using Api.Controllers.Authentication.Presenters;
-using Api.Controllers.Authentication.Requests;
+﻿using Api.Controllers.Authentication.Requests;
+using Api.Presenters.Authentication;
 using Application.Login.Controllers;
 using Application.Login.UseCases.DTOs;
 using Microsoft.AspNetCore.Mvc;

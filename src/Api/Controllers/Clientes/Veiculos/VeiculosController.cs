@@ -1,5 +1,5 @@
-using Api.Controllers.Clientes.Veiculos.Presenters;
 using Api.Controllers.Clientes.Veiculos.Requests;
+using Api.Presenters.Clientes.Veiculos;
 using Application.Clientes.Veiculos.Controllers;
 using Application.Clientes.Veiculos.UseCases;
 using Application.Clientes.Veiculos.UseCases.AtualizarVeiculo;

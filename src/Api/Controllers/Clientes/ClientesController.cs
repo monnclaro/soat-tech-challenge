@@ -1,5 +1,5 @@
-using Api.Controllers.Clientes.Presenters;
 using Api.Controllers.Clientes.Requests;
+using Api.Presenters.Clientes;
 using Application.Clientes.Controllers;
 using Application.Clientes.UseCases;
 using Application.Clientes.UseCases.AtualizarCliente;

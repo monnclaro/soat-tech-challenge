@@ -1,5 +1,5 @@
-﻿using Api.Controllers.OrdensServico.Presenters;
-using Api.Controllers.OrdensServico.Requests;
+﻿using Api.Controllers.OrdensServico.Requests;
+using Api.Presenters.OrdensServico;
 using Application.OrdensServico.Controllers;
 using Application.OrdensServico.UseCases;
 using Application.OrdensServico.UseCases.AtualizarStatus.DTOs;

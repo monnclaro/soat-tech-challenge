@@ -4,7 +4,7 @@ using Application.Clientes.Veiculos.UseCases.BuscarListaPaginada;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.DTOs;
 
-namespace Api.Controllers.Clientes.Veiculos.Presenters;
+namespace Api.Presenters.Clientes.Veiculos;
 
 public class BuscarListaPaginadaVeiculoPresenter : IBuscarListaPaginadaVeiculoOutputPort, IPresenter
 {

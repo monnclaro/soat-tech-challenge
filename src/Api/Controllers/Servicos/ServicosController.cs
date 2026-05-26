@@ -1,5 +1,5 @@
-﻿using Api.Controllers.Servicos.Presenters;
-using Api.Controllers.Servicos.Requests;
+﻿using Api.Controllers.Servicos.Requests;
+using Api.Presenters.Servicos;
 using Application.Servicos.Controllers;
 using Application.Servicos.DTOs;
 using Application.Servicos.Queries.BuscarListaPaginada;

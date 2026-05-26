@@ -3,7 +3,7 @@ using Application.Clientes.Veiculos.UseCases;
 using Application.Clientes.Veiculos.UseCases.AtualizarVeiculo;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.Clientes.Veiculos.Presenters;
+namespace Api.Presenters.Clientes.Veiculos;
 
 public class AtualizarVeiculoPresenter : IAtualizarVeiculoOutputPort, IPresenter
 {
