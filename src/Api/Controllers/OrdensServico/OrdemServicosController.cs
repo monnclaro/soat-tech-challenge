@@ -12,7 +12,6 @@ using Application.OrdensServico.UseCases.FinalizarExecucaoServico;
 using Application.OrdensServico.UseCases.IniciarDiagnostico;
 using Application.OrdensServico.UseCases.IniciarExecucaoServico;
 using Application.OrdensServico.UseCases.Inserir;
-using Application.OrdensServico.UseCases.InserirCompleta;
 using Application.OrdensServico.UseCases.InserirProdutos;
 using Application.OrdensServico.UseCases.InserirServicos;
 using Application.OrdensServico.UseCases.Remover;
@@ -47,8 +46,7 @@ public class OrdemServicosController : ControllerBase
     private readonly RemoverServicoPresenter _removerServicoPresenter;
     private readonly AprovarOrcamentoPresenter _aprovarPresenter;
     private readonly ReprovarOrcamentoPresenter _reprovarPresenter;
-    private readonly InserirOrdemServicoCompletaPresenter _inserirCompletaPresenter;
-    
+
     public OrdemServicosController(
         OrdemServicoController controller,
         BuscarOrdemServicoPresenter buscarPresenter,
@@ -66,8 +64,7 @@ public class OrdemServicosController : ControllerBase
         RemoverProdutoPresenter removerProdutoPresenter,
         RemoverServicoPresenter removerServicoPresenter,
         AprovarOrcamentoPresenter aprovarPresenter,
-        ReprovarOrcamentoPresenter reprovarPresenter,
-        InserirOrdemServicoCompletaPresenter inserirCompletaPresenter)
+        ReprovarOrcamentoPresenter reprovarPresenter)
     {
         _controller = controller;
         _buscarPresenter = buscarPresenter;
@@ -86,7 +83,6 @@ public class OrdemServicosController : ControllerBase
         _removerServicoPresenter = removerServicoPresenter;
         _aprovarPresenter = aprovarPresenter;
         _reprovarPresenter = reprovarPresenter;
-        _inserirCompletaPresenter = inserirCompletaPresenter;
     }
 
     [HttpGet("{id:guid}")]
@@ -127,30 +123,8 @@ public class OrdemServicosController : ControllerBase
             request.IdCliente, request.IdVeiculo,
             request.IdsServicos,
             request.Produtos.Select(p => new InserirOrdemServicoProdutoInput(p.IdProduto, p.Quantidade)).ToList()), ct);
-        return _inserirPresenter.Result!;
-    }
-    
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> InserirCompleta([FromBody] InserirOrdemServicoCompletaRequest request, CancellationToken ct)
-    {
-        await _controller.InserirCompleta(new InserirOrdemServicoCompletaInput(
-                new InserirOrdemServicoCompletaClienteInput(
-                    request.Cliente.Nome,
-                    request.Cliente.Documento,
-                    new InserirOrdemServicoCompletaVeiculoInput(
-                        request.Cliente.Veiculo.Placa,
-                        request.Cliente.Veiculo.Marca,
-                        request.Cliente.Veiculo.Modelo,
-                        request.Cliente.Veiculo.Ano)),
-                request.Servicos.Select(s => new InserirOrdemServicoCompletaServicoInput(s.Nome, s.Descricao, s.Valor)).ToList(),
-                request.Produtos.Select(p => new InserirOrdemServicoCompletaProdutoInput(p.Nome, p.Descricao, p.Valor, p.QuantidadeEmEstoque, p.QuantidadeNaOrdem)).ToList()),
-            ct);
 
-        return _inserirCompletaPresenter.Result!;
+        return _inserirPresenter.Result!;
     }
 
     [HttpPost("{id:guid}/produtos")]

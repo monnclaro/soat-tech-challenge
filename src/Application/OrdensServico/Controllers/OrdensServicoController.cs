@@ -11,7 +11,6 @@ using Application.OrdensServico.UseCases.FinalizarExecucaoServico;
 using Application.OrdensServico.UseCases.IniciarDiagnostico;
 using Application.OrdensServico.UseCases.IniciarExecucaoServico;
 using Application.OrdensServico.UseCases.Inserir;
-using Application.OrdensServico.UseCases.InserirCompleta;
 using Application.OrdensServico.UseCases.InserirProdutos;
 using Application.OrdensServico.UseCases.InserirServicos;
 using Application.OrdensServico.UseCases.Remover;
@@ -41,8 +40,7 @@ public class OrdemServicoController : IScoped
     private readonly RemoverOrdemServicoUseCase _remover;
     private readonly RemoverProdutoUseCase _removerProduto;
     private readonly RemoverServicoUseCase _removerServico;
-    private readonly AtualizarStatusUseCase _atualizarStatusUseCase;
-    private readonly InserirOrdemServicoCompletaUseCase _useCase;
+    private readonly AtualizarStatusUseCase _atualizarStatusUseCase;  
     
     public OrdemServicoController(
         BuscarOrdemServicoUseCase buscar,
@@ -62,8 +60,7 @@ public class OrdemServicoController : IScoped
         RemoverOrdemServicoUseCase remover,
         RemoverProdutoUseCase removerProduto,
         RemoverServicoUseCase removerServico, 
-        AtualizarStatusUseCase atualizarStatusUseCase, 
-        InserirOrdemServicoCompletaUseCase useCase)
+        AtualizarStatusUseCase atualizarStatusUseCase)
     {
         _buscar = buscar;
         _buscarStatus = buscarStatus;
@@ -82,8 +79,7 @@ public class OrdemServicoController : IScoped
         _remover = remover;
         _removerProduto = removerProduto;
         _removerServico = removerServico;
-        _atualizarStatusUseCase = atualizarStatusUseCase;
-        _useCase = useCase;
+        _atualizarStatusUseCase = atualizarStatusUseCase; 
     }
 
     public async Task Buscar(BuscarOrdemServicoInput input, CancellationToken ct = default)
@@ -99,10 +95,7 @@ public class OrdemServicoController : IScoped
         => await _listarPorDocumento.Execute(input, ct);
 
     public async Task Inserir(InserirOrdemServicoInput input, CancellationToken ct = default)
-        => await _inserir.Execute(input, ct);
-    
-    public async Task InserirCompleta(InserirOrdemServicoCompletaInput input, CancellationToken ct = default)
-        => await _useCase.Execute(input, ct);
+        => await _inserir.Execute(input, ct);   
 
     public async Task InserirProdutos(InserirProdutosInput input, CancellationToken ct = default)
         => await _inserirProdutos.Execute(input, ct);
