@@ -1,2 +1,0 @@
-﻿cd SoatTechChallenge.Infrastructure    
-dotnet ef migrations add AdicionandoEntidades --startup-project ../SoatTechChallenge/SoatTechChallenge.csproj

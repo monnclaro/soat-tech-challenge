@@ -70,3 +70,21 @@ Thumbs.db
 # Publish
 # =========================
 publish/
+
+# Terraform local state
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+
+# Terraform working directory
+.terraform/
+.terraform.lock.hcl
+
+# Variable files (if sensitive)
+*.tfvars
+*.tfvars.json
+
+# Plan files (optional but recommended)
+*.tfplan

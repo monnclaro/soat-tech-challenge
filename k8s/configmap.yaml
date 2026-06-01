@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: soat-api-config
+
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+
+  ConnectionStrings__Default: "Host=postgres-service;Port=5432;Database=soattechchallenge;Username=postgres;Password=postgres"
+
+  JwtSettings__Secret: "SuaChaveSuperSecretaComMinimo32Caracteres"
+  JwtSettings__ExpirationHours: "2"
+
+  Webhook__Secret: "secret_webhook"

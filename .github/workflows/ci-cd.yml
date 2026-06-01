@@ -1,0 +1,81 @@
+name: CI-CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+
+      # ── 1. CHECKOUT ──────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. BUILD DA APLICAÇÃO ────────────────────────────────
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      # ── 3. TESTES AUTOMATIZADOS ──────────────────────────────
+      - name: Testes
+        run: dotnet test --no-build --configuration Release --verbosity normal
+
+      # ── 4. BUILD DA IMAGEM DOCKER ────────────────────────────
+      - name: Build da imagem
+        shell: pwsh
+        run: |
+          docker build `
+            -t soat-api:latest `
+            -f SoatTechChallenge/Dockerfile .
+
+      # ── 5. CARREGAR IMAGEM NO MINIKUBE ───────────────────────
+      - name: Carregar imagem no Minikube
+        shell: pwsh
+        run: minikube image load soat-api:latest
+
+      # ── 6. DEPLOY DO BANCO DE DADOS ──────────────────────────
+      - name: Deploy PostgreSQL
+        shell: pwsh
+        run: kubectl apply -f k8s/postgres/
+
+      - name: Aguardar PostgreSQL
+        shell: pwsh
+        run: kubectl rollout status statefulset/postgres -n soat --timeout=120s
+
+      # ── 7. APLICAÇÃO DOS MANIFESTOS YAML ─────────────────────
+      - name: Aplicar manifestos
+        shell: pwsh
+        run: |
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/secret.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/hpa.yaml
+
+      # ── 8. DEPLOY NO CLUSTER ─────────────────────────────────
+      - name: Atualizar imagem
+        shell: pwsh
+        run: |
+          kubectl set image deployment/soat-api `
+            soat-api=soat-api:latest `
+            -n soat
+
+      - name: Aguardar rollout
+        shell: pwsh
+        run: kubectl rollout status deployment/soat-api -n soat --timeout=180s
+
+      # ── 9. VERIFICAÇÃO FINAL ──────────────────────────────────
+      - name: Status dos pods
+        shell: pwsh
+        run: kubectl get pods -n soat

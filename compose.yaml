@@ -1,32 +1,52 @@
-﻿services:
+﻿version: '3.9'
+
+services:
   api:
-    image: soattechchallenge
+    image: soattechchallenge-api
     build:
       context: .
-      dockerfile: SoatTechChallenge/Dockerfile
+      dockerfile: src/Api/Dockerfile
+
     ports:
       - "8080:8080"
+
     env_file:
       - .env
+
     depends_on:
       postgres:
         condition: service_healthy
+
+    networks:
+      - soat-network
+
     restart: unless-stopped
 
   postgres:
     image: postgres:16-alpine
+
     env_file:
       - .env
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+    networks:
+      - soat-network
+
     restart: unless-stopped
 
 volumes:
   postgres_data:
+
+networks:
+  soat-network:
