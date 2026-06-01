@@ -37,7 +37,7 @@ jobs:
         run: |
           docker build `
             -t soat-api:latest `
-            -f SoatTechChallenge/Dockerfile .
+            -f src/Api/Dockerfile .
 
       # ── 5. CARREGAR IMAGEM NO MINIKUBE ───────────────────────
       - name: Carregar imagem no Minikube
