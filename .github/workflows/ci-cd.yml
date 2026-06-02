@@ -43,22 +43,41 @@ jobs:
       - name: Iniciar Minikube e configurar contexto
         shell: powershell
         run: |
-          # Define o kubeconfig explicitamente
+          $ErrorActionPreference = 'Continue'
+
           $kube = "$env:USERPROFILE\.kube\config"
           echo "KUBECONFIG=$kube" >> $env:GITHUB_ENV
           $env:KUBECONFIG = $kube
 
-          # Inicia o minikube se não estiver rodando
-          $state = minikube status --format='{{.Host}}' 2>$null
+          # Checa se o host está realmente Running
+          $state = (minikube status --format='{{.Host}}' 2>$null)
+          Write-Host "Minikube host state: '$state'"
+
           if ($state -ne "Running") {
-            Write-Host "Iniciando minikube..."
-            minikube start
+            Write-Host "Minikube não está Running (estado: '$state'). Deletando e recriando..."
+            minikube delete 2>$null | Out-Null
+            minikube start --driver=docker
+          } else {
+            Write-Host "Minikube já está Running, pulando start."
           }
 
-          # Atualiza o contexto com a porta atual da API
           minikube update-context
 
-          # Confirma que o cluster responde
+          # Aguarda o API server responder antes de continuar
+          Write-Host "Aguardando API server ficar disponível..."
+          $retries = 0
+          do {
+            Start-Sleep -Seconds 5
+            kubectl cluster-info 2>$null | Out-Null
+            $retries++
+            Write-Host "Tentativa $retries..."
+          } while ($LASTEXITCODE -ne 0 -and $retries -lt 12)
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "API server não respondeu após 60s"
+            exit 1
+          }
+
           kubectl cluster-info
           kubectl get nodes
 
