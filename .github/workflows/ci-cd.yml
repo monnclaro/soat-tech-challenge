@@ -49,21 +49,14 @@ jobs:
           echo "KUBECONFIG=$kube" >> $env:GITHUB_ENV
           $env:KUBECONFIG = $kube
 
-          # Checa se o host está realmente Running
-          $state = (minikube status --format='{{.Host}}' 2>$null)
-          Write-Host "Minikube host state: '$state'"
+          Write-Host "Deletando cluster anterior para garantir estado limpo..."
+          minikube delete 2>$null | Out-Null
 
-          if ($state -ne "Running") {
-            Write-Host "Minikube não está Running (estado: '$state'). Deletando e recriando..."
-            minikube delete 2>$null | Out-Null
-            minikube start --driver=docker
-          } else {
-            Write-Host "Minikube já está Running, pulando start."
-          }
+          Write-Host "Iniciando minikube..."
+          minikube start --driver=docker
 
           minikube update-context
 
-          # Aguarda o API server responder antes de continuar
           Write-Host "Aguardando API server ficar disponível..."
           $retries = 0
           do {
@@ -71,10 +64,10 @@ jobs:
             kubectl cluster-info 2>$null | Out-Null
             $retries++
             Write-Host "Tentativa $retries..."
-          } while ($LASTEXITCODE -ne 0 -and $retries -lt 12)
+          } while ($LASTEXITCODE -ne 0 -and $retries -lt 24)
 
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "API server não respondeu após 60s"
+            Write-Host "API server não respondeu após 120s"
             exit 1
           }
 
