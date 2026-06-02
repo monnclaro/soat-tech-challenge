@@ -3,6 +3,7 @@ kind: ConfigMap
 
 metadata:
   name: soat-api-config
+  namespace: soat
 
 data:
   ASPNETCORE_ENVIRONMENT: "Production"

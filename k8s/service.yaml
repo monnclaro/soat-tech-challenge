@@ -3,6 +3,7 @@ kind: Service
 
 metadata:
   name: soat-api-service
+  namespace: soat
 
 spec:
   selector:

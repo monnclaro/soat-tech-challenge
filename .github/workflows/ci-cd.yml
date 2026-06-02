@@ -78,7 +78,17 @@ jobs:
         shell: powershell
         run: minikube image load soat-api:latest
 
-      # ── 6. DEPLOY DO BANCO DE DADOS ──────────────────────────
+      # ── 6. CRIAR NAMESPACE ────────────────────────────────────
+      - name: Criar namespace
+        shell: powershell
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG }}
+        run: |
+          $ErrorActionPreference = 'Continue'
+          kubectl get namespace soat 2>$null | Out-Null
+          if ($LASTEXITCODE -ne 0) { kubectl create namespace soat }
+
+      # ── 7. DEPLOY DO BANCO DE DADOS ──────────────────────────
       - name: Deploy do banco de dados
         shell: powershell
         env:
@@ -90,16 +100,6 @@ jobs:
         env:
           KUBECONFIG: ${{ env.KUBECONFIG }}
         run: kubectl rollout status statefulset/postgres -n soat --timeout=120s
-
-      # ── 7. CRIAR NAMESPACE ────────────────────────────────────
-      - name: Criar namespace
-        shell: powershell
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
-        run: |
-          $ErrorActionPreference = 'Continue'
-          kubectl get namespace soat 2>$null | Out-Null
-          if ($LASTEXITCODE -ne 0) { kubectl create namespace soat }
 
       # ── 8. APLICAÇÃO DOS MANIFESTOS YAML NO CLUSTER ──────────
       - name: Aplicação dos manifestos YAML no cluster
