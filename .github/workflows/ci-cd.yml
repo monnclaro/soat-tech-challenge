@@ -12,35 +12,35 @@ jobs:
     steps:
 
       # ── 1. CHECKOUT ──────────────────────────────────────────
-      - name: Checkout
+      - name: Checkout do código
         uses: actions/checkout@v4
 
       # ── 2. BUILD DA APLICAÇÃO ────────────────────────────────
-      - name: Setup .NET
+      - name: Configurar .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore
+      - name: Restaurar dependências
         run: dotnet restore
 
-      - name: Build
+      - name: Build da aplicação
         run: dotnet build --no-restore --configuration Release
 
-      # ── 3. TESTES AUTOMATIZADOS ──────────────────────────────
-      - name: Testes
+      # ── 3. EXECUÇÃO DOS TESTES AUTOMATIZADOS ─────────────────
+      - name: Execução dos testes automatizados
         run: dotnet test --no-build --configuration Release --verbosity normal
 
       # ── 4. BUILD DA IMAGEM DOCKER ────────────────────────────
-      - name: Build da imagem
+      - name: Build da imagem Docker
         shell: powershell
         run: |
           docker build `
             -t soat-api:latest `
             -f src/Api/Dockerfile .
 
-      # ── 5. GARANTIR MINIKUBE E KUBECONFIG ────────────────────
-      - name: Iniciar Minikube e configurar contexto
+      # ── 5. DEPLOY NO CLUSTER KUBERNETES ──────────────────────
+      - name: Reiniciar cluster Minikube
         shell: powershell
         run: |
           $ErrorActionPreference = 'Continue'
@@ -74,22 +74,21 @@ jobs:
           kubectl cluster-info
           kubectl get nodes
 
-      # ── 6. CARREGAR IMAGEM NO MINIKUBE ───────────────────────
-      - name: Carregar imagem no Minikube
+      - name: Carregar imagem no cluster
         shell: powershell
         run: minikube image load soat-api:latest
 
-      # ── 7. DEPLOY DO BANCO DE DADOS ──────────────────────────
-      - name: Deploy PostgreSQL
+      # ── 6. DEPLOY DO BANCO DE DADOS ──────────────────────────
+      - name: Deploy do banco de dados
         shell: powershell
         run: kubectl apply -f k8s/postgres/
 
-      - name: Aguardar PostgreSQL
+      - name: Aguardar banco de dados ficar pronto
         shell: powershell
         run: kubectl rollout status statefulset/postgres -n soat --timeout=120s
 
-      # ── 8. APLICAÇÃO DOS MANIFESTOS YAML ─────────────────────
-      - name: Aplicar manifestos
+      # ── 7. APLICAÇÃO DOS MANIFESTOS YAML NO CLUSTER ──────────
+      - name: Aplicação dos manifestos YAML no cluster
         shell: powershell
         run: |
           kubectl apply -f k8s/configmap.yaml
@@ -98,19 +97,10 @@ jobs:
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/hpa.yaml
 
-      # ── 9. DEPLOY NO CLUSTER ─────────────────────────────────
-      - name: Atualizar imagem
-        shell: powershell
-        run: |
-          kubectl set image deployment/soat-api `
-            soat-api=soat-api:latest `
-            -n soat
-
-      - name: Aguardar rollout
+      - name: Aguardar rollout da aplicação
         shell: powershell
         run: kubectl rollout status deployment/soat-api -n soat --timeout=180s
 
-      # ── 10. VERIFICAÇÃO FINAL ─────────────────────────────────
-      - name: Status dos pods
+      - name: Verificar status dos pods
         shell: powershell
         run: kubectl get pods -n soat
