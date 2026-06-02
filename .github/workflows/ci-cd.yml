@@ -39,31 +39,54 @@ jobs:
             -t soat-api:latest `
             -f src/Api/Dockerfile .
 
-      # ── 5. CARREGAR IMAGEM NO MINIKUBE ───────────────────────
+      # ── 5. GARANTIR MINIKUBE E KUBECONFIG ────────────────────
+      - name: Iniciar Minikube e configurar contexto
+        shell: powershell
+        run: |
+          # Define o kubeconfig explicitamente
+          $kube = "$env:USERPROFILE\.kube\config"
+          echo "KUBECONFIG=$kube" >> $env:GITHUB_ENV
+          $env:KUBECONFIG = $kube
+
+          # Inicia o minikube se não estiver rodando
+          $state = minikube status --format='{{.Host}}' 2>$null
+          if ($state -ne "Running") {
+            Write-Host "Iniciando minikube..."
+            minikube start
+          }
+
+          # Atualiza o contexto com a porta atual da API
+          minikube update-context
+
+          # Confirma que o cluster responde
+          kubectl cluster-info
+          kubectl get nodes
+
+      # ── 6. CARREGAR IMAGEM NO MINIKUBE ───────────────────────
       - name: Carregar imagem no Minikube
         shell: powershell
         run: minikube image load soat-api:latest
 
-      # ── 6. DEPLOY DO BANCO DE DADOS ──────────────────────────
+      # ── 7. DEPLOY DO BANCO DE DADOS ──────────────────────────
       - name: Deploy PostgreSQL
         shell: powershell
-        run: kubectl apply --validate=false -f k8s/postgres/
+        run: kubectl apply -f k8s/postgres/
 
       - name: Aguardar PostgreSQL
         shell: powershell
         run: kubectl rollout status statefulset/postgres -n soat --timeout=120s
 
-      # ── 7. APLICAÇÃO DOS MANIFESTOS YAML ─────────────────────
+      # ── 8. APLICAÇÃO DOS MANIFESTOS YAML ─────────────────────
       - name: Aplicar manifestos
         shell: powershell
         run: |
-          kubectl apply --validate=false -f k8s/configmap.yaml
-          kubectl apply --validate=false -f k8s/secret.yaml
-          kubectl apply --validate=false -f k8s/deployment.yaml
-          kubectl apply --validate=false -f k8s/service.yaml
-          kubectl apply --validate=false -f k8s/hpa.yaml
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/secret.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/hpa.yaml
 
-      # ── 8. DEPLOY NO CLUSTER ─────────────────────────────────
+      # ── 9. DEPLOY NO CLUSTER ─────────────────────────────────
       - name: Atualizar imagem
         shell: powershell
         run: |
@@ -75,7 +98,7 @@ jobs:
         shell: powershell
         run: kubectl rollout status deployment/soat-api -n soat --timeout=180s
 
-      # ── 9. VERIFICAÇÃO FINAL ──────────────────────────────────
+      # ── 10. VERIFICAÇÃO FINAL ─────────────────────────────────
       - name: Status dos pods
         shell: powershell
         run: kubectl get pods -n soat
