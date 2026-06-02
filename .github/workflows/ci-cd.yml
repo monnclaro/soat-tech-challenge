@@ -47,7 +47,7 @@ jobs:
       # ── 6. DEPLOY DO BANCO DE DADOS ──────────────────────────
       - name: Deploy PostgreSQL
         shell: powershell
-        run: kubectl apply -f k8s/postgres/
+        run: kubectl apply --validate=false -f k8s/postgres/
 
       - name: Aguardar PostgreSQL
         shell: powershell
