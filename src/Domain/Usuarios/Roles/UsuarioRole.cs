@@ -7,8 +7,6 @@ public class UsuarioRole : Entity
     public Guid Id { get; private set; }
     public Guid IdUsuario { get; private set; }
     public string Role { get; private set; }
-
-    public UsuarioRole() { }
     
     public UsuarioRole(string role)
     {

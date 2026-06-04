@@ -13,9 +13,7 @@ public class OrdemServicoServico : Entity
     public decimal Valor { get; private set; }
     public StatusOrdemServicoServico Status { get; private set; }
     public DateTime? DataInicioExecucao { get; private set; }
-    public DateTime? DataFinalizacaoExecucao { get; private set; }
-    
-    public OrdemServicoServico() { }
+    public DateTime? DataFinalizacaoExecucao { get; private set; }   
     
     public OrdemServicoServico(Guid idOrdemServico, Guid idServico, string nomeServico, decimal valor)
     {

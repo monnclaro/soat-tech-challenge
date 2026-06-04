@@ -1,2 +1,2 @@
-﻿cd src/Infrastructure/Database    
+﻿cd src/Infrastructure    
 dotnet ef migrations add "" --output-dir Database/Migrations

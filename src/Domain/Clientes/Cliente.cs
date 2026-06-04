@@ -9,13 +9,11 @@ namespace Domain.Clientes;
 public class Cliente : Entity
 {
     public Guid Id { get; private set; }
-    public string Nome { get; private set; }
-    public string Documento { get; private set; }
+    public string Nome { get; private set; } = null!;
+    public string Documento { get; private set; } = null!;
     public TipoDocumentoCliente TipoDocumento { get; private set; }
     public DateTime DataCriacao { get; private set; }
     public List<Veiculo> Veiculos { get; init; } = new();
-
-    public Cliente() { }
 
     public void Inserir(string nome, DocumentoCliente documento)
     { 

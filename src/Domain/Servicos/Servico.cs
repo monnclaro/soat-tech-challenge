@@ -6,11 +6,9 @@ namespace Domain.Servicos;
 public class Servico : Entity
 {
     public Guid Id { get; private set; }
-    public string Nome { get; private set; }
-    public string Descricao { get; private set; }
-    public decimal Valor { get; private set; }
-
-    public Servico() { }
+    public string Nome { get; private set; } = null!;
+    public string Descricao { get; private set; } = null!;
+    public decimal Valor { get; private set; }    
 
     public void Inserir(string nome, string descricao, decimal valor)
     {

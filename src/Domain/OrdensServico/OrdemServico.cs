@@ -26,9 +26,7 @@ public class OrdemServico : Entity
     public List<Guid> IdsProdutos => Produtos.Select(p => p.IdProduto).ToList();
     public List<Guid> IdsServicos => Servicos.Select(p => p.IdServico).ToList();
 
-    #endregion
-
-    public OrdemServico() { }
+    #endregion 
 
     public void Inserir(
         Guid idCliente,

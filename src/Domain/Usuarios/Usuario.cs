@@ -11,9 +11,7 @@ public class Usuario : Entity
     public string Email { get; private set; }
     public string SenhaHash { get; private set; }
     public DateTime DataCriacao { get; private set; }
-    public List<UsuarioRole> Roles { get; private init; } = new();
-
-    public Usuario() { }
+    public List<UsuarioRole> Roles { get; private init; } = new();    
 
     public Usuario(string nome, string email, string senhaHash)
     {
