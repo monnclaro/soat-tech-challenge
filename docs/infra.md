@@ -2,37 +2,11 @@
 
 ## Kubernetes
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Kubernetes (Minikube)                     │
-│                      Namespace: soat                        │
-│                                                             │
-│  ┌──────────────────────┐     ┌───────────────────────┐    │
-│  │  Deployment          │     │  StatefulSet           │    │
-│  │  soat-api            │◄───►│  postgres              │    │
-│  │  2–10 pods (HPA)     │     │  PostgreSQL 16         │    │
-│  └──────────┬───────────┘     └──────────┬────────────┘    │
-│             │                            │                  │
-│  ┌──────────▼───────────┐     ┌──────────▼────────────┐    │
-│  │  Service             │     │  Service               │    │
-│  │  soat-api-service    │     │  postgres-service      │    │
-│  │  NodePort :80        │     │  ClusterIP :5432       │    │
-│  └──────────────────────┘     └───────────────────────┘    │
-│                                                             │
-│  ┌─────────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │  HPA            │  │  ConfigMap   │  │  Secret      │  │
-│  │  CPU > 70%      │  │  soat-api    │  │  soat-api    │  │
-│  │  Mem > 80%      │  │  -config     │  │  -secret     │  │
-│  │  min:2 max:10   │  └──────────────┘  └──────────────┘  │
-│  └─────────────────┘                                       │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  PVC · postgres-pvc · 1Gi · StorageClass standard    │  │
-│  └──────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
+A infraestrutura é orquestrada no Kubernetes (Minikube) dentro do namespace `soat`.
 
-### Recursos
+<img src="images/kubernetes.svg" alt="Diagrama Kubernetes" width="680"/>
+
+### Recursos provisionados
 
 | Recurso | Nome | Tipo | Descrição |
 |---|---|---|---|
@@ -51,48 +25,34 @@
 
 ## Fluxo de Deploy (CI/CD)
 
-```
-git push → main
-      │
-      ▼
-GitHub Actions detecta o push
-      │
-      ▼
-Self-hosted Runner (Windows + Minikube)
-      │
-      ├─── Build e testes ──────────────────────────────┐
-      │    dotnet restore                               │
-      │    dotnet build --configuration Release         │
-      │    dotnet test --configuration Release          │
-      │                                                 │
-      ├─── Docker build ────────────────────────────────┤
-      │    docker build -t soat-api:latest              │
-      │                                                 │
-      ├─── Carregar no Minikube ────────────────────────┤
-      │    minikube image load soat-api:latest          │
-      │                                                 │
-      ├─── Deploy do banco ─────────────────────────────┤
-      │    kubectl apply -f k8s/postgres/               │
-      │    kubectl rollout status statefulset/postgres  │
-      │                                                 │
-      ├─── Apply manifestos ────────────────────────────┤
-      │    kubectl apply -f k8s/configmap.yaml          │
-      │    kubectl apply -f k8s/secret.yaml             │
-      │    kubectl apply -f k8s/deployment.yaml         │
-      │    kubectl apply -f k8s/service.yaml            │
-      │    kubectl apply -f k8s/hpa.yaml                │
-      │                                                 │
-      ├─── Rolling update ──────────────────────────────┤
-      │    kubectl set image deployment/soat-api        │
-      │                                                 │
-      └─── Verificar rollout ───────────────────────────┘
-           kubectl rollout status deployment/soat-api
-                 │
-                 ▼
-           Deploy concluído ✓
-```
+O pipeline é acionado automaticamente a cada push na branch `main` via **GitHub Actions com self-hosted runner** (Windows + Minikube).
 
-## Terraform — Módulos
+<img src="images/cicd.svg" alt="Fluxo CI/CD" width="680"/>
+
+### Etapas do pipeline
+
+| Etapa | Descrição |
+|---|---|
+| **Checkout** | `actions/checkout@v4.2.2` |
+| **Setup .NET 9** | `actions/setup-dotnet@v4.3.1` |
+| **Build** | `dotnet build --no-restore --configuration Release` |
+| **Testes** | `dotnet test --no-build --configuration Release` |
+| **Docker build** | `docker build -t soat-api:latest -f src/Api/Dockerfile .` |
+| **Reinício do cluster** | `minikube delete` + `minikube start --driver=docker` |
+| **Carregar imagem** | `minikube image load soat-api:latest` |
+| **Namespace** | `kubectl create namespace soat` (se não existir) |
+| **Deploy banco** | `kubectl apply -f k8s/postgres/` + rollout status (timeout 120s) |
+| **Manifestos** | configmap · secret · deployment · service · hpa |
+| **Rollout** | `kubectl rollout status deployment/soat-api` (timeout 180s) |
+| **Verificação** | `kubectl get pods -n soat` |
+
+---
+
+## Terraform
+
+O Terraform provisiona toda a infraestrutura Kubernetes como código.
+
+### Estrutura dos módulos
 
 ```
 infra/
@@ -102,4 +62,12 @@ infra/
 └── modules/
     ├── postgres/     ← Secret + PVC + StatefulSet + Service
     └── app/          ← ConfigMap + Secret + Deployment + Service + HPA
+```
+
+### Executar
+
+```powershell
+cd infra
+terraform init
+terraform apply
 ```

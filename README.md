@@ -1,7 +1,7 @@
-# Tech Challenge - FIAP
- 
+# Tech Challenge — FIAP
+
 > Sistema Integrado de Atendimento e Execução de Serviços para uma oficina mecânica. Permite o gerenciamento de clientes, veículos, produtos, serviços e ordens de serviço — com infraestrutura escalável, orquestração em Kubernetes e pipeline de CI/CD automatizado.
- 
+
 ---
 
 ## Fase 1 — MVP do Sistema da Oficina
@@ -9,21 +9,24 @@
 Nesta primeira etapa foi desenvolvido o MVP do sistema de gerenciamento da oficina mecânica, com foco em organização operacional, rastreabilidade dos serviços e centralização das informações.
 
 Objetivos da fase:
-- Gerenciar clientes e veículos;
-- Controlar produtos e peças utilizadas nos serviços;
-- Registrar ordens de serviço;
-- Acompanhar o status dos atendimentos;
-- Garantir persistência e integridade dos dados;
-- Aplicar boas práticas de arquitetura e qualidade de software.
+
+- Gerenciar clientes e veículos
+- Controlar produtos e peças utilizadas nos serviços
+- Registrar ordens de serviço
+- Acompanhar o status dos atendimentos
+- Garantir persistência e integridade dos dados
+- Aplicar boas práticas de arquitetura e qualidade de software
+
+---
 
 ## Fase 2 — Infraestrutura, Escalabilidade e CI/CD
 
 Após a implantação do sistema inicial, com o aumento da demanda e a expansão para novas unidades, surgiu a necessidade de evoluir a aplicação. Os objetivos desta fase são:
 
-- Reduzir riscos operacionais por meio de infraestrutura escalável;
-- Automatizar o provisionamento e o deploy do ambiente;
-- Melhorar a qualidade e organização do código com **Clean Architecture**;
-- Preparar a aplicação para suportar grandes volumes de ordens de serviço em horários de pico com escalabilidade dinâmica.
+- Reduzir riscos operacionais por meio de infraestrutura escalável
+- Automatizar o provisionamento e o deploy do ambiente
+- Melhorar a qualidade e organização do código com **Clean Architecture**
+- Preparar a aplicação para suportar grandes volumes de ordens de serviço em horários de pico com escalabilidade dinâmica
 
 ### O que foi adicionado nesta fase
 
@@ -38,15 +41,8 @@ Após a implantação do sistema inicial, com o aumento da demanda e a expansão
 ---
 
 ## Tech Stack
- 
+
 O projeto foi desenvolvido com **C# / .NET 9** e **PostgreSQL 16** como banco de dados principal.
- 
-A escolha do PostgreSQL foi feita considerando:
- 
-- **Consistência transacional** — suporte completo a ACID;
-- **Concorrência avançada** — controle de concorrência multiversão (MVCC);
-- **Modelagem de domínio** — recursos nativos que facilitam regras complexas de negócio;
-- **Maturidade e confiabilidade** — amplamente utilizado em produção no mercado.
 
 | Componente | Tecnologia | Descrição |
 |---|---|---|
@@ -55,6 +51,7 @@ A escolha do PostgreSQL foi feita considerando:
 | Orquestração | Kubernetes (Minikube) | Deploy e escalabilidade automática |
 | IaC | Terraform | Provisionamento da infraestrutura como código |
 | CI/CD | GitHub Actions | Automação de build, testes e deploy |
+
 ---
 
 ## Arquitetura
@@ -68,38 +65,45 @@ src/
 ├── Infrastructure/      ← repositórios, banco de dados, serviços externos
 ├── API/                 ← controllers, middlewares, configuração HTTP
 └── SharedKernel/        ← tipos comuns, extensões e utilitários compartilhados
-
 ```
 
-- **Domain** não depende de nada — contém as entidades e contratos;
-- **Application** depende apenas do Domain;
-- **Infrastructure** implementa as interfaces do Domain;
-- **API** orquestra tudo e expõe os endpoints REST;
-- **SharedKernel** é referenciado por todas as camadas — contém tipos base, extensões e utilitários sem dependência de negócio.
+- **Domain** não depende de nada — contém as entidades e contratos
+- **Application** depende apenas do Domain
+- **Infrastructure** implementa as interfaces do Domain
+- **API** orquestra tudo e expõe os endpoints REST
+- **SharedKernel** é referenciado por todas as camadas — contém tipos base, extensões e utilitários sem dependência de negócio
 
-Para o detalhamento da infraestrutura provisionada e fluxo de deploy, veja [docs/infra.md](./docs/infra.md).
+<img src="docs/images/architecture.svg" alt="Diagrama Clean Architecture" width="680"/>
+
+---
+
+## Infraestrutura e CI/CD
+
+A infraestrutura é orquestrada em Kubernetes (Minikube) e provisionada como código via Terraform. O deploy é totalmente automatizado via GitHub Actions com self-hosted runner.
+
+Para o detalhamento completo — diagramas, recursos provisionados, fluxo de deploy e módulos Terraform — veja [docs/infra.md](./docs/infra.md).
 
 ---
 
 ## Como começar
- 
+
 ```bash
 git clone https://github.com/monnclaro/soat-tech-challenge
 cd soat-tech-challenge
 ```
 
-## Configuração do ambiente
- 
-### Docker
- 
+---
+
+## Execução local
+
+### Com Docker
+
 Copie o arquivo de exemplo e preencha as variáveis:
- 
+
 ```bash
 cp .env.example .env
 ```
- 
-Edite o `.env` com os valores adequados:
- 
+
 | Variável | Descrição |
 |---|---|
 | `POSTGRES_PASSWORD` | Senha do banco de dados PostgreSQL |
@@ -107,12 +111,10 @@ Edite o `.env` com os valores adequados:
 | `JwtSettings__Secret` | Chave JWT (mínimo 32 caracteres) |
 | `Webhook__Secret` | Secret Webhook |
 
----
- 
-### Local (sem Docker)
- 
-Ajuste o arquivo `appsettings.Development.json` na raiz do projeto com o conteúdo abaixo e ajuste conforme seu ambiente:
- 
+### Sem Docker
+
+Ajuste o arquivo `appsettings.Development.json` na raiz do projeto:
+
 ```json
 {
   "ConnectionStrings": {
@@ -130,7 +132,7 @@ Ajuste o arquivo `appsettings.Development.json` na raiz do projeto com o conteú
 
 ---
 
-## Kubernetes (Minikube)
+## Deploy em Kubernetes
 
 ```powershell
 # 1. Iniciar o cluster
@@ -155,31 +157,13 @@ minikube service soat-api-service -n soat
 
 ---
 
-## Infraestrutura com Terraform
-
-O Terraform provisiona toda a infraestrutura Kubernetes como código:
+## Provisionamento com Terraform
 
 ```powershell
 cd infra
 terraform init
 terraform apply
 ```
-
-Recursos criados: namespace, PostgreSQL (Secret + PVC + StatefulSet + Service), aplicação (ConfigMap + Secret + Deployment + Service + HPA).
-
----
-
-## CI/CD
-
-O pipeline roda automaticamente a cada push na branch `main` via **GitHub Actions com self-hosted runner** (Windows + Minikube):
-
-1. Build da aplicação
-2. Execução dos testes automatizados
-3. Build da imagem Docker
-4. Carregamento da imagem no Minikube
-5. Deploy do banco de dados
-6. Aplicação dos manifestos Kubernetes
-7. Rolling update do Deployment
 
 ---
 
