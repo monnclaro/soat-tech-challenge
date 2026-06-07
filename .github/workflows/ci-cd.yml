@@ -39,50 +39,14 @@ jobs:
             -t soat-api:latest `
             -f src/Api/Dockerfile .
 
-      # ── 5. DEPLOY NO CLUSTER KUBERNETES ──────────────────────
-      - name: Reiniciar cluster Minikube
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Continue'
-
-          $kube = "$env:USERPROFILE\.kube\config"
-          echo "KUBECONFIG=$kube" >> $env:GITHUB_ENV
-          $env:KUBECONFIG = $kube
-
-          Write-Host "Deletando cluster anterior para garantir estado limpo..."
-          minikube delete 2>$null | Out-Null
-
-          Write-Host "Iniciando minikube..."
-          minikube start --driver=docker
-
-          minikube update-context
-
-          Write-Host "Aguardando API server ficar disponível..."
-          $retries = 0
-          do {
-            Start-Sleep -Seconds 5
-            kubectl cluster-info 2>$null | Out-Null
-            $retries++
-            Write-Host "Tentativa $retries..."
-          } while ($LASTEXITCODE -ne 0 -and $retries -lt 24)
-
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "API server não respondeu após 120s"
-            exit 1
-          }
-
-          kubectl cluster-info
-          kubectl get nodes
-
+      # ── 5. CARREGAR IMAGEM NO CLUSTER ────────────────────────
       - name: Carregar imagem no cluster
         shell: powershell
         run: minikube image load soat-api:latest
 
-      # ── 6. CRIAR NAMESPACE ────────────────────────────────────
+      # ── 6. CRIAR NAMESPACE (SE NÃO EXISTIR) ──────────────────
       - name: Criar namespace
         shell: powershell
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
         run: |
           $ErrorActionPreference = 'Continue'
           kubectl get namespace soat 2>$null | Out-Null
@@ -91,21 +55,15 @@ jobs:
       # ── 7. DEPLOY DO BANCO DE DADOS ──────────────────────────
       - name: Deploy do banco de dados
         shell: powershell
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
         run: kubectl apply -f k8s/postgres/
 
       - name: Aguardar banco de dados ficar pronto
         shell: powershell
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
         run: kubectl rollout status statefulset/postgres -n soat --timeout=120s
 
       # ── 8. APLICAÇÃO DOS MANIFESTOS YAML NO CLUSTER ──────────
       - name: Aplicação dos manifestos YAML no cluster
         shell: powershell
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
         run: |
           kubectl apply -f k8s/configmap.yaml
           kubectl apply -f k8s/secret.yaml
@@ -113,14 +71,16 @@ jobs:
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/hpa.yaml
 
+      # ── 9. ROLLING UPDATE ─────────────────────────────────────
+      - name: Rolling update da aplicação
+        shell: powershell
+        run: kubectl rollout restart deployment/soat-api -n soat
+
       - name: Aguardar rollout da aplicação
         shell: powershell
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
         run: kubectl rollout status deployment/soat-api -n soat --timeout=180s
 
+      # ── 10. VERIFICAR STATUS DOS PODS ─────────────────────────
       - name: Verificar status dos pods
         shell: powershell
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
         run: kubectl get pods -n soat

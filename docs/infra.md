@@ -38,11 +38,11 @@ O pipeline é acionado automaticamente a cada push na branch `main` via **GitHub
 | **Build** | `dotnet build --no-restore --configuration Release` |
 | **Testes** | `dotnet test --no-build --configuration Release` |
 | **Docker build** | `docker build -t soat-api:latest -f src/Api/Dockerfile .` |
-| **Reinício do cluster** | `minikube delete` + `minikube start --driver=docker` |
 | **Carregar imagem** | `minikube image load soat-api:latest` |
 | **Namespace** | `kubectl create namespace soat` (se não existir) |
 | **Deploy banco** | `kubectl apply -f k8s/postgres/` + rollout status (timeout 120s) |
 | **Manifestos** | configmap · secret · deployment · service · hpa |
+| **Rolling update** | `kubectl rollout restart deployment/soat-api -n soat` |
 | **Rollout** | `kubectl rollout status deployment/soat-api` (timeout 180s) |
 | **Verificação** | `kubectl get pods -n soat` |
 
