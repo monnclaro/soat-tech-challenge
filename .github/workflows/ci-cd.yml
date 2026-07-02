@@ -15,7 +15,21 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4.2.2
 
-      # ── 2. BUILD DA APLICAÇÃO ────────────────────────────────
+      # ── 2. GARANTIR QUE O MINIKUBE ESTÁ RODANDO ──────────────
+      - name: Garantir que o Minikube está rodando
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $hostStatus = minikube status --format='{{.Host}}' 2>$null
+          if ($LASTEXITCODE -ne 0 -or $hostStatus -ne 'Running') {
+            Write-Host "Minikube não está rodando. Iniciando..."
+            $ErrorActionPreference = 'Stop'
+            minikube start
+          } else {
+            Write-Host "Minikube já está em execução."
+          }
+
+      # ── 3. BUILD DA APLICAÇÃO ────────────────────────────────
       - name: Configurar .NET 9
         uses: actions/setup-dotnet@v4.3.1
         with:
@@ -27,11 +41,11 @@ jobs:
       - name: Build da aplicação
         run: dotnet build --no-restore --configuration Release
 
-      # ── 3. EXECUÇÃO DOS TESTES AUTOMATIZADOS ─────────────────
+      # ── 4. EXECUÇÃO DOS TESTES AUTOMATIZADOS ─────────────────
       - name: Execução dos testes automatizados
         run: dotnet test --no-build --configuration Release --verbosity normal
 
-      # ── 4. BUILD DA IMAGEM DOCKER ────────────────────────────
+      # ── 5. BUILD DA IMAGEM DOCKER ────────────────────────────
       - name: Build da imagem Docker
         shell: powershell
         run: |
@@ -39,48 +53,35 @@ jobs:
             -t soat-api:latest `
             -f src/Api/Dockerfile .
 
-      # ── 5. CARREGAR IMAGEM NO CLUSTER ────────────────────────
+      # ── 6. CARREGAR IMAGEM NO CLUSTER ────────────────────────
       - name: Carregar imagem no cluster
         shell: powershell
         run: minikube image load soat-api:latest
 
-      # ── 6. CRIAR NAMESPACE (SE NÃO EXISTIR) ──────────────────
-      - name: Criar namespace
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Continue'
-          kubectl get namespace soat 2>$null | Out-Null
-          if ($LASTEXITCODE -ne 0) { kubectl create namespace soat }
+      # ── 7. PROVISIONAR INFRAESTRUTURA COM TERRAFORM ──────────
+      - name: Configurar Terraform
+        uses: hashicorp/setup-terraform@v3
 
-      # ── 7. DEPLOY DO BANCO DE DADOS ──────────────────────────
-      - name: Deploy do banco de dados
+      - name: Terraform init
         shell: powershell
-        run: kubectl apply -f k8s/postgres/
+        working-directory: infra
+        run: terraform init -input=false
 
+      - name: Terraform apply
+        shell: powershell
+        working-directory: infra
+        run: terraform apply -auto-approve -input=false -var="restart_trigger=${{ github.run_id }}"
+
+      # ── 8. VERIFICAÇÃO PÓS-APPLY ──────────────────────────────
       - name: Aguardar banco de dados ficar pronto
         shell: powershell
         run: kubectl rollout status statefulset/postgres -n soat --timeout=120s
-
-      # ── 8. APLICAÇÃO DOS MANIFESTOS YAML NO CLUSTER ──────────
-      - name: Aplicação dos manifestos YAML no cluster
-        shell: powershell
-        run: |
-          kubectl apply -f k8s/configmap.yaml
-          kubectl apply -f k8s/secret.yaml
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/hpa.yaml
-
-      # ── 9. ROLLING UPDATE ─────────────────────────────────────
-      - name: Rolling update da aplicação
-        shell: powershell
-        run: kubectl rollout restart deployment/soat-api -n soat
 
       - name: Aguardar rollout da aplicação
         shell: powershell
         run: kubectl rollout status deployment/soat-api -n soat --timeout=180s
 
-      # ── 10. VERIFICAR STATUS DOS PODS ─────────────────────────
+      # ── 9. VERIFICAR STATUS DOS PODS ──────────────────────────
       - name: Verificar status dos pods
         shell: powershell
         run: kubectl get pods -n soat

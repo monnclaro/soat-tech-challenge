@@ -19,3 +19,8 @@ variable "jwt_secret" {
   sensitive = true
   default   = "SuaChaveSuperSecretaComMinimo32Caracteres"
 }
+
+variable "restart_trigger" {
+  type    = string
+  default = "manual"
+}

@@ -33,10 +33,11 @@ module "postgres" {
 }
 
 module "app" {
-  source      = "./modules/app"
-  namespace   = kubernetes_namespace.soat.metadata[0].name
-  db_user     = var.db_user
-  db_password = var.db_password
-  jwt_secret  = var.jwt_secret
-  depends_on  = [module.postgres]
+  source          = "./modules/app"
+  namespace       = kubernetes_namespace.soat.metadata[0].name
+  db_user         = var.db_user
+  db_password     = var.db_password
+  jwt_secret      = var.jwt_secret
+  restart_trigger = var.restart_trigger
+  depends_on      = [module.postgres]
 }

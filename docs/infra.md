@@ -34,16 +34,15 @@ O pipeline é acionado automaticamente a cada push na branch `main` via **GitHub
 | Etapa | Descrição |
 |---|---|
 | **Checkout** | `actions/checkout@v4.2.2` |
+| **Minikube** | `minikube status` → `minikube start` automaticamente se o cluster não estiver de pé |
 | **Setup .NET 9** | `actions/setup-dotnet@v4.3.1` |
 | **Build** | `dotnet build --no-restore --configuration Release` |
 | **Testes** | `dotnet test --no-build --configuration Release` |
 | **Docker build** | `docker build -t soat-api:latest -f src/Api/Dockerfile .` |
 | **Carregar imagem** | `minikube image load soat-api:latest` |
-| **Namespace** | `kubectl create namespace soat` (se não existir) |
-| **Deploy banco** | `kubectl apply -f k8s/postgres/` + rollout status (timeout 120s) |
-| **Manifestos** | configmap · secret · deployment · service · hpa |
-| **Rolling update** | `kubectl rollout restart deployment/soat-api -n soat` |
-| **Rollout** | `kubectl rollout status deployment/soat-api` (timeout 180s) |
+| **Terraform** | `hashicorp/setup-terraform@v3` → `terraform init` → `terraform apply` em `infra/` (namespace, banco e app) |
+| **Verificação banco** | `kubectl rollout status statefulset/postgres -n soat` (timeout 120s) |
+| **Verificação app** | `kubectl rollout status deployment/soat-api -n soat` (timeout 180s) |
 | **Verificação** | `kubectl get pods -n soat` |
 
 ---
@@ -65,6 +64,8 @@ infra/
 ```
 
 ### Executar
+
+Em CI, essas etapas rodam automaticamente a cada push em `main` (ver tabela acima). Para rodar manualmente em um ambiente local:
 
 ```powershell
 cd infra

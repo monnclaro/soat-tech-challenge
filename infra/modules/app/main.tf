@@ -52,6 +52,9 @@ resource "kubernetes_deployment" "app" {
     template {
       metadata {
         labels = { app = "soat-api" }
+        annotations = {
+          "soat.io/restart-trigger" = var.restart_trigger
+        }
       }
       spec {
         container {

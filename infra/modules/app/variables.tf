@@ -15,3 +15,8 @@ variable "jwt_secret" {
   type      = string
   sensitive = true
 }
+
+variable "restart_trigger" {
+  type    = string
+  default = "manual"
+}

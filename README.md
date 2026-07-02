@@ -79,7 +79,7 @@ src/
 
 ## Infraestrutura e CI/CD
 
-A infraestrutura é orquestrada em Kubernetes (Minikube) e provisionada como código via Terraform. O deploy é totalmente automatizado via GitHub Actions com self-hosted runner.
+A infraestrutura é orquestrada em Kubernetes (Minikube) e provisionada como código via Terraform. O deploy é totalmente automatizado via GitHub Actions com self-hosted runner: o pipeline garante que o Minikube está de pé e roda `terraform apply` a cada push em `main`, sem passos manuais.
 
 Para o detalhamento completo — diagramas, recursos provisionados, fluxo de deploy e módulos Terraform — veja [docs/infra.md](./docs/infra.md).
 
@@ -164,6 +164,8 @@ cd infra
 terraform init
 terraform apply
 ```
+
+> No CI/CD esses mesmos comandos rodam automaticamente a cada push em `main`, com `terraform apply -var="restart_trigger=<run_id>"` para forçar o rollout da aplicação a cada deploy.
 
 ---
 
