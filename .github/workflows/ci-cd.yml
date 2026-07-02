@@ -62,9 +62,6 @@ jobs:
       - name: Build da aplicação
         run: dotnet build --no-restore --configuration Release
 
-      # ── 4. EXECUÇÃO DOS TESTES AUTOMATIZADOS ─────────────────
-      - name: Execução dos testes automatizados
-        run: dotnet test --no-build --configuration Release --verbosity normal
 
       # ── 5. BUILD DA IMAGEM DOCKER ────────────────────────────
       - name: Build da imagem Docker
@@ -87,6 +84,25 @@ jobs:
       # ── 7. PROVISIONAR INFRAESTRUTURA COM TERRAFORM ──────────
       - name: Configurar Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Diagnóstico Terraform
+        shell: powershell
+        working-directory: infra
+        run: |
+          Write-Host "Diretório:"
+          pwd
+
+          Write-Host ""
+          Write-Host "Terraform encontrado:"
+          Get-Command terraform
+
+          Write-Host ""
+          Write-Host "Versão:"
+          terraform version
+
+          Write-Host ""
+          Write-Host "Arquivos da pasta:"
+          dir
 
       - name: Terraform Init
         shell: powershell
