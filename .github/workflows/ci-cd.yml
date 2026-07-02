@@ -27,7 +27,6 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or $hostStatus -ne 'Running') {
             Write-Host "Minikube não está rodando. Iniciando..."
             minikube start --driver=docker --wait=all
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           else {
             Write-Host "Minikube já está em execução."
@@ -45,10 +44,7 @@ jobs:
           $env:KUBECONFIG = $kubeconfigPath
 
           kubectl config use-context minikube
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
           kubectl wait --for=condition=Ready node/minikube --timeout=300s
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       # ── 3. BUILD DA APLICAÇÃO ────────────────────────────────
       - name: Configurar .NET 9
@@ -62,6 +58,9 @@ jobs:
       - name: Build da aplicação
         run: dotnet build --no-restore --configuration Release
 
+      # ── 4. EXECUÇÃO DOS TESTES AUTOMATIZADOS ─────────────────
+      - name: Execução dos testes automatizados
+        run: dotnet test --no-build --configuration Release --verbosity normal
 
       # ── 5. BUILD DA IMAGEM DOCKER ────────────────────────────
       - name: Build da imagem Docker
@@ -71,62 +70,32 @@ jobs:
             -t soat-api:latest `
             -f src/Api/Dockerfile .
 
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
       # ── 6. CARREGAR IMAGEM NO CLUSTER ────────────────────────
       - name: Carregar imagem no cluster
         shell: powershell
         run: |
           minikube image load soat-api:latest
 
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      # ── 7. PROVISIONAR INFRAESTRUTURA COM TERRAFORM ──────────
-      - name: Configurar Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Diagnóstico Terraform
+      # ── 7. VERIFICAR TERRAFORM ───────────────────────────────
+      - name: Verificar Terraform
         shell: powershell
-        working-directory: infra
-        run: |
-          Write-Host "Diretório:"
-          pwd
+        run: terraform version
 
-          Write-Host ""
-          Write-Host "Terraform encontrado:"
-          Get-Command terraform
-
-          Write-Host ""
-          Write-Host "Versão:"
-          terraform version
-
-          Write-Host ""
-          Write-Host "Arquivos da pasta:"
-          dir
-
+      # ── 8. PROVISIONAR INFRAESTRUTURA COM TERRAFORM ──────────
       - name: Terraform Init
         shell: powershell
         working-directory: infra
-        run: |
-          terraform init -input=false
-
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        run: terraform init -input=false
 
       - name: Terraform Format Check
         shell: powershell
         working-directory: infra
-        run: |
-          terraform fmt -check
-
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        run: terraform fmt -check
 
       - name: Terraform Validate
         shell: powershell
         working-directory: infra
-        run: |
-          terraform validate
-
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        run: terraform validate
 
       - name: Terraform Apply
         shell: powershell
@@ -137,12 +106,8 @@ jobs:
             -input=false `
             -var="restart_trigger=${{ github.run_id }}"
 
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      # ── 8. VERIFICAR STATUS DOS PODS ─────────────────────────
+      # ── 9. VERIFICAR STATUS DOS PODS ─────────────────────────
       - name: Verificar status dos pods
         shell: powershell
         run: |
-          kubectl get pods -n soat
-
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          kubectl get all -n soat
