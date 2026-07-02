@@ -32,6 +32,7 @@ jobs:
             Write-Host "Minikube já está em execução."
           }
 
+          kubectl config use-context minikube
           kubectl wait --for=condition=Ready node/minikube --timeout=300s
 
       # ── 3. BUILD DA APLICAÇÃO ────────────────────────────────
@@ -78,15 +79,19 @@ jobs:
         run: terraform apply -auto-approve -input=false -var="restart_trigger=${{ github.run_id }}"
 
       # ── 8. VERIFICAÇÃO PÓS-APPLY ──────────────────────────────
+      # Usa --context minikube explicitamente: o provider Terraform (infra/main.tf)
+      # também está fixado no contexto "minikube", então isso garante que a
+      # verificação aponte para o mesmo cluster onde o apply rodou, independente
+      # de qual for o current-context do kubeconfig no runner.
       - name: Aguardar banco de dados ficar pronto
         shell: powershell
-        run: kubectl rollout status statefulset/postgres -n soat --timeout=120s
+        run: kubectl rollout status statefulset/postgres -n soat --context minikube --timeout=120s
 
       - name: Aguardar rollout da aplicação
         shell: powershell
-        run: kubectl rollout status deployment/soat-api -n soat --timeout=180s
+        run: kubectl rollout status deployment/soat-api -n soat --context minikube --timeout=180s
 
       # ── 9. VERIFICAR STATUS DOS PODS ──────────────────────────
       - name: Verificar status dos pods
         shell: powershell
-        run: kubectl get pods -n soat
+        run: kubectl get pods -n soat --context minikube
