@@ -24,3 +24,8 @@ variable "restart_trigger" {
   type    = string
   default = "manual"
 }
+
+variable "kubeconfig_path" {
+  type    = string
+  default = "~/.kube/config"
+}

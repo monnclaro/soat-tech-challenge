@@ -14,7 +14,7 @@ terraform {
 }
 
 provider "kubernetes" {
-  config_path    = "~/.kube/config"
+  config_path    = var.kubeconfig_path
   config_context = "minikube"
 }
 

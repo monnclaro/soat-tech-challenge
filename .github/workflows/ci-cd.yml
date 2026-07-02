@@ -32,6 +32,15 @@ jobs:
             Write-Host "Minikube já está em execução."
           }
 
+          # Fixa um único kubeconfig canônico para o resto do job (kubectl E
+          # Terraform). O provider Terraform ignora a env var KUBECONFIG quando
+          # config_path é explícito, então sem isso cada ferramenta pode acabar
+          # lendo um arquivo diferente no runner e "ver" clusters diferentes.
+          $kubeconfigPath = if ($env:KUBECONFIG) { $env:KUBECONFIG } else { Join-Path $env:USERPROFILE ".kube\config" }
+          "KUBECONFIG=$kubeconfigPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "TF_VAR_kubeconfig_path=$kubeconfigPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $env:KUBECONFIG = $kubeconfigPath
+
           kubectl config use-context minikube
           kubectl wait --for=condition=Ready node/minikube --timeout=300s
 
