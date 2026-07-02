@@ -19,15 +19,20 @@ jobs:
       - name: Garantir que o Minikube está rodando
         shell: powershell
         run: |
-          $ErrorActionPreference = 'Continue'
+          $ErrorActionPreference = 'Stop'
+          chcp 65001 > $null
+
           $hostStatus = minikube status --format='{{.Host}}' 2>$null
+
           if ($LASTEXITCODE -ne 0 -or $hostStatus -ne 'Running') {
             Write-Host "Minikube não está rodando. Iniciando..."
-            $ErrorActionPreference = 'Stop'
-            minikube start
-          } else {
+            minikube start --driver=docker --wait=all
+          }
+          else {
             Write-Host "Minikube já está em execução."
           }
+
+          kubectl wait --for=condition=Ready node/minikube --timeout=300s
 
       # ── 3. BUILD DA APLICAÇÃO ────────────────────────────────
       - name: Configurar .NET 9
