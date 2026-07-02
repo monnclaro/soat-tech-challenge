@@ -1,4 +1,4 @@
-<svg width="680" viewBox="0 0 680 620" xmlns="http://www.w3.org/2000/svg" role="img">
+<svg width="680" viewBox="0 0 680 812" xmlns="http://www.w3.org/2000/svg" role="img">
   <title>Fluxo de deploy CI/CD — GitHub Actions</title>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -14,56 +14,56 @@
   <!-- Step 2: GitHub Actions -->
   <rect x="180" y="86" width="320" height="52" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
   <text x="340" y="107" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#0C447C">GitHub Actions detecta o push</text>
-  <text x="340" y="124" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#378ADD">Self-hosted runner · Windows + Minikube</text>
+  <text x="340" y="124" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#378ADD">Self-hosted runner · Windows + Minikube + Terraform</text>
   <line x1="340" y1="138" x2="340" y2="158" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
 
-  <!-- Step 3: Checkout + Setup .NET -->
-  <rect x="210" y="160" width="260" height="44" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-  <text x="340" y="178" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#2C2C2A">Checkout + Setup .NET 9</text>
-  <text x="340" y="195" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#888780">actions/checkout · actions/setup-dotnet</text>
-  <line x1="340" y1="204" x2="340" y2="222" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- Step 3: Checkout -->
+  <rect x="240" y="160" width="200" height="40" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="340" y="185" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#2C2C2A">Checkout</text>
+  <line x1="340" y1="200" x2="340" y2="218" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
 
   <!-- Step 4: Garantir Minikube rodando -->
-  <rect x="170" y="224" width="340" height="52" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-  <text x="340" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#2C2C2A">Garantir Minikube rodando</text>
-  <text x="340" y="262" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#888780">minikube status → minikube start (se necessário)</text>
+  <rect x="170" y="220" width="340" height="52" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="340" y="241" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#2C2C2A">Garantir Minikube rodando</text>
+  <text x="340" y="258" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#888780">minikube status → minikube start (se necessário) · kubectl use-context</text>
+  <line x1="340" y1="272" x2="340" y2="290" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
 
-  <!-- Parallel: Build+Test | Docker -->
-  <line x1="340" y1="276" x2="340" y2="284" stroke="#888780" stroke-width="1"/>
-  <line x1="160" y1="284" x2="520" y2="284" stroke="#888780" stroke-width="1"/>
-  <line x1="160" y1="284" x2="160" y2="298" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
-  <line x1="520" y1="284" x2="520" y2="298" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- Step 5: Build & Test -->
+  <rect x="140" y="292" width="400" height="96" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="340" y="314" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#085041">Setup .NET 9 · Build &amp; Testes</text>
+  <text x="340" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">dotnet restore</text>
+  <text x="340" y="344" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">dotnet build --no-restore --configuration Release</text>
+  <text x="340" y="358" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">dotnet test --no-build --configuration Release</text>
+  <line x1="340" y1="388" x2="340" y2="406" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
 
-  <!-- Lane A: Build & Test -->
-  <rect x="60" y="300" width="200" height="68" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-  <text x="160" y="322" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#085041">Build &amp; Testes</text>
-  <text x="160" y="338" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">dotnet restore</text>
-  <text x="160" y="352" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">dotnet build --configuration Release</text>
-  <text x="160" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">dotnet test --configuration Release</text>
+  <!-- Step 6: Docker build + load -->
+  <rect x="140" y="408" width="400" height="68" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="340" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#085041">Docker build &amp; load</text>
+  <text x="340" y="446" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">docker build -t soat-api:latest -f src/Api/Dockerfile .</text>
+  <text x="340" y="460" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">minikube image load soat-api:latest</text>
+  <line x1="340" y1="476" x2="340" y2="494" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
 
-  <!-- Lane B: Docker -->
-  <rect x="420" y="300" width="200" height="68" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-  <text x="520" y="322" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#085041">Docker build</text>
-  <text x="520" y="338" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">docker build -t soat-api:latest</text>
-  <text x="520" y="352" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1D9E75">minikube image load soat-api:latest</text>
+  <!-- Step 7: Terraform (version, init, fmt, validate) -->
+  <rect x="120" y="496" width="440" height="120" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="340" y="518" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#3C3489">Terraform · checagens (infra/)</text>
+  <text x="340" y="534" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7F77DD">terraform version</text>
+  <text x="340" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7F77DD">terraform init -input=false</text>
+  <text x="340" y="562" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7F77DD">terraform fmt -check</text>
+  <text x="340" y="576" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7F77DD">terraform validate</text>
+  <text x="340" y="596" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#9993E0">binário já instalado no runner self-hosted</text>
+  <line x1="340" y1="616" x2="340" y2="634" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
 
-  <!-- Rejoin -->
-  <line x1="160" y1="368" x2="160" y2="414" stroke="#888780" stroke-width="1"/>
-  <line x1="520" y1="368" x2="520" y2="414" stroke="#888780" stroke-width="1"/>
-  <line x1="160" y1="414" x2="520" y2="414" stroke="#888780" stroke-width="1"/>
-  <line x1="340" y1="414" x2="340" y2="428" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
-
-  <!-- Terraform apply -->
-  <rect x="140" y="430" width="400" height="84" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
-  <text x="340" y="451" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#3C3489">Terraform apply (infra/)</text>
-  <text x="340" y="467" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7F77DD">namespace · postgres (Secret+PVC+StatefulSet+Service)</text>
-  <text x="340" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7F77DD">app (ConfigMap+Secret+Deployment+Service+HPA)</text>
-  <text x="340" y="493" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#7F77DD">restart_trigger = github.run_id → força novo rollout</text>
-  <text x="340" y="506" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#7F77DD">wait_for_rollout=true → apply já espera os pods ficarem prontos</text>
-  <line x1="340" y1="514" x2="340" y2="530" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+  <!-- Step 8: Terraform apply -->
+  <rect x="140" y="636" width="400" height="84" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="340" y="657" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#3C3489">Terraform apply</text>
+  <text x="340" y="673" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7F77DD">namespace · postgres (Secret+PVC+StatefulSet+Service)</text>
+  <text x="340" y="686" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7F77DD">app (ConfigMap+Secret+Deployment+Service+HPA)</text>
+  <text x="340" y="699" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#7F77DD">restart_trigger = github.run_id → força novo rollout</text>
+  <text x="340" y="712" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#7F77DD">-auto-approve -input=false</text>
+  <line x1="340" y1="720" x2="340" y2="738" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
 
   <!-- Done -->
-  <rect x="220" y="532" width="240" height="52" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-  <text x="340" y="552" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#085041">Deploy concluído ✓</text>
-  <text x="340" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#1D9E75">kubectl get pods -n soat</text>
+  <rect x="220" y="740" width="240" height="52" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="340" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#085041">Deploy concluído ✓</text>
+  <text x="340" y="778" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#1D9E75">kubectl get all -n soat</text>
 </svg>

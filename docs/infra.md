@@ -34,14 +34,19 @@ O pipeline é acionado automaticamente a cada push na branch `main` via **GitHub
 | Etapa | Descrição |
 |---|---|
 | **Checkout** | `actions/checkout@v4.2.2` |
-| **Minikube** | `minikube status` → `minikube start` automaticamente se o cluster não estiver de pé |
+| **Minikube** | `minikube status` → `minikube start --driver=docker --wait=all` automaticamente se o cluster não estiver de pé; configura `KUBECONFIG` e troca o contexto do `kubectl` para `minikube` |
 | **Setup .NET 9** | `actions/setup-dotnet@v4.3.1` |
+| **Restaurar dependências** | `dotnet restore` |
 | **Build** | `dotnet build --no-restore --configuration Release` |
 | **Testes** | `dotnet test --no-build --configuration Release` |
 | **Docker build** | `docker build -t soat-api:latest -f src/Api/Dockerfile .` |
 | **Carregar imagem** | `minikube image load soat-api:latest` |
-| **Terraform** | `hashicorp/setup-terraform@v3` → `terraform init` → `terraform apply` em `infra/` (namespace, banco e app) |
-| **Verificação** | `kubectl get pods -n soat` |
+| **Terraform version** | `terraform version` (verifica que o binário já está disponível no runner) |
+| **Terraform Init** | `terraform init -input=false` em `infra/` |
+| **Terraform Format Check** | `terraform fmt -check` |
+| **Terraform Validate** | `terraform validate` |
+| **Terraform Apply** | `terraform apply -auto-approve -input=false -var="restart_trigger=<run_id>"` — o `run_id` do GitHub Actions força o rollout do Deployment a cada execução |
+| **Verificação** | `kubectl get all -n soat` |
 
 ---
 

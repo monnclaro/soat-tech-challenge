@@ -43,7 +43,7 @@
   <!-- HPA -->
   <rect x="68" y="290" width="140" height="68" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
   <text x="138" y="312" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#633806">HPA</text>
-  <text x="138" y="328" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#BA7517">CPU &gt;70% · Mem &gt;80%</text>
+  <text x="138" y="328" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#BA7517">CPU &gt; 70%</text>
   <text x="138" y="344" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#BA7517">min: 2 · max: 10</text>
 
   <!-- ConfigMap -->
