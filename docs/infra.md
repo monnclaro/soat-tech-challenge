@@ -41,8 +41,6 @@ O pipeline é acionado automaticamente a cada push na branch `main` via **GitHub
 | **Docker build** | `docker build -t soat-api:latest -f src/Api/Dockerfile .` |
 | **Carregar imagem** | `minikube image load soat-api:latest` |
 | **Terraform** | `hashicorp/setup-terraform@v3` → `terraform init` → `terraform apply` em `infra/` (namespace, banco e app) |
-| **Verificação banco** | `kubectl rollout status statefulset/postgres -n soat` (timeout 120s) |
-| **Verificação app** | `kubectl rollout status deployment/soat-api -n soat` (timeout 180s) |
 | **Verificação** | `kubectl get pods -n soat` |
 
 ---
