@@ -8,7 +8,7 @@ public sealed record Placa
 {
     public string Valor { get; }
 
-    private static readonly Regex Antiga   = new(@"^[A-Z]{3}-?\d{4}$",   RegexOptions.Compiled);
+    private static readonly Regex Antiga = new(@"^[A-Z]{3}-?\d{4}$", RegexOptions.Compiled);
     private static readonly Regex Mercosul = new(@"^[A-Z]{3}\d[A-Z]\d{2}$", RegexOptions.Compiled);
 
     private Placa(string valor) => Valor = valor;
