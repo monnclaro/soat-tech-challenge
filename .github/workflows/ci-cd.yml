@@ -22,14 +22,17 @@ jobs:
           $ErrorActionPreference = 'Stop'
           chcp 65001 > $null
 
-          $hostStatus = minikube status --format='{{.Host}}' 2>$null
+          Write-Host "Iniciando/validando o Minikube..."
 
-          if ($LASTEXITCODE -ne 0 -or $hostStatus -ne 'Running') {
-            Write-Host "Minikube não está rodando. Iniciando..."
+          try {
             minikube start --driver=docker --wait=all
           }
-          else {
-            Write-Host "Minikube já está em execução."
+          catch {
+            Write-Host "Cluster inválido. Recriando..."
+
+            minikube delete --all --purge
+
+            minikube start --driver=docker --wait=all
           }
 
           $kubeconfigPath = if ($env:KUBECONFIG) {
