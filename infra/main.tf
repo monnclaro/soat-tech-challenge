@@ -41,3 +41,9 @@ module "app" {
   restart_trigger = var.restart_trigger
   depends_on      = [module.postgres]
 }
+
+terraform {
+  backend "local" {
+    path = "C:/Users/Pichau/Desktop/Projetos/Tech Challenge - FIAP/soat-tech-challenge/infra/terraform.tfstate"
+  }
+}
