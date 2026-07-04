@@ -22,18 +22,11 @@ jobs:
           $ErrorActionPreference = 'Stop'
           chcp 65001 > $null
 
-          Write-Host "Iniciando/validando o Minikube..."
+          Write-Host "Recriando o Minikube..."
 
-          try {
-            minikube start --driver=docker --wait=all
-          }
-          catch {
-            Write-Host "Cluster inválido. Recriando..."
+          minikube delete --all --purge
 
-            minikube delete --all --purge
-
-            minikube start --driver=docker --wait=all
-          }
+          minikube start --driver=docker --wait=all
 
           $kubeconfigPath = if ($env:KUBECONFIG) {
             $env:KUBECONFIG
@@ -88,7 +81,7 @@ jobs:
       - name: Terraform Init
         shell: powershell
         working-directory: infra
-        run: terraform init -input=false
+        run: terraform init -reconfigure -input=false
 
       - name: Terraform Format Check
         shell: powershell
