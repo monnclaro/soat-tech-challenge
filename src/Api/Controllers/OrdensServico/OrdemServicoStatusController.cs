@@ -4,6 +4,7 @@ using Application.OrdensServico.Controllers;
 using Application.OrdensServico.UseCases;
 using Application.OrdensServico.UseCases.AtualizarStatus.DTOs;
 using Application.OrdensServico.UseCases.BuscarStatus;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.OrdensServico;
@@ -28,7 +29,9 @@ public class OrdemServicoStatusController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Cliente,Admin")]
     [ProducesResponseType(typeof(OrdemServicoStatusOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> BuscarStatus(
         [FromRoute] Guid idOrdemServico,
@@ -39,7 +42,9 @@ public class OrdemServicoStatusController : ControllerBase
     }
 
     [HttpPatch]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AtualizarStatus(
         [FromRoute] Guid idOrdemServico,

@@ -28,7 +28,12 @@ public class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
         builder.Property(c => c.TipoDocumento)
                .HasColumnName("tipo_documento")
                .IsRequired();
-        
+
+        builder.Property(c => c.Ativo)
+               .HasColumnName("ativo")
+               .HasDefaultValue(true)
+               .IsRequired();
+
         builder.Property(x => x.DataCriacao)
                .HasColumnName("data_criacao")
                .IsRequired();

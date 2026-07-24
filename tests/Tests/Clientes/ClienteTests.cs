@@ -34,6 +34,7 @@ public class ClienteTests
         Assert.Equal("João Silva", cliente.Nome);
         Assert.Equal("12345678909", cliente.Documento);
         Assert.Equal(TipoDocumentoCliente.Cpf, cliente.TipoDocumento);
+        Assert.True(cliente.Ativo);
         Assert.True(cliente.DataCriacao >= antes);
         Assert.True(cliente.DataCriacao <= DateTime.UtcNow);
         Assert.Empty(cliente.Veiculos);
@@ -72,6 +73,27 @@ public class ClienteTests
 
         Assert.Equal("12345678909", cliente.Documento);
         Assert.Equal(TipoDocumentoCliente.Cpf, cliente.TipoDocumento);
+    }
+
+    [Fact]
+    public void Inativar_QuandoChamado_DefineAtivoComoFalso()
+    {
+        var cliente = ClienteValido();
+
+        cliente.Inativar();
+
+        Assert.False(cliente.Ativo);
+    }
+
+    [Fact]
+    public void Ativar_QuandoChamado_DefineAtivoComoTrue()
+    {
+        var cliente = ClienteValido();
+        cliente.Inativar();
+
+        cliente.Ativar();
+
+        Assert.True(cliente.Ativo);
     }
 
     // ── DocumentoCliente ─────────────────────────────────────────

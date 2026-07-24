@@ -1,77 +1,64 @@
 # Infraestrutura — SOAT Tech Challenge
 
-## Kubernetes
+> Esta página descreve a infraestrutura da **Fase 3** (nuvem real, AWS). O histórico da Fase 2 (Minikube local) fica registrado no fim da página para rastreabilidade.
 
-A infraestrutura é orquestrada no Kubernetes (Minikube) dentro do namespace `soat`.
+## Visão geral (4 repositórios)
 
-<img src="images/kubernetes.svg" alt="Diagrama Kubernetes" width="680"/>
+A partir da Fase 3, a infraestrutura é dividida em repositórios com responsabilidade única, cada um com seu próprio Terraform e CI/CD:
 
-### Recursos provisionados
+| Repositório | Provisiona |
+|---|---|
+| [infra-k8s](https://github.com/monnclaro/soat-tech-challenge-infra-k8s) | VPC, Amazon EKS, New Relic Kubernetes integration, dashboards e alertas |
+| [infra-database](https://github.com/monnclaro/soat-tech-challenge-infra-database) | Amazon RDS PostgreSQL, credenciais em SSM SecureString |
+| [lambda](https://github.com/monnclaro/soat-tech-challenge-lambda) | Lambda de autenticação por CPF, Lambda Authorizer, API Gateway |
+| **soat-tech-challenge** (este repositório) | Manifests da aplicação (`k8s/`) — Deployment, Service (NodePort), HPA, ConfigMap |
+
+Diagrama de componentes completo: [architecture.md](./architecture.md). Infraestrutura ajustada para AWS Academy (sem ALB, sem NAT, sem Secrets Manager) — ver [ADR 0008](./adr/0008-prioridade-de-custo-aws-academy.md).
+
+## Kubernetes (aplicação)
+
+Este repositório só aplica os manifests da aplicação contra o cluster já provisionado pelo infra-k8s, no namespace `soat`.
+
+### Recursos aplicados por este repositório
 
 | Recurso | Nome | Tipo | Descrição |
 |---|---|---|---|
-| Namespace | `soat` | Namespace | Isolamento de todos os recursos |
-| Secret | `postgres-secret` | Secret | Credenciais do banco |
-| PVC | `postgres-pvc` | PersistentVolumeClaim | Disco de 1Gi para os dados |
-| StatefulSet | `postgres` | StatefulSet | PostgreSQL 16-alpine |
-| Service | `postgres-service` | ClusterIP | Acesso interno ao banco :5432 |
-| ConfigMap | `soat-api-config` | ConfigMap | Variáveis de ambiente da API |
-| Secret | `soat-api-secret` | Secret | Segredos da API |
-| Deployment | `soat-api` | Deployment | API com rolling update |
-| Service | `soat-api-service` | NodePort | Acesso externo à API :80 |
-| HPA | `soat-api-hpa` | HorizontalPodAutoscaler | Escalabilidade automática |
+| Namespace | `soat` | Namespace | Isolamento dos recursos da aplicação |
+| ConfigMap | `soat-api-config` | ConfigMap | Variáveis não sensíveis (ambiente, instrumentação New Relic) |
+| Secret | `soat-api-secret` | Secret | Gerado pelo CI/CD a partir do SSM Parameter Store (RDS + JWT) — nunca versionado com valores reais |
+| Deployment | `soat-api` | Deployment | API com rolling update, init container do New Relic, readiness/liveness via `/health` |
+| Service | `soat-api-service` | NodePort (porta 30080) | Exposição pública direta — sem ALB (ver [ADR 0008](./adr/0008-prioridade-de-custo-aws-academy.md)); alvo do `HTTP_PROXY` do API Gateway (repo lambda), que chama o IP público do node |
+| HPA | `soat-api-hpa` | HorizontalPodAutoscaler | Escalabilidade automática (CPU 70% / memória 80%) |
 
----
+O banco de dados **não roda mais no cluster** — é o RDS provisionado pelo infra-database (ver [ADR "Postgres gerenciado em vez de StatefulSet"](./adr/0007-postgres-gerenciado.md)).
 
 ## Fluxo de Deploy (CI/CD)
 
-O pipeline é acionado automaticamente a cada push na branch `main` via **GitHub Actions com self-hosted runner** (Windows + Minikube).
-
-<img src="images/cicd.svg" alt="Fluxo CI/CD" width="680"/>
-
-### Etapas do pipeline
+O pipeline ([`.github/workflows/ci-cd.yml`](../.github/workflows/ci-cd.yml)) roda em runners hospedados do GitHub (não mais self-hosted) e é acionado a cada push em `producao`:
 
 | Etapa | Descrição |
 |---|---|
-| **Checkout** | `actions/checkout@v4.2.2` |
-| **Minikube** | `minikube status` → `minikube start --driver=docker --wait=all` automaticamente se o cluster não estiver de pé; configura `KUBECONFIG` e troca o contexto do `kubectl` para `minikube` |
-| **Setup .NET 9** | `actions/setup-dotnet@v4.3.1` |
-| **Restaurar dependências** | `dotnet restore` |
-| **Build** | `dotnet build --no-restore --configuration Release` |
-| **Testes** | `dotnet test --no-build --configuration Release` |
-| **Docker build** | `docker build -t soat-api:latest -f src/Api/Dockerfile .` |
-| **Carregar imagem** | `minikube image load soat-api:latest` |
-| **Terraform version** | `terraform version` (verifica que o binário já está disponível no runner) |
-| **Terraform Init** | `terraform init -input=false` em `infra/` |
-| **Terraform Format Check** | `terraform fmt -check` |
-| **Terraform Validate** | `terraform validate` |
-| **Terraform Apply** | `terraform apply -auto-approve -input=false -var="restart_trigger=<run_id>"` — o `run_id` do GitHub Actions força o rollout do Deployment a cada execução |
-| **Verificação** | `kubectl get all -n soat` |
+| **Build & Test** | `dotnet build` + `dotnet test` (.NET 9) |
+| **Login no ECR** | Com as credenciais de sessão do AWS Academy (ver [ci-cd-governance.md](./ci-cd-governance.md)) |
+| **Build e push da imagem** | Tag = SHA do commit — cada deploy usa uma imagem imutável e rastreável |
+| **Atualizar kubeconfig** | `aws eks update-kubeconfig` contra o cluster `soat-producao` |
+| **Gerar Secret** | Busca RDS + JWT no SSM Parameter Store (`SecureString`) e recria `soat-api-secret` |
+| **Aplicar manifests** | `kubectl apply` em `k8s/*.yaml`, com `envsubst` para a tag da imagem |
+| **Aguardar rollout** | `kubectl rollout status deployment/soat-api` |
+| **Publicar IP do node** | `aws ssm put-parameter /soat/producao/app/node-ip` — consumido pelo repo lambda (sem ALB, aponta pro IP público de um node) |
+
+Detalhes de environments, proteção de branch e segredos: [ci-cd-governance.md](./ci-cd-governance.md).
 
 ---
 
-## Terraform
+## Histórico — Fase 2 (Minikube local)
 
-O Terraform provisiona toda a infraestrutura Kubernetes como código.
+<details>
+<summary>Infraestrutura da Fase 2, superada pela Fase 3 (mantida para referência histórica)</summary>
 
-### Estrutura dos módulos
+A infraestrutura era orquestrada no Kubernetes (Minikube) dentro do namespace `soat`, com Postgres rodando como StatefulSet no próprio cluster e Terraform local (`infra/`, removido na Fase 3) provisionando os recursos via `kubernetes` provider contra o Minikube. O CI/CD rodava em um runner self-hosted Windows que garantia o Minikube de pé a cada execução.
 
-```
-infra/
-├── main.tf           ← provider + namespace + chamada dos módulos
-├── variables.tf      ← db_name, db_user, db_password, jwt_secret
-├── outputs.tf        ← como acessar a aplicação
-└── modules/
-    ├── postgres/     ← Secret + PVC + StatefulSet + Service
-    └── app/          ← ConfigMap + Secret + Deployment + Service + HPA
-```
+<img src="images/kubernetes.svg" alt="Diagrama Kubernetes (Fase 2)" width="680"/>
+<img src="images/cicd.svg" alt="Fluxo CI/CD (Fase 2)" width="680"/>
 
-### Executar
-
-Em CI, essas etapas rodam automaticamente a cada push em `main` (ver tabela acima). Para rodar manualmente em um ambiente local:
-
-```powershell
-cd infra
-terraform init
-terraform apply
-```
+</details>

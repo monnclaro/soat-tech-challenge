@@ -13,5 +13,11 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
+      nodePort: 30080
 
-  type: LoadBalancer
+  # NodePort, não ALB: prioridade de custo (AWS Academy) — ver ADR
+  # "Prioridade de custo e AWS Academy" em docs/adr. O API Gateway (repo
+  # lambda) chama direto o IP público de um node nesta porta. nodePort fixo
+  # (30080) porque o Terraform do repo lambda precisa saber o valor de
+  # antemão (ver infra/variables.tf > app_node_port nesse repositório).
+  type: NodePort

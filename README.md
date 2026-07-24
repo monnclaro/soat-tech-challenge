@@ -40,17 +40,42 @@ Após a implantação do sistema inicial, com o aumento da demanda e a expansão
 
 ---
 
+## Fase 3 — Operação Corporativa (AWS, Serverless, Observabilidade)
+
+Com a expansão para múltiplas unidades, o sistema passou a rodar em nuvem real (AWS), com autenticação de clientes desacoplada em uma função serverless e observabilidade de ponta a ponta. O projeto foi **dividido em 4 repositórios**, cada um com CI/CD próprio:
+
+| Repositório | Responsabilidade |
+|---|---|
+| **soat-tech-challenge** (este) | API principal, executando em Kubernetes |
+| [soat-tech-challenge-infra-k8s](https://github.com/monnclaro/soat-tech-challenge-infra-k8s) | Terraform: VPC + cluster EKS + New Relic (nível de cluster) |
+| [soat-tech-challenge-infra-database](https://github.com/monnclaro/soat-tech-challenge-infra-database) | Terraform: RDS PostgreSQL gerenciado |
+| [soat-tech-challenge-lambda](https://github.com/monnclaro/soat-tech-challenge-lambda) | Autenticação de clientes por CPF (Lambda) + API Gateway |
+
+O que mudou nesta fase:
+
+- **Postgres em Minikube → RDS gerenciado** (`k8s/postgres/` foi removido; o banco agora é provisionado pelo infra-database).
+- **Terraform local (`infra/`) removido** — a infraestrutura de cluster passou para o repositório infra-k8s; este repositório só aplica os manifests da própria aplicação (Deployment/Service/HPA) contra o cluster já existente.
+- **Autenticação de clientes por CPF**: rotas sensíveis (ex.: consultar status de uma ordem de serviço) agora aceitam tokens `Cliente`, emitidos pelo Lambda de autenticação — ver [soat-tech-challenge-lambda](https://github.com/monnclaro/soat-tech-challenge-lambda). O login interno (`Usuario`, email/senha) continua funcionando sem mudanças.
+- **Exposição via `Service type=NodePort` + API Gateway** — sem ALB, para minimizar custo no AWS Academy (ver [ADR 0008](./docs/adr/0008-prioridade-de-custo-aws-academy.md)).
+- **New Relic**: APM via init container (`newrelic-dotnet-init`, sem alterar a imagem da aplicação) + logs estruturados em JSON (Serilog) correlacionados por `X-Correlation-Id`.
+- **Health check** em `/health`, usado pelo readiness/liveness probe do Kubernetes.
+
+Diagramas, ADRs e RFCs completos da Fase 3: [docs/](./docs).
+
+---
+
 ## Tech Stack
 
-O projeto foi desenvolvido com **C# / .NET 9** e **PostgreSQL 16** como banco de dados principal.
+O projeto foi desenvolvido com **C# / .NET 9** e **PostgreSQL 16** (Amazon RDS) como banco de dados principal.
 
 | Componente | Tecnologia | Descrição |
 |---|---|---|
 | API | ASP.NET Core 9 | REST API principal da oficina |
-| Banco de Dados | PostgreSQL 16 | Persistência dos dados |
-| Orquestração | Kubernetes (Minikube) | Deploy e escalabilidade automática |
-| IaC | Terraform | Provisionamento da infraestrutura como código |
-| CI/CD | GitHub Actions | Automação de build, testes e deploy |
+| Banco de Dados | PostgreSQL 16 (Amazon RDS) | Persistência dos dados |
+| Orquestração | Kubernetes (Amazon EKS) | Deploy e escalabilidade automática |
+| Logging | Serilog (JSON estruturado) | Correlação de requisições via `X-Correlation-Id` |
+| Observabilidade | New Relic (APM + Kubernetes integration) | Métricas, logs e dashboards |
+| CI/CD | GitHub Actions | Build, testes, imagem no ECR e deploy no EKS |
 
 ---
 
@@ -79,9 +104,9 @@ src/
 
 ## Infraestrutura e CI/CD
 
-A infraestrutura é orquestrada em Kubernetes (Minikube) e provisionada como código via Terraform. O deploy é totalmente automatizado via GitHub Actions com self-hosted runner: o pipeline garante que o Minikube está de pé e roda `terraform apply` a cada push em `main`, sem passos manuais.
+O cluster Kubernetes (Amazon EKS) e o banco (Amazon RDS) são provisionados pelos repositórios [infra-k8s](https://github.com/monnclaro/soat-tech-challenge-infra-k8s) e [infra-database](https://github.com/monnclaro/soat-tech-challenge-infra-database), respectivamente. Este repositório só é responsável pela aplicação: a cada push em `producao`, o CI/CD builda a imagem, publica no ECR e aplica os manifests (`k8s/`) contra o cluster já existente — sem passos manuais.
 
-Para o detalhamento completo — diagramas, recursos provisionados, fluxo de deploy e módulos Terraform — veja [docs/infra.md](./docs/infra.md).
+Para o detalhamento completo — diagramas, recursos provisionados e fluxo de deploy — veja [docs/infra.md](./docs/infra.md).
 
 ---
 
@@ -132,45 +157,38 @@ Ajuste o arquivo `appsettings.Development.json` na raiz do projeto:
 
 ---
 
-## Deploy em Kubernetes
+## Deploy em Kubernetes (Amazon EKS)
 
-```powershell
-# 1. Iniciar o cluster
-minikube start
-minikube addons enable metrics-server
+Pré-requisito: o cluster já provisionado pelo [infra-k8s](https://github.com/monnclaro/soat-tech-challenge-infra-k8s) e o banco pelo [infra-database](https://github.com/monnclaro/soat-tech-challenge-infra-database) (ver ordem de deploy no README do repo lambda).
 
-# 2. Buildar e carregar a imagem
-docker build -t soat-api:latest -f src/Api/Dockerfile .
-minikube image load soat-api:latest
+```bash
+# 1. Apontar o kubectl para o cluster
+aws eks update-kubeconfig --name soat-producao --region us-east-1
 
-# 3. Aplicar os manifestos
-kubectl apply -f k8s/postgres/
+# 2. Build e push da imagem
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
+docker build -t <account-id>.dkr.ecr.us-east-1.amazonaws.com/soat-api:local -f src/Api/Dockerfile .
+docker push <account-id>.dkr.ecr.us-east-1.amazonaws.com/soat-api:local
+
+# 3. Gerar o Secret a partir do exemplo (nunca commitar com valores reais) e aplicar os manifests
+cp k8s/secret.example.yaml k8s/secret.local.yaml   # preencha os valores antes de aplicar
+kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/secret.yaml
-kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/secret.local.yaml
+ECR_IMAGE=<account-id>.dkr.ecr.us-east-1.amazonaws.com/soat-api:local envsubst < k8s/deployment.yaml | kubectl apply -f -
 kubectl apply -f k8s/service.yaml
 kubectl apply -f k8s/hpa.yaml
 
-# 4. Abrir no browser
-minikube service soat-api-service -n soat
+# 4. Endereço público (NodePort — sem ALB, ver ADR 0008)
+kubectl get nodes -o wide   # ExternalIP de qualquer node + porta 30080
 ```
 
----
-
-## Provisionamento com Terraform
-
-```powershell
-cd infra
-terraform init
-terraform apply
-```
-
-> No CI/CD esses mesmos comandos rodam automaticamente a cada push em `main`, com `terraform apply -var="restart_trigger=<run_id>"` para forçar o rollout da aplicação a cada deploy.
+> No CI/CD ([.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml)) esses passos rodam automaticamente a cada push em `producao`: build da imagem, push no ECR, geração do Secret a partir do SSM Parameter Store (RDS + JWT) e `kubectl apply` — sem passos manuais.
 
 ---
 
 ## API
 
-A porta é exibida ao rodar `minikube service soat-api-service -n soat`.
+Sem ALB: a app é exposta via `Service type=NodePort` (porta `30080`) — endereço público em `kubectl get nodes -o wide` (coluna `EXTERNAL-IP`). Em produção, o tráfego chega via o API Gateway do repositório [lambda](https://github.com/monnclaro/soat-tech-challenge-lambda), que autentica e encaminha direto pro IP do node. Justificativa da troca de ALB por NodePort: [ADR 0008](./docs/adr/0008-prioridade-de-custo-aws-academy.md).
 
 📄 Collection: [collection.json](./collection.json)

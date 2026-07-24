@@ -25,8 +25,14 @@ public class AtualizarClienteUseCase : IUseCase
         }
 
         cliente.Atualizar(input.Nome);
+
+        if (input.Ativo)
+            cliente.Ativar();
+        else
+            cliente.Inativar();
+
         await _gateway.Atualizar(cliente, ct);
 
-        _outputPort.Ok(new ClienteOutput(cliente.Id, cliente.Nome, cliente.Documento, cliente.DataCriacao));
+        _outputPort.Ok(new ClienteOutput(cliente.Id, cliente.Nome, cliente.Documento, cliente.Ativo, cliente.DataCriacao));
     }
 }

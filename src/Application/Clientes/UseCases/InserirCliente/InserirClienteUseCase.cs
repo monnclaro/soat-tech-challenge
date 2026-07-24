@@ -38,6 +38,7 @@ public class InserirClienteUseCase : IUseCase
             cliente.Id,
             cliente.Nome,
             cliente.Documento,
+            cliente.Ativo,
             cliente.DataCriacao));
     }
 }

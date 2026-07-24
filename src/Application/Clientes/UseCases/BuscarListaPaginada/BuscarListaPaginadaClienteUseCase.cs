@@ -20,7 +20,7 @@ public class BuscarListaPaginadaClienteUseCase : IUseCase
         var (items, total) = await _gateway.BuscarPaginado(input.Paginacao, ct);
 
         var output = new PagedResult<ClienteOutput>(
-            items.Select(c => new ClienteOutput(c.Id, c.Nome, c.Documento, c.DataCriacao)).ToList(),
+            items.Select(c => new ClienteOutput(c.Id, c.Nome, c.Documento, c.Ativo, c.DataCriacao)).ToList(),
             total,
             input.Paginacao.Pagina,
             input.Paginacao.Tamanho);

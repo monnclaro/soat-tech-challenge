@@ -1,109 +1,101 @@
 name: CI-CD
 
 on:
+  pull_request:
+    branches: [master, producao]
   push:
-    branches:
-      - main
+    branches: [master, producao]
+
+# AWS Academy: credenciais de sessão temporárias (expiram com o Lab), não
+# suporta OIDC nem IAM role de longa duração — ver docs/adr "Prioridade de
+# custo e AWS Academy".
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+  AWS_DEFAULT_REGION: us-east-1
+  ECR_REPOSITORY: soat-api
 
 jobs:
-  build-and-deploy:
-    runs-on: self-hosted
-
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4.2.2
 
-      # ── 1. CHECKOUT ──────────────────────────────────────────
-      - name: Checkout do código
-        uses: actions/checkout@v4.2.2
-
-      # ── 2. GARANTIR QUE O MINIKUBE ESTÁ RODANDO ──────────────
-      - name: Garantir que o Minikube está rodando
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          chcp 65001 > $null
-
-          Write-Host "Recriando o Minikube..."
-
-          minikube delete --all --purge
-
-          minikube start --driver=docker --wait=all
-
-          $kubeconfigPath = if ($env:KUBECONFIG) {
-            $env:KUBECONFIG
-          } else {
-            Join-Path $env:USERPROFILE ".kube\config"
-          }
-
-          "KUBECONFIG=$kubeconfigPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "TF_VAR_kubeconfig_path=$kubeconfigPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
-          $env:KUBECONFIG = $kubeconfigPath
-
-          kubectl config use-context minikube
-          kubectl wait --for=condition=Ready node/minikube --timeout=300s
-
-      # ── 3. BUILD DA APLICAÇÃO ────────────────────────────────
-      - name: Configurar .NET 9
-        uses: actions/setup-dotnet@v4.3.1
+      - uses: actions/setup-dotnet@v4.3.1
         with:
           dotnet-version: 9.0.x
 
-      - name: Restaurar dependências
-        run: dotnet restore
+      - run: dotnet restore
+      - run: dotnet build --no-restore --configuration Release
+      - run: dotnet test --no-build --configuration Release --verbosity normal
 
-      - name: Build da aplicação
-        run: dotnet build --no-restore --configuration Release
+  deploy:
+    name: Build image & Deploy
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.event_name == 'push' && github.ref_name == 'producao'
+    environment: producao
+    env:
+      ENVIRONMENT: producao
+    steps:
+      - uses: actions/checkout@v4.2.2
 
-      # ── 4. EXECUÇÃO DOS TESTES AUTOMATIZADOS ─────────────────
-      - name: Execução dos testes automatizados
-        run: dotnet test --no-build --configuration Release --verbosity normal
+      - name: Login no ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # ── 5. BUILD DA IMAGEM DOCKER ────────────────────────────
-      - name: Build da imagem Docker
-        shell: powershell
+      - name: Build e push da imagem
+        id: build
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build `
-            -t soat-api:latest `
-            -f src/Api/Dockerfile .
+          docker build -t "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" -f src/Api/Dockerfile .
+          docker push "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image=$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
-      # ── 6. CARREGAR IMAGEM NO CLUSTER ────────────────────────
-      - name: Carregar imagem no cluster
-        shell: powershell
+      - name: Atualizar kubeconfig
+        run: aws eks update-kubeconfig --name soat-${{ env.ENVIRONMENT }} --region us-east-1
+
+      - name: Gerar Secret a partir do SSM Parameter Store (RDS + JWT)
         run: |
-          minikube image load soat-api:latest
+          DB_ENDPOINT=$(aws ssm get-parameter --name "/soat/${ENVIRONMENT}/rds/endpoint" --query Parameter.Value --output text)
+          DB_NAME=$(aws ssm get-parameter --name "/soat/${ENVIRONMENT}/rds/db-name" --query Parameter.Value --output text)
+          DB_USER=$(aws ssm get-parameter --name "/soat/${ENVIRONMENT}/rds/username" --query Parameter.Value --output text)
+          DB_PASSWORD=$(aws ssm get-parameter --name "/soat/${ENVIRONMENT}/rds/password" --with-decryption --query Parameter.Value --output text)
+          JWT_SECRET=$(aws ssm get-parameter --name "/soat/${ENVIRONMENT}/jwt/secret" --with-decryption --query Parameter.Value --output text)
 
-      # ── 7. VERIFICAR TERRAFORM ───────────────────────────────
-      - name: Verificar Terraform
-        shell: powershell
-        run: terraform version
+          kubectl create secret generic soat-api-secret -n soat \
+            --from-literal=ConnectionStrings__Default="Host=$DB_ENDPOINT;Port=5432;Database=$DB_NAME;Username=$DB_USER;Password=$DB_PASSWORD" \
+            --from-literal=JwtSettings__Secret="$JWT_SECRET" \
+            --from-literal=JwtSettings__ExpirationHours="2" \
+            --from-literal=Webhook__Secret="${{ secrets.WEBHOOK_SECRET }}" \
+            --from-literal=NEW_RELIC_LICENSE_KEY="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
 
-      # ── 8. PROVISIONAR INFRAESTRUTURA COM TERRAFORM ──────────
-      - name: Terraform Init
-        shell: powershell
-        working-directory: infra
-        run: terraform init -reconfigure -input=false
-
-      - name: Terraform Format Check
-        shell: powershell
-        working-directory: infra
-        run: terraform fmt -check
-
-      - name: Terraform Validate
-        shell: powershell
-        working-directory: infra
-        run: terraform validate
-
-      - name: Terraform Apply
-        shell: powershell
-        working-directory: infra
+      - name: Aplicar manifests
+        env:
+          ECR_IMAGE: ${{ steps.build.outputs.image }}
         run: |
-          terraform apply `
-            -auto-approve `
-            -input=false `
-            -var="restart_trigger=${{ github.run_id }}"
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+          envsubst < k8s/deployment.yaml | kubectl apply -f -
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/hpa.yaml
 
-      # ── 9. VERIFICAR STATUS DOS PODS ─────────────────────────
-      - name: Verificar status dos pods
-        shell: powershell
+      - name: Aguardar rollout
+        run: kubectl rollout status deployment/soat-api -n soat --timeout=180s
+
+      - name: Publicar IP público do node em SSM (consumido pelo repo lambda)
         run: |
-          kubectl get all -n soat
+          # Sem ALB (prioridade de custo — ver docs/adr): o API Gateway do repo
+          # lambda chama direto o IP público de um node na porta NodePort
+          # (k8s/service.yaml). Publica o IP do primeiro node Ready.
+          NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
+          if [ -n "$NODE_IP" ]; then
+            aws ssm put-parameter --name "/soat/${ENVIRONMENT}/app/node-ip" --type String --value "$NODE_IP" --overwrite
+          else
+            echo "::warning::Nenhum node com IP público encontrado; verifique se os nodes do EKS estão em subnet pública."
+          fi

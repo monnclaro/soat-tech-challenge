@@ -151,7 +151,7 @@ public class ClienteUseCaseTests
         var presenter = new FakeAtualizarClientePresenter();
         var useCase   = new AtualizarClienteUseCase(gateway, presenter);
 
-        await useCase.Execute(new AtualizarClienteInput(Guid.NewGuid(), "Nome"), CancellationToken.None);
+        await useCase.Execute(new AtualizarClienteInput(Guid.NewGuid(), "Nome", true), CancellationToken.None);
 
         Assert.True(presenter.NaoEncontradoChamado);
         Assert.False(gateway.AtualizarFoiChamado);
@@ -165,7 +165,7 @@ public class ClienteUseCaseTests
         var presenter = new FakeAtualizarClientePresenter();
         var useCase   = new AtualizarClienteUseCase(gateway, presenter);
 
-        await useCase.Execute(new AtualizarClienteInput(cliente.Id, "Nome Novo"), CancellationToken.None);
+        await useCase.Execute(new AtualizarClienteInput(cliente.Id, "Nome Novo", true), CancellationToken.None);
 
         Assert.Equal("Nome Novo", presenter.Output?.Nome);
         Assert.True(gateway.AtualizarFoiChamado);
@@ -179,7 +179,7 @@ public class ClienteUseCaseTests
         var presenter = new FakeAtualizarClientePresenter();
         var useCase   = new AtualizarClienteUseCase(gateway, presenter);
 
-        await useCase.Execute(new AtualizarClienteInput(cliente.Id, "Novo Nome"), CancellationToken.None);
+        await useCase.Execute(new AtualizarClienteInput(cliente.Id, "Novo Nome", true), CancellationToken.None);
 
         Assert.Equal(CpfValido, presenter.Output?.Documento);
     }

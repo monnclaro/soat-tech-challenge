@@ -17,11 +17,23 @@ spec:
         app: soat-api
 
     spec:
+      # Init container do New Relic: copia o profiler .NET para um volume
+      # compartilhado, sem precisar embutir o agente na imagem da aplicação
+      # (padrão oficial do New Relic para Kubernetes) — ver
+      # https://github.com/newrelic/newrelic-dotnet-init
+      initContainers:
+        - name: newrelic-instrumentation
+          image: newrelic/newrelic-dotnet-init:latest
+          volumeMounts:
+            - mountPath: /newrelic-instrumentation
+              name: newrelic-instrumentation
+
       containers:
         - name: soat-api
 
-          image: soat-api:latest
-          imagePullPolicy: Never
+          # Substituído pelo CI/CD (envsubst) com a tag da imagem publicada no ECR.
+          image: ${ECR_IMAGE}
+          imagePullPolicy: IfNotPresent
 
           ports:
             - containerPort: 8080
@@ -33,6 +45,24 @@ spec:
             - secretRef:
                 name: soat-api-secret
 
+          volumeMounts:
+            - mountPath: /newrelic-instrumentation
+              name: newrelic-instrumentation
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
           resources:
             requests:
               memory: "256Mi"
@@ -41,3 +71,7 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
+
+      volumes:
+        - name: newrelic-instrumentation
+          emptyDir: {}
