@@ -6,14 +6,9 @@ Este documento centraliza a configuração de CI/CD que é comum aos 4 repositó
 
 ## Estratégia de branches
 
-Só existem duas branches em cada repositório — sem ambiente de homologação, para minimizar custo:
+Só existe a branch `main` em cada repositório por enquanto — sem branch de produção separada nem ambiente de homologação, para minimizar complexidade e custo. PR roda build/test (e `terraform plan` nos repos de infra); push em `main` roda o deploy/apply, gated por aprovação manual do GitHub Environment `producao` (o nome do environment é sobre o ambiente AWS de destino, não sobre a branch).
 
-| Branch | Papel |
-|---|---|
-| `master` | Branch de trabalho. PR roda build/test (e `terraform plan` nos repos de infra). Nenhum deploy acontece aqui. |
-| `producao` | Deploy automático a cada push, mas gated por aprovação manual do GitHub Environment `producao`. |
-
-`master` e `producao` são protegidas em todos os 4 repositórios (configurado diretamente no GitHub): sem commit direto, merge só via Pull Request.
+`main` é protegida em todos os 4 repositórios (configurado diretamente no GitHub): sem commit direto, merge só via Pull Request.
 
 ## Setup — GitHub Environments
 

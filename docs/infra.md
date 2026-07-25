@@ -34,7 +34,7 @@ O banco de dados **não roda mais no cluster** — é o RDS provisionado pelo in
 
 ## Fluxo de Deploy (CI/CD)
 
-O pipeline ([`.github/workflows/ci-cd.yml`](../.github/workflows/ci-cd.yml)) roda em runners hospedados do GitHub (não mais self-hosted) e é acionado a cada push em `producao`:
+O pipeline ([`.github/workflows/ci-cd.yml`](../.github/workflows/ci-cd.yml)) roda em runners hospedados do GitHub (não mais self-hosted) e é acionado a cada push em `main`:
 
 | Etapa | Descrição |
 |---|---|

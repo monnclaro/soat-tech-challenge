@@ -104,7 +104,7 @@ src/
 
 ## Infraestrutura e CI/CD
 
-O cluster Kubernetes (Amazon EKS) e o banco (Amazon RDS) são provisionados pelos repositórios [infra-k8s](https://github.com/monnclaro/soat-tech-challenge-infra-k8s) e [infra-database](https://github.com/monnclaro/soat-tech-challenge-infra-database), respectivamente. Este repositório só é responsável pela aplicação: a cada push em `producao`, o CI/CD builda a imagem, publica no ECR e aplica os manifests (`k8s/`) contra o cluster já existente — sem passos manuais.
+O cluster Kubernetes (Amazon EKS) e o banco (Amazon RDS) são provisionados pelos repositórios [infra-k8s](https://github.com/monnclaro/soat-tech-challenge-infra-k8s) e [infra-database](https://github.com/monnclaro/soat-tech-challenge-infra-database), respectivamente. Este repositório só é responsável pela aplicação: a cada push em `main`, o CI/CD builda a imagem, publica no ECR e aplica os manifests (`k8s/`) contra o cluster já existente — sem passos manuais.
 
 Para o detalhamento completo — diagramas, recursos provisionados e fluxo de deploy — veja [docs/infra.md](./docs/infra.md).
 
@@ -183,7 +183,7 @@ kubectl apply -f k8s/hpa.yaml
 kubectl get nodes -o wide   # ExternalIP de qualquer node + porta 30080
 ```
 
-> No CI/CD ([.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml)) esses passos rodam automaticamente a cada push em `producao`: build da imagem, push no ECR, geração do Secret a partir do SSM Parameter Store (RDS + JWT) e `kubectl apply` — sem passos manuais.
+> No CI/CD ([.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml)) esses passos rodam automaticamente a cada push em `main`: build da imagem, push no ECR, geração do Secret a partir do SSM Parameter Store (RDS + JWT) e `kubectl apply` — sem passos manuais.
 
 ---
 

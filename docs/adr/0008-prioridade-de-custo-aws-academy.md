@@ -22,7 +22,7 @@ A infraestrutura AWS será operada em uma conta **AWS Academy Learner Lab**, nã
 | Envelope encryption dos Secrets do EKS | KMS key própria (padrão do módulo) | Desabilitada (`cluster_encryption_config = {}`) | `kms:CreateKey` também costuma estar fora da policy do Academy |
 | Autenticação do CI/CD com a AWS | OIDC (`aws-actions/configure-aws-credentials` + `role-to-assume`) | Credenciais estáticas de sessão (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`/`AWS_SESSION_TOKEN` como GitHub Secrets) | OIDC exige criar um IAM Identity Provider (bloqueado); a sessão do Academy já fornece essas três credenciais, só que temporárias |
 | Ambientes | `homologacao` + `producao` | Só **`producao`** | Rodar dois ambientes dobraria o custo fixo (2x EKS control plane, 2x RDS) sem necessidade para o exercício |
-| Branches | `main` + `homolog` | `master` + `producao` | Reflete o corte de ambiente acima — `master` é a branch de trabalho (PR-only), `producao` aciona o deploy |
+| Branches | `main` + `homolog` | Só `main` | Reflete o corte de ambiente acima e simplifica o fluxo enquanto o projeto não tem um segundo ambiente real — push em `main` já aciona o deploy (gated pelo GitHub Environment `producao`, que se refere ao ambiente AWS de destino, não a uma branch) |
 
 Único custo fixo que **não** dá pra remover usando EKS: o control plane (~$0,10/hora). É uma taxa por o cluster existir, sem free tier — inescapável enquanto o requisito for "cluster Kubernetes gerenciado" (EKS).
 

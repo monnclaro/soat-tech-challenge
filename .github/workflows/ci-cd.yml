@@ -2,9 +2,9 @@ name: CI-CD
 
 on:
   pull_request:
-    branches: [master, producao]
+    branches: [main]
   push:
-    branches: [master, producao]
+    branches: [main]
 
 # AWS Academy: credenciais de sessão temporárias (expiram com o Lab), não
 # suporta OIDC nem IAM role de longa duração — ver docs/adr "Prioridade de
@@ -35,7 +35,7 @@ jobs:
     name: Build image & Deploy
     runs-on: ubuntu-latest
     needs: build-test
-    if: github.event_name == 'push' && github.ref_name == 'producao'
+    if: github.event_name == 'push' && github.ref_name == 'main'
     environment: producao
     env:
       ENVIRONMENT: producao
