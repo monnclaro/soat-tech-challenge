@@ -28,6 +28,7 @@
 - [0006 — Lambda em .NET 8, independente do app](./adr/0006-lambda-dotnet8-independente-do-app.md)
 - [0007 — Postgres gerenciado (RDS)](./adr/0007-postgres-gerenciado.md)
 - [0008 — Prioridade de custo e AWS Academy](./adr/0008-prioridade-de-custo-aws-academy.md)
+- [0009 — Sem Lambda Authorizer no API Gateway](./adr/0009-sem-lambda-authorizer.md)
 
 ## READMEs dos outros repositórios
 

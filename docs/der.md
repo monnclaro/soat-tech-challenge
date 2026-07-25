@@ -18,7 +18,7 @@ erDiagram
         string nome
         string documento UK "CPF ou CNPJ, único"
         enum tipo_documento "Cpf | Cnpj"
-        boolean ativo "novo na Fase 3 — checado pelo Lambda de auth"
+        boolean ativo "novo na Fase 3 — propriedade de cadastro, sem uso em autenticação"
         datetime data_criacao
     }
 
@@ -37,6 +37,8 @@ erDiagram
         string nome
         string email UK
         string senha_hash
+        string cpf UK "novo na Fase 3 — checado pelo Lambda de auth"
+        boolean ativo "novo na Fase 3 — checado pelo Lambda de auth"
         datetime data_criacao
     }
 
@@ -100,8 +102,9 @@ erDiagram
 - **OrdemServico 1—N OrdemServicoProduto/OrdemServicoServico**: tabelas de associação que também guardam um **snapshot** de nome e valor no momento da inclusão (`NomeProduto`, `ValorUnitario`, `NomeServico`, `Valor`) — decisão de modelagem anterior à Fase 3, mantida porque altera a rastreabilidade histórica: se o preço de um produto mudar depois, ordens de serviço antigas continuam refletindo o valor cobrado na época, não o valor atual do catálogo.
 - **Produto/Servico 1—N (via tabelas de associação)**: o catálogo (`Produto`, `Servico`) é referenciado, mas nunca alterado, por uma OS já criada — mudanças em `Produto.Valor`/`Servico.Valor` não retroagem.
 - **Usuario 1—N UsuarioRole**: um funcionário pode ter múltiplas roles (hoje, na prática, só `Admin` é usada nos controllers).
-- **Cliente.Ativo** (Fase 3): não é um relacionamento, mas o principal ajuste desta fase no modelo — necessário para o Lambda de autenticação decidir se emite um token para aquele CPF.
+- **Usuario.Cpf / Usuario.Ativo** (Fase 3): não são relacionamentos, mas o principal ajuste desta fase no modelo — necessários para o Lambda de autenticação decidir, a partir do CPF informado, se aquele `Usuario` existe e está ativo antes de emitir um token (segunda forma de login, ver [RFC 0003](./rfcs/0003-estrategia-de-autenticacao.md)).
+- **Cliente.Ativo** (Fase 3): adicionada por completude de cadastro na mesma entrega, mas não participa de autenticação — `Cliente` não loga no sistema.
 
 ## O que mudou nesta fase
 
-Ver [RFC 0002](./rfcs/0002-escolha-do-banco-de-dados.md) para a justificativa completa. Resumo: banco migrou de StatefulSet em Kubernetes para Amazon RDS ([ADR 0007](./adr/0007-postgres-gerenciado.md)); schema ganhou `Cliente.Ativo`.
+Ver [RFC 0002](./rfcs/0002-escolha-do-banco-de-dados.md) para a justificativa completa. Resumo: banco migrou de StatefulSet em Kubernetes para Amazon RDS ([ADR 0007](./adr/0007-postgres-gerenciado.md)); schema ganhou `Cliente.Ativo` e `Usuario.Cpf`/`Usuario.Ativo`.

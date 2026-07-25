@@ -5,7 +5,7 @@
 
 ## Problema
 
-O sistema já roda em PostgreSQL desde a Fase 1 (containerizado) e Fase 2 (StatefulSet no Kubernetes). A Fase 3 pede um banco **gerenciado** — decidir se trocamos de motor ou apenas de forma de operação, e revisar o modelo para as novas necessidades (autenticação de clientes por CPF).
+O sistema já roda em PostgreSQL desde a Fase 1 (containerizado) e Fase 2 (StatefulSet no Kubernetes). A Fase 3 pede um banco **gerenciado** — decidir se trocamos de motor ou apenas de forma de operação, e revisar o modelo para as novas necessidades (segunda forma de login do `Usuario` via CPF).
 
 ## Alternativas consideradas
 
@@ -24,13 +24,14 @@ O sistema já roda em PostgreSQL desde a Fase 1 (containerizado) e Fase 2 (State
 
 | Mudança | Motivo |
 |---|---|
-| `Cliente.Ativo` (`boolean`, default `true`) | O Lambda de autenticação por CPF precisa checar "existência e status do cliente" (requisito explícito da Fase 3) — antes não havia noção de cliente ativo/inativo |
-| Confirmação do índice único em `Cliente.Documento` (já existia desde a Fase 1) | Necessário para a busca por CPF no Lambda ser O(log n) via índice, não scan |
+| `Usuario.Cpf` (`varchar(11)`, único, obrigatório) + `Usuario.Ativo` (`boolean`, default `true`) | O Lambda de autenticação por CPF precisa checar "existência e status" (requisito explícito da Fase 3) de quem está logando — quem ganha uma segunda forma de login é o `Usuario` (protege rotas sensíveis), não o `Cliente` — ver [RFC 0003](./0003-estrategia-de-autenticacao.md) |
+| `Cliente.Ativo` (`boolean`, default `true`) | Adicionada por completude de cadastro nesta mesma entrega, mas **não é usada em autenticação** — `Cliente` não loga no sistema |
+| Índice único em `Usuario.Cpf` | Necessário para a busca por CPF no Lambda ser O(log n) via índice, não scan |
 
 Diagrama ER completo e relacionamentos: [der.md](./der.md).
 
 ## Consequências
 
-- Nova migration EF Core (`AdicionandoClienteAtivo`) — aplicada automaticamente pelo `InitializeDatabaseAsync` no startup da API (padrão já existente no projeto).
-- O Lambda de autenticação acessa a mesma tabela `cliente` via Npgsql direto (não via EF Core) — decisão registrada à parte no repositório lambda, já que é uma unidade de deploy diferente.
+- Novas migrations EF Core (`AdicionandoClienteAtivo`, `AdicionandoCpfEAtivoAoUsuario`) — aplicadas automaticamente pelo `InitializeDatabaseAsync` no startup da API (padrão já existente no projeto).
+- O Lambda de autenticação acessa a mesma tabela `usuario` via Npgsql direto (não via EF Core) — decisão registrada à parte no repositório lambda, já que é uma unidade de deploy diferente.
 - RDS fica isolado em subnets privadas, acessível só de dentro da VPC (EKS e Lambda) — nunca exposto publicamente (`publicly_accessible = false` em `infra-database/main.tf`).

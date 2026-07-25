@@ -16,7 +16,7 @@ public class UsuarioGatewayIntegrationTests : IntegrationTestBase
     [Fact]
     public async Task BuscarPorEmail_QuandoUsuarioExiste_RetornaUsuario()
     {
-        var usuario = new Usuario("João", "joao@test.com", "hash");
+        var usuario = new Usuario("João", "joao@test.com", "hash", "52998224725");
         await SeedAsync(usuario);
 
         using var scope = CreateScope();
@@ -41,7 +41,7 @@ public class UsuarioGatewayIntegrationTests : IntegrationTestBase
     public async Task BuscarPorEmail_QuandoUsuarioPossuiRoles_RetornaComRoles()
     {
         var roles   = new List<UsuarioRole> { new("Admin"), new("Gerente") };
-        var usuario = new Usuario("Maria", "maria@test.com", "hash");
+        var usuario = new Usuario("Maria", "maria@test.com", "hash", "52998224725");
         usuario.AdicionarRoles(roles);
         await SeedAsync(usuario);
 
@@ -57,8 +57,8 @@ public class UsuarioGatewayIntegrationTests : IntegrationTestBase
     [Fact]
     public async Task BuscarPorEmail_EmailCaseSensitive_DistingueUsuarios()
     {
-        await SeedAsync(new Usuario("Lower", "usuario@test.com", "hash1"));
-        await SeedAsync(new Usuario("Upper", "USUARIO@test.com", "hash2"));
+        await SeedAsync(new Usuario("Lower", "usuario@test.com", "hash1", "52998224725"));
+        await SeedAsync(new Usuario("Upper", "USUARIO@test.com", "hash2", "11144477735"));
 
         using var scope = CreateScope();
         var resultado   = await GetService<IUsuarioGateway>(scope)

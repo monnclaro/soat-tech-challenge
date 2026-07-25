@@ -71,7 +71,7 @@ public class LoginUseCaseTests
     }
 
     private static Usuario CriarUsuario(string email) =>
-        new("Usuário Teste", email, "hash-qualquer");
+        new("Usuário Teste", email, "hash-qualquer", "52998224725");
 }
 
 file class FakeUsuarioGateway : IUsuarioGateway

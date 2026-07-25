@@ -23,6 +23,18 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
             .IsRequired()
             .HasMaxLength(255);
 
+        builder.Property(x => x.Cpf)
+            .HasColumnName("cpf")
+            .IsRequired()
+            .HasMaxLength(11);
+
+        builder.HasIndex(x => x.Cpf).IsUnique();
+
+        builder.Property(x => x.Ativo)
+            .HasColumnName("ativo")
+            .HasDefaultValue(true)
+            .IsRequired();
+
         builder.HasMany(x => x.Roles)
             .WithOne()
             .HasForeignKey(x => x.IdUsuario);

@@ -6,7 +6,6 @@ Fluxo de um funcionário autenticado abrindo uma ordem de serviço para um clien
 sequenceDiagram
     actor Funcionario as Funcionário (Usuario)
     participant GW as API Gateway
-    participant Authz as Lambda Authorizer
     participant Node as Node EKS (NodePort 30080)
     participant API as soat-api
     participant UC as InserirOrdemServicoUseCase
@@ -14,13 +13,11 @@ sequenceDiagram
     participant NR as New Relic (APM + Logs)
 
     Funcionario->>GW: POST /api/v1/ordens-servico<br/>Authorization: Bearer {token Usuario}<br/>{ idCliente, idVeiculo, servicos[], produtos[] }
-    GW->>Authz: valida JWT (role Usuario/Admin)
-    Authz-->>GW: isAuthorized: true, context: { role: "Admin" }
-    GW->>Node: HTTP_PROXY (IP público do node : 30080)
+    GW->>Node: HTTP_PROXY (IP público do node : 30080 — sem authorizer no Gateway)
     Node->>API: encaminha requisição (Service NodePort)
 
     API->>API: CorrelationIdMiddleware gera/propaga X-Correlation-Id
-    API->>API: [Authorize(Roles = "Admin")]
+    API->>API: AddJwtAuthentication valida o token + [Authorize(Roles = "Admin")]
     API->>UC: Execute(InserirOrdemServicoInput)
 
     UC->>DB: BuscarPorId(idCliente), BuscarPorId(idVeiculo)

@@ -10,7 +10,7 @@ A partir da Fase 3, a infraestrutura é dividida em repositórios com responsabi
 |---|---|
 | [infra-k8s](https://github.com/monnclaro/soat-tech-challenge-infra-k8s) | VPC, Amazon EKS, New Relic Kubernetes integration, dashboards e alertas |
 | [infra-database](https://github.com/monnclaro/soat-tech-challenge-infra-database) | Amazon RDS PostgreSQL, credenciais em SSM SecureString |
-| [lambda](https://github.com/monnclaro/soat-tech-challenge-lambda) | Lambda de autenticação por CPF, Lambda Authorizer, API Gateway |
+| [lambda](https://github.com/monnclaro/soat-tech-challenge-lambda) | Lambda de autenticação por CPF, API Gateway |
 | **soat-tech-challenge** (este repositório) | Manifests da aplicação (`k8s/`) — Deployment, Service (NodePort), HPA, ConfigMap |
 
 Diagrama de componentes completo: [architecture.md](./architecture.md). Infraestrutura ajustada para AWS Academy (sem ALB, sem NAT, sem Secrets Manager) — ver [ADR 0008](./adr/0008-prioridade-de-custo-aws-academy.md).

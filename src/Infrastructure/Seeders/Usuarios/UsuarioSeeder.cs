@@ -11,7 +11,7 @@ public static class UsuarioSeeder
     {
         if (await context.Usuario.AnyAsync()) return;
 
-        var adminUser = new Usuario("Admin", "admin@gmail.com", BCrypt.Net.BCrypt.HashPassword("123"));
+        var adminUser = new Usuario("Admin", "admin@gmail.com", BCrypt.Net.BCrypt.HashPassword("123"), "52998224725");
         adminUser.AdicionarRoles(new List<UsuarioRole>() { new("Admin") });
 
         context.Usuario.Add(adminUser);

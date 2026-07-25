@@ -29,7 +29,7 @@ public class OrdemServicoStatusController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Cliente,Admin")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(OrdemServicoStatusOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

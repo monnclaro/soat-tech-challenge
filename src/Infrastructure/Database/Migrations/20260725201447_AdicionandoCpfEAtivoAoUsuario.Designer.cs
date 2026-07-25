@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SoatTechChallenge.Infrastucture.Database;
@@ -11,9 +12,11 @@ using SoatTechChallenge.Infrastucture.Database;
 namespace SoatTechChallenge.Infrastucture.Database.Migrations
 {
     [DbContext(typeof(SoatTechChallengeDbContext))]
-    partial class SoatTechChallengeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260725201447_AdicionandoCpfEAtivoAoUsuario")]
+    partial class AdicionandoCpfEAtivoAoUsuario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
