@@ -29,7 +29,7 @@ public class Usuario : Entity
 
         var cpfDigitos = new string((cpf ?? string.Empty).Where(char.IsDigit).ToArray());
 
-        if (!CpfChecksum.EhValido(cpfDigitos))
+        if (!CpfChecksum.Valido(cpfDigitos))
             throw new DomainException("O CPF informado é inválido.");
 
         Id = Guid.NewGuid();

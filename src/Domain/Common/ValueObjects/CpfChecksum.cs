@@ -5,7 +5,7 @@ namespace Domain.Common.ValueObjects;
 // ter CPF próprio para autenticação via Lambda — ver RFC 0003).
 public static class CpfChecksum
 {
-    public static bool EhValido(string cpf)
+    public static bool Valido(string cpf)
     {
         if (cpf.Length != 11 || cpf.Distinct().Count() == 1)
             return false;
