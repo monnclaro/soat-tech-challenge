@@ -11,16 +11,34 @@
 | Logs estruturados (JSON) com correlação | Serilog + `RenderedCompactJsonFormatter` + `CorrelationIdMiddleware` (`X-Correlation-Id`), coletados pelo Fluent Bit do `nri-bundle` |
 | Dashboard: volume diário de OS | Widget `widget_bar` no dashboard "Ordens de Serviço" (infra-k8s/newrelic-dashboard.tf) |
 | Dashboard: erros nas integrações | Widget sobre erros do `OrcamentoWebhookController` |
+| Dashboard: tempo por fase (funil de status) | Widget `widget_funnel` sobre `FROM Log` (infra-k8s/newrelic-dashboard.tf) — ver "Tempo por fase" abaixo |
 
-## Gaps conhecidos
+## Tempo por fase (Recebida, Diagnóstico, Aguardando Aprovação, Execução, Finalizada, Entregue)
 
-### Tempo médio de execução por status (Diagnóstico, Execução, Finalização)
+`OrdemServico` (`src/Domain/OrdensServico/OrdemServico.cs`) levanta `OrdemServicoStatusAlteradoDomainEvent` (`src/Domain/OrdensServico/Events`) em **todas as 6 transições de status**: `Inserir` (Recebida), `IniciarDiagnostico` (EmDiagnostico), `FinalizarDiagnostico`/`EnviarOrcamento` (AguardandoAprovacao), `AprovarOrcamento` (EmExecucao), `Finalizar` (Finalizada) e `Entregar` (Entregue). O evento carrega só `IdOrdemServico` e o `Status` que acabou de começar — **nenhuma duração é calculada no código**.
 
-A entidade `OrdemServico` (`src/Domain/OrdensServico/OrdemServico.cs`) já guarda `DataCriacao`, `DataInicioExecucao` e `DataFinalizacao`, mas nenhum código hoje emite essas durações como métrica — o widget correspondente no dashboard do New Relic (`newrelic-dashboard.tf`) está montado sobre um evento customizado (`OrdemServicoStatusAlterado`) que ainda **não é emitido pela aplicação**.
+`OrdemServicoStatusAlteradoLogHandler` (`src/Application/OrdensServico/EventHandlers/OrdemServicoStatusAlteradoLogHandler.cs`), resolvido pelo `DomainEventsDispatcher` como qualquer outro `IDomainEventHandler<T>`, loga cada transição de forma estruturada:
 
-Instrumentação necessária para fechar esse gap:
-1. Emitir o evento customizado (via `NewRelic.Api.Agent`, `RecordCustomEvent`) no ponto em que `OrdemServico.Finalizar()` é chamado, com `duracaoSegundos = DataFinalizacao - DataInicioExecucao` e `duracaoSegundos = DataInicioExecucao - DataCriacao` (diagnóstico).
-2. ~~Pré-requisito: consertar o registro de DI dos `IDomainEventHandler<T>`~~ — corrigido, ver seção abaixo. O widget ainda depende do passo 1 (emissão do evento) para funcionar.
+```
+_logger.LogInformation("OrdemServicoStatusAlterado {idOrdemServico} {status}", ...)
+```
+
+**Por que log em vez de `RecordCustomEvent`**: os logs já são coletados pelo Fluent Bit embutido no `nri-bundle` (`logging.enabled = true` em `infra-k8s/newrelic.tf`) — o mesmo caminho que já traz todo log estruturado da aplicação para o New Relic (Serilog + `RenderedCompactJsonFormatter`, ver `src/Api/Program.cs`). O New Relic parseia automaticamente linhas de log em JSON e promove cada propriedade nomeada do template (`idOrdemServico`, `status`) a um atributo do evento `Log`, consultável via NRQL — sem precisar adicionar o pacote `NewRelic.Api.Agent` nem instrumentar a aplicação para falar diretamente com a API do New Relic.
+
+**Por que nenhuma duração é calculada em código**: pra medir "quanto tempo a OS ficou em EmDiagnostico" seria preciso saber quando aquela fase começou — e isso não é derivável dos campos já existentes (`DataCriacao`/`DataInicioExecucao`/`DataFinalizacao` só cobrem 3 dos 6 status). A alternativa seria persistir um novo timestamp genérico ("início da fase atual") na entidade, mas isso foi descartado deliberadamente — a duração por fase é calculada inteiramente no New Relic, correlacionando os logs de transição por `idOrdemServico` via `funnel()` (NRQL), usando só o timestamp de ingestão de cada log. O widget correspondente (`widget_funnel`) consulta:
+
+```sql
+SELECT funnel(timestamp,
+  WHERE status = 'Recebida' AS 'Recebida',
+  WHERE status = 'EmDiagnostico' AS 'EmDiagnostico',
+  WHERE status = 'AguardandoAprovacao' AS 'AguardandoAprovacao',
+  WHERE status = 'EmExecucao' AS 'EmExecucao',
+  WHERE status = 'Finalizada' AS 'Finalizada',
+  WHERE status = 'Entregue' AS 'Entregue'
+) FROM Log WHERE idOrdemServico IS NOT NULL FACET idOrdemServico SINCE 30 days ago
+```
+
+**Nota**: essa query é best-effort — até esta entrega nenhum ambiente foi aplicado na AWS, então não há logs reais no New Relic pra validar contra a UI. `terraform validate` confirma que `widget_funnel` é um bloco válido no provider, mas a semântica exata do NRQL (nomes de atributo, formato de saída do `funnel()`) só pode ser conferida depois do primeiro deploy real — ajustar se necessário nesse momento.
 
 ## Correlação de logs
 

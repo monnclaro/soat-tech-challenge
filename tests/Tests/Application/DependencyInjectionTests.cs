@@ -23,5 +23,10 @@ public class DependencyInjectionTests
             .Should()
             .Contain(d => d.ServiceType == typeof(IDomainEventHandler<OrdemServicoFinalizadaDomainEvent>),
                 because: "handlers de eventos de domínio precisam ser resolvíveis pelo DomainEventsDispatcher via DI");
+
+        services
+            .Should()
+            .Contain(d => d.ServiceType == typeof(IDomainEventHandler<OrdemServicoStatusAlteradoDomainEvent>),
+                because: "o handler que loga a duração por status (dashboard de observabilidade) também precisa ser resolvível");
     }
 }
