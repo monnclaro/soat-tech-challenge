@@ -8,7 +8,7 @@ O JWT emitido pelo login por CPF (Lambda `AuthFunction`) precisa ser validado pe
 
 ## Decisão
 
-Manter HS256 (segredo simétrico compartilhado), como já era feito para os tokens de `Usuario` desde a Fase 1. O segredo é gerado pelo Terraform do repositório `lambda` (`random_password.jwt_secret`), guardado como SSM Parameter `SecureString` (não Secrets Manager — ver [ADR 0008](./0008-prioridade-de-custo-aws-academy.md)), e lido por ambos os consumidores como variável de ambiente: a Lambda via `LambdaConfig.JwtSecret`, injetado pelo Terraform diretamente na função; a API via Secret do Kubernetes, populado em tempo de deploy a partir do mesmo parâmetro SSM.
+Manter HS256 (segredo simétrico compartilhado), como já era feito para os tokens de `Usuario` desde a Fase 1. O segredo é gerado pelo Terraform do repositório `infra-k8s` (`random_password.jwt_secret`, em `jwt.tf`) — **não** pelo `lambda`, apesar de ser ele quem emite o token via CPF: o bootstrap dos 4 repositórios é uma cadeia (infra-k8s → infra-database → app → lambda), e tanto app quanto lambda leem esse segredo do SSM. Se o `lambda` fosse o dono, o primeiro deploy do app falharia (segredo ainda não existe, pois lambda só aplica depois do app) — e o `lambda` também não conseguiria aplicar antes do app (precisa do IP do node, publicado pelo app). `infra-k8s`, por ser o primeiro da cadeia e não depender de mais ninguém, é o único lugar onde isso não gera uma dependência circular. O segredo fica guardado como SSM Parameter `SecureString` (não Secrets Manager — ver [ADR 0008](./0008-prioridade-de-custo-aws-academy.md)), e é lido por ambos os consumidores como variável de ambiente: a Lambda via `LambdaConfig.JwtSecret` (lido de um `data "aws_ssm_parameter"`); a API via Secret do Kubernetes, populado em tempo de deploy a partir do mesmo parâmetro SSM.
 
 ## Alternativas descartadas
 
@@ -18,5 +18,5 @@ Manter HS256 (segredo simétrico compartilhado), como já era feito para os toke
 ## Consequências
 
 - Um único segredo comprometido invalida a confiança em **todos** os tokens de `Usuario`, emitidos por qualquer um dos dois caminhos de login — superfície de risco maior que RS256, onde vazar a chave pública não compromete nada.
-- Rotação do segredo exige coordenar o redeploy de dois repositórios (`lambda`, que o gera, e `app`, que o consome via Secret) — não há automação de rotação nesta fase.
+- Rotação do segredo exige coordenar o redeploy de três repositórios (`infra-k8s`, que o gera, e `app`/`lambda`, que o consomem) — não há automação de rotação nesta fase.
 - Caminho de evolução natural, se o sistema crescer para múltiplos consumidores externos de API: migrar para RS256/JWKS.
