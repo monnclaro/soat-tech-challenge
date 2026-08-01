@@ -44,6 +44,8 @@ public class OrdemServico : Entity
         Produtos.AddRange(produtos);
 
         CalcularTotal();
+
+        Raise(new OrdemServicoStatusAlteradoDomainEvent(Id, Status));
     }
 
     public void InserirProdutos(List<OrdemServicoProduto> produtos)
@@ -110,6 +112,8 @@ public class OrdemServico : Entity
         }
 
         Status = StatusOrdemServico.EmDiagnostico;
+
+        Raise(new OrdemServicoStatusAlteradoDomainEvent(Id, Status));
     }
 
     public void FinalizarDiagnostico()
@@ -132,6 +136,8 @@ public class OrdemServico : Entity
         // Método mockado, pois não é um requisito do projeto no momento
         EnviarEmailOrcamento("cliente@email.com", "Assunto", $"Orçamento: {ValorTotal}");
         Status = StatusOrdemServico.AguardandoAprovacao;
+
+        Raise(new OrdemServicoStatusAlteradoDomainEvent(Id, Status));
     }
 
     public void AprovarOrcamento()
@@ -143,6 +149,8 @@ public class OrdemServico : Entity
 
         DataInicioExecucao = DateTime.UtcNow;
         Status = StatusOrdemServico.EmExecucao;
+
+        Raise(new OrdemServicoStatusAlteradoDomainEvent(Id, Status));
     }
 
     public void ReprovarOrcamento()
@@ -197,6 +205,7 @@ public class OrdemServico : Entity
         Status = StatusOrdemServico.Finalizada;
 
         Raise(new OrdemServicoFinalizadaDomainEvent(Id, Produtos));
+        Raise(new OrdemServicoStatusAlteradoDomainEvent(Id, Status));
     }
 
     public void Entregar()
@@ -207,6 +216,8 @@ public class OrdemServico : Entity
         }
 
         Status = StatusOrdemServico.Entregue;
+
+        Raise(new OrdemServicoStatusAlteradoDomainEvent(Id, Status));
     }
 
     public void AtualizarStatus(StatusOrdemServico novoStatus)

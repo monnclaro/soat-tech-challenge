@@ -27,6 +27,12 @@ TestResults/
 *.log
 
 # =========================
+# Secrets locais (nunca commitar)
+# =========================
+k8s/secret.local.yaml
+k8s/*.local.yaml
+
+# =========================
 # NuGet
 # =========================
 *.nupkg

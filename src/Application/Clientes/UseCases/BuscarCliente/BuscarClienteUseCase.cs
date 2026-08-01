@@ -28,6 +28,6 @@ public class BuscarClienteUseCase : IUseCase
             return;
         }
 
-        _outputPort.Ok(new ClienteOutput(cliente.Id, cliente.Nome, cliente.Documento, cliente.DataCriacao));
+        _outputPort.Ok(new ClienteOutput(cliente.Id, cliente.Nome, cliente.Documento, cliente.Ativo, cliente.DataCriacao));
     }
 }

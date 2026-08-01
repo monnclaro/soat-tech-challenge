@@ -1,6 +1,7 @@
 ﻿using Domain.Common.Exceptions;
 using Domain.OrdensServico;
 using Domain.OrdensServico.Enums;
+using Domain.OrdensServico.Events;
 using Domain.OrdensServico.Produtos;
 using Domain.OrdensServico.Servicos;
 using Domain.OrdensServico.Servicos.Enums;
@@ -36,6 +37,17 @@ public class OrdemServicoTests
     }
 
     [Fact]
+    public void Inserir_RaiseOrdemServicoStatusAlteradoDomainEvent_ComStatusRecebida()
+    {
+        var ordemServico = new OrdemServico();
+        ordemServico.Inserir(Guid.NewGuid(), Guid.NewGuid(), new List<OrdemServicoServico> { CriarServico(100m) }, new List<OrdemServicoProduto>());
+
+        var evento = Assert.Single(ordemServico.DomainEvents.OfType<OrdemServicoStatusAlteradoDomainEvent>());
+        Assert.Equal(ordemServico.Id, evento.IdOrdemServico);
+        Assert.Equal(StatusOrdemServico.Recebida, evento.Status);
+    }
+
+    [Fact]
     public void Inserir_CalculaValorTotalSomenteDosServicos()
     {
         var servicos = new List<OrdemServicoServico>
@@ -62,6 +74,19 @@ public class OrdemServicoTests
         ordemServico.IniciarDiagnostico();
 
         Assert.Equal(StatusOrdemServico.EmDiagnostico, ordemServico.Status);
+    }
+
+    [Fact]
+    public void IniciarDiagnostico_RaiseOrdemServicoStatusAlteradoDomainEvent_ComStatusEmDiagnostico()
+    {
+        var ordemServico = OSRecebida();
+
+        ordemServico.IniciarDiagnostico();
+
+        var evento = Assert.Single(ordemServico.DomainEvents
+            .OfType<OrdemServicoStatusAlteradoDomainEvent>()
+            .Where(e => e.Status == StatusOrdemServico.EmDiagnostico));
+        Assert.Equal(ordemServico.Id, evento.IdOrdemServico);
     }
 
     [Theory]
@@ -222,6 +247,19 @@ public class OrdemServicoTests
     }
 
     [Fact]
+    public void FinalizarDiagnostico_RaiseOrdemServicoStatusAlteradoDomainEvent_ComStatusAguardandoAprovacao()
+    {
+        var ordemServico = OSEmDiagnostico();
+
+        ordemServico.FinalizarDiagnostico();
+
+        var evento = Assert.Single(ordemServico.DomainEvents
+            .OfType<OrdemServicoStatusAlteradoDomainEvent>()
+            .Where(e => e.Status == StatusOrdemServico.AguardandoAprovacao));
+        Assert.Equal(ordemServico.Id, evento.IdOrdemServico);
+    }
+
+    [Fact]
     public void FinalizarDiagnostico_QuandoSemServicos_LancaDomainException()
     {
         var ordemServico = new OrdemServico();
@@ -253,6 +291,19 @@ public class OrdemServicoTests
         Assert.Equal(StatusOrdemServico.EmExecucao, ordemServico.Status);
         Assert.NotNull(ordemServico.DataInicioExecucao);
         Assert.True(ordemServico.DataInicioExecucao >= antes);
+    }
+
+    [Fact]
+    public void AprovarOrcamento_RaiseOrdemServicoStatusAlteradoDomainEvent_ComStatusEmExecucao()
+    {
+        var ordemServico = OSAguardandoAprovacao();
+
+        ordemServico.AprovarOrcamento();
+
+        var evento = Assert.Single(ordemServico.DomainEvents
+            .OfType<OrdemServicoStatusAlteradoDomainEvent>()
+            .Where(e => e.Status == StatusOrdemServico.EmExecucao));
+        Assert.Equal(ordemServico.Id, evento.IdOrdemServico);
     }
 
     [Theory]
@@ -325,6 +376,23 @@ public class OrdemServicoTests
     }
 
     [Fact]
+    public void FinalizarExecucaoServico_QuandoUltimoServico_RaiseOrdemServicoStatusAlteradoDomainEvent_ComStatusFinalizada()
+    {
+        var servico = CriarServico(100m);
+        var ordemServico = OSEmExecucao(servico);
+
+        ordemServico.IniciarExecucaoServico(ordemServico.Servicos[0].Id);
+        ordemServico.FinalizarExecucaoServico(ordemServico.Servicos[0].Id);
+        ordemServico.IniciarExecucaoServico(ordemServico.Servicos[1].Id);
+        ordemServico.FinalizarExecucaoServico(ordemServico.Servicos[1].Id);
+
+        var evento = Assert.Single(ordemServico.DomainEvents
+            .OfType<OrdemServicoStatusAlteradoDomainEvent>()
+            .Where(e => e.Status == StatusOrdemServico.Finalizada));
+        Assert.Equal(ordemServico.Id, evento.IdOrdemServico);
+    }
+
+    [Fact]
     public void FinalizarExecucaoServico_QuandoAindaHaServicoPendente_NaoFinalizaOS()
     {
         var s1 = CriarServico(100m);
@@ -368,6 +436,19 @@ public class OrdemServicoTests
         ordemServico.Entregar();
 
         Assert.Equal(StatusOrdemServico.Entregue, ordemServico.Status);
+    }
+
+    [Fact]
+    public void Entregar_RaiseOrdemServicoStatusAlteradoDomainEvent_ComStatusEntregue()
+    {
+        var ordemServico = OSFinalizada();
+
+        ordemServico.Entregar();
+
+        var evento = Assert.Single(ordemServico.DomainEvents
+            .OfType<OrdemServicoStatusAlteradoDomainEvent>()
+            .Where(e => e.Status == StatusOrdemServico.Entregue));
+        Assert.Equal(ordemServico.Id, evento.IdOrdemServico);
     }
 
     [Theory]

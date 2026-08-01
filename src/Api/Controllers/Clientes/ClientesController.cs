@@ -74,7 +74,7 @@ public class ClientesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Atualizar([FromRoute] Guid id, [FromBody] AtualizarClienteRequest request, CancellationToken ct)
     {
-        await _controller.Atualizar(new AtualizarClienteInput(id, request.Nome), ct);
+        await _controller.Atualizar(new AtualizarClienteInput(id, request.Nome, request.Ativo), ct);
         return _atualizarPresenter.Result!;
     }
 

@@ -27,6 +27,14 @@ public static class DependencyInjection
             .AsSelf()
             .WithScopedLifetime());
 
+        services.Scan(scan => scan
+            .FromAssemblyOf<BuscarServicoUseCase>()
+            // publicOnly: false — os handlers de domain event (ex.: OrdemServicoEventHandler)
+            // são internal ao assembly Application; o Scrutor só escaneia classes públicas por padrão.
+            .AddClasses(c => c.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
         return services;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Domain.Clientes.Enums;
+using Domain.Common.ValueObjects;
 using DomainException = Domain.Common.Exceptions.DomainException;
 
 namespace Domain.Clientes.ValueObjects;
@@ -18,7 +19,7 @@ public sealed record DocumentoCliente
     {
         if (string.IsNullOrWhiteSpace(documentoBruto))
             throw new DomainException("O documento é obrigatório.");
-        
+
         var digitos = new string(documentoBruto.Where(char.IsDigit).ToArray());
 
         if (string.IsNullOrWhiteSpace(digitos))
@@ -41,42 +42,21 @@ public sealed record DocumentoCliente
     {
         return tipo switch
         {
-            TipoDocumentoCliente.Cpf  => ValidarCpf(documento),
+            TipoDocumentoCliente.Cpf => ValidarCpf(documento),
             TipoDocumentoCliente.Cnpj => ValidarCnpj(documento),
             _ => false
         };
     }
 
-    private static bool ValidarCpf(string cpf)
-    {
-        if (cpf.Distinct().Count() == 1)
-            return false;
-
-        int soma = 0;
-        for (int i = 0; i < 9; i++)
-            soma += (cpf[i] - '0') * (10 - i);
-
-        int resto = soma % 11;
-        int digito1 = resto < 2 ? 0 : 11 - resto;
-        if (digito1 != cpf[9] - '0') return false;
-
-        soma = 0;
-        for (int i = 0; i < 10; i++)
-            soma += (cpf[i] - '0') * (11 - i);
-
-        resto = soma % 11;
-        int digito2 = resto < 2 ? 0 : 11 - resto;
-
-        return digito2 == cpf[10] - '0';
-    }
+    private static bool ValidarCpf(string cpf) => CpfChecksum.Valido(cpf);
 
     private static bool ValidarCnpj(string cnpj)
     {
         if (cnpj.Distinct().Count() == 1)
             return false;
 
-        int[] pesos1 = { 5,4,3,2,9,8,7,6,5,4,3,2 };
-        int[] pesos2 = { 6,5,4,3,2,9,8,7,6,5,4,3,2 };
+        int[] pesos1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        int[] pesos2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
 
         int soma = 0;
         for (int i = 0; i < 12; i++)

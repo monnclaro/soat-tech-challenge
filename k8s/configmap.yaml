@@ -8,9 +8,15 @@ metadata:
 data:
   ASPNETCORE_ENVIRONMENT: "Production"
 
-  ConnectionStrings__Default: "Host=postgres-service;Port=5432;Database=soattechchallenge;Username=postgres;Password=postgres"
+  # ConnectionStrings__Default, JwtSettings__Secret e Webhook__Secret saem
+  # daqui (não ficam em texto plano num ConfigMap versionado) — o CI/CD gera
+  # o Secret soat-api-secret em tempo de deploy a partir do RDS/Secrets Manager
+  # (infra-database) e do segredo JWT (infra-lambda). Ver README > "Deploy".
 
-  JwtSettings__Secret: "SuaChaveSuperSecretaComMinimo32Caracteres"
-  JwtSettings__ExpirationHours: "2"
-
-  Webhook__Secret: "secret_webhook"
+  # New Relic .NET agent — instrumentação via init container (deployment.yaml),
+  # sem alterar a imagem/código da aplicação.
+  CORECLR_ENABLE_PROFILING: "1"
+  CORECLR_PROFILER: "{36032161-FFC0-4B61-B559-F6C5D41BAE5A}"
+  CORECLR_PROFILER_PATH: "/newrelic-instrumentation/libNewRelicProfiler.so"
+  CORECLR_NEWRELIC_HOME: "/newrelic-instrumentation"
+  NEW_RELIC_APP_NAME: "soat-api"
