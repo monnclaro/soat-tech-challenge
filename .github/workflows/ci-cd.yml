@@ -71,6 +71,11 @@ jobs:
       - name: Atualizar kubeconfig
         run: aws eks update-kubeconfig --name soat-${{ env.ENVIRONMENT }} --region us-east-1
 
+      # Precisa vir antes do Secret abaixo: kubectl apply não cria a
+      # namespace sozinho, e "soat-api-secret" é criado em "-n soat".
+      - name: Criar namespace
+        run: kubectl apply -f k8s/namespace.yaml
+
       - name: Gerar Secret a partir do SSM Parameter Store (RDS + JWT)
         run: |
           DB_ENDPOINT=$(aws ssm get-parameter --name "/soat/${ENVIRONMENT}/rds/endpoint" --query Parameter.Value --output text)
