@@ -7,6 +7,17 @@ metadata:
 spec:
   replicas: 2
 
+  # Node t3.small (custo mínimo, ver ADR 0008) não tem folga de memória/pods
+  # pra um 3º pod temporário durante rollout (maxSurge=1 por padrão tentaria
+  # subir 1 pod novo antes de derrubar um velho — "Insufficient memory, Too
+  # many pods"). Troca 1 de cada vez, sempre dentro do espaço das 2 réplicas
+  # que já rodam hoje.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+
   selector:
     matchLabels:
       app: soat-api
