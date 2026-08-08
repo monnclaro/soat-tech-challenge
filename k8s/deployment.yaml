@@ -21,9 +21,17 @@ spec:
       # compartilhado, sem precisar embutir o agente na imagem da aplicação
       # (padrão oficial do New Relic para Kubernetes) — ver
       # https://github.com/newrelic/newrelic-dotnet-init
+      #
+      # A imagem em si não copia nada sozinha (sem ENTRYPOINT/CMD) — ela só
+      # guarda os arquivos do agente em /instrumentation dentro dela. Quem
+      # copia normalmente é o New Relic Kubernetes Agents Operator (que não
+      # instalamos); sem ele, precisa do "command" explícito abaixo — mesmo
+      # comando que o operator injetaria (confirmado em
+      # github.com/newrelic/k8s-agents-operator, internal/apm/dotnet.go).
       initContainers:
         - name: newrelic-instrumentation
           image: newrelic/newrelic-dotnet-init:latest
+          command: ["cp", "-r", "/instrumentation/.", "/newrelic-instrumentation/"]
           volumeMounts:
             - mountPath: /newrelic-instrumentation
               name: newrelic-instrumentation
