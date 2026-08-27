@@ -49,13 +49,13 @@ Com a expansão para múltiplas unidades, o sistema passou a rodar em nuvem real
 | **soat-tech-challenge** (este) | API principal, executando em Kubernetes |
 | [soat-tech-challenge-infra-k8s](https://github.com/monnclaro/soat-tech-challenge-infra-k8s) | Terraform: VPC + cluster EKS + New Relic (nível de cluster) |
 | [soat-tech-challenge-infra-database](https://github.com/monnclaro/soat-tech-challenge-infra-database) | Terraform: RDS PostgreSQL gerenciado |
-| [soat-tech-challenge-lambda](https://github.com/monnclaro/soat-tech-challenge-lambda) | Login por CPF do `Usuario` (Lambda) + API Gateway |
+| [soat-tech-challenge-lambda](https://github.com/monnclaro/soat-tech-challenge-lambda) | Login por CPF do `Cliente` (Lambda) + API Gateway |
 
 O que mudou nesta fase:
 
 - **Postgres em Minikube → RDS gerenciado** (`k8s/postgres/` foi removido; o banco agora é provisionado pelo infra-database).
 - **Terraform local (`infra/`) removido** — a infraestrutura de cluster passou para o repositório infra-k8s; este repositório só aplica os manifests da própria aplicação (Deployment/Service/HPA) contra o cluster já existente.
-- **Login por CPF**: `Usuario` (funcionário) ganhou uma segunda forma de login, além de email/senha — informando o CPF via Lambda de autenticação, recebe o mesmo tipo de token (role `Admin`) já aceito nas rotas sensíveis — ver [soat-tech-challenge-lambda](https://github.com/monnclaro/soat-tech-challenge-lambda) e [RFC 0003](./docs/rfcs/0003-estrategia-de-autenticacao.md). O login por email/senha (`POST /api/auth/login`) continua funcionando sem mudanças.
+- **Login por CPF**: `Cliente` da oficina ganhou login via Lambda de autenticação (`POST /auth/login-cpf`), recebendo um token com role `Cliente` — escopado só a rotas de autoatendimento (consultar as próprias ordens de serviço, aprovar/reprovar o próprio orçamento), nunca às rotas administrativas do back-office — ver [soat-tech-challenge-lambda](https://github.com/monnclaro/soat-tech-challenge-lambda) e [RFC 0003](./docs/rfcs/0003-estrategia-de-autenticacao.md). O login de `Usuario` (funcionário) por email/senha (`POST /api/auth/login`) continua funcionando sem mudanças.
 - **Exposição via `Service type=NodePort` + API Gateway** — sem ALB, para minimizar custo no AWS Academy (ver [ADR 0008](./docs/adr/0008-prioridade-de-custo-aws-academy.md)).
 - **New Relic**: APM via init container (`newrelic-dotnet-init`, sem alterar a imagem da aplicação) + logs estruturados em JSON (Serilog) correlacionados por `X-Correlation-Id`.
 - **Health check** em `/health`, usado pelo readiness/liveness probe do Kubernetes.

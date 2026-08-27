@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Api.Controllers.OrdensServico.Requests;
 using Api.Presenters.OrdensServico;
 using Application.OrdensServico.Controllers;
@@ -105,10 +106,11 @@ public class OrdemServicosController : ControllerBase
     }
 
     [HttpGet("cliente")]
+    [Authorize(Roles = "Cliente,Admin")]
     [ProducesResponseType(typeof(PagedResult<OrdemServicoPorDocumentoOutput>), StatusCodes.Status200OK)]
     public async Task<IActionResult> BuscarListaPaginadaPorDocumento([FromQuery] string documento, [FromQuery] PagedRequest request, CancellationToken ct)
     {
-        await _controller.BuscarListaPaginadaPorDocumento(new BuscarListaPaginadaPorDocumentoInput(documento, request), ct);
+        await _controller.BuscarListaPaginadaPorDocumento(new BuscarListaPaginadaPorDocumentoInput(documento, request, CallerDocumento()), ct);
         return _listarPorDocumentoPresenter.Result!;
     }
 
@@ -170,6 +172,7 @@ public class OrdemServicosController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/orcamento/aprovacao")]
+    [Authorize(Roles = "Cliente,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -177,11 +180,12 @@ public class OrdemServicosController : ControllerBase
        [FromRoute] Guid id,
        CancellationToken ct)
     {
-        await _controller.AprovarOrcamento(new AprovarOrcamentoInput(id), ct);
+        await _controller.AprovarOrcamento(new AprovarOrcamentoInput(id, CallerClienteId()), ct);
         return _aprovarPresenter.Result!;
     }
 
     [HttpPatch("{id:guid}/orcamento/reprovacao")]
+    [Authorize(Roles = "Cliente,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -189,7 +193,7 @@ public class OrdemServicosController : ControllerBase
         [FromRoute] Guid id,
         CancellationToken ct)
     {
-        await _controller.ReprovarOrcamento(new ReprovarOrcamentoInput(id), ct);
+        await _controller.ReprovarOrcamento(new ReprovarOrcamentoInput(id, CallerClienteId()), ct);
         return _reprovarPresenter.Result!;
     }
 
@@ -252,4 +256,17 @@ public class OrdemServicosController : ControllerBase
         await _controller.RemoverServico(new RemoverServicoOrdemServicoInput(id, idServico), ct);
         return _removerServicoPresenter.Result!;
     }
+
+    // Guid do Cliente dono do token, só quando a role é Cliente (não Admin) —
+    // usado pra escopar rotas de orçamento ao próprio cliente. Embutido pelo
+    // Lambda de login por CPF como ClaimTypes.NameIdentifier.
+    private Guid? CallerClienteId() =>
+        User.IsInRole("Cliente") && Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id)
+            ? id
+            : null;
+
+    // Documento (CPF) do Cliente dono do token, só quando a role é Cliente —
+    // usado pra escopar a consulta de OS por documento ao próprio cliente.
+    private string? CallerDocumento() =>
+        User.IsInRole("Cliente") ? User.FindFirstValue("documento") : null;
 }

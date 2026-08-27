@@ -6,12 +6,13 @@ Visão C4 (nível de container) da solução na Fase 3: API Gateway, autenticaç
 flowchart TB
     subgraph FrontEnd["Front-end"]
         Usuario["Funcionário (Usuario)"]
+        Cliente["Cliente da oficina"]
     end
 
     subgraph AWS["AWS (us-east-1) — conta AWS Academy"]
         subgraph GW["API Gateway — repo lambda"]
             APIGW["HTTP API"]
-            AuthFn["Lambda: AuthFunction\n(valida CPF, consulta Usuario, emite JWT)"]
+            AuthFn["Lambda: AuthFunction\n(valida CPF, consulta Cliente, emite JWT)"]
         end
 
         subgraph EKS["Amazon EKS — repo infra-k8s + soat-tech-challenge"]
@@ -31,12 +32,13 @@ flowchart TB
     end
 
     Usuario -->|"POST /api/auth/login (email/senha)"| APIGW
-    Usuario -->|"POST /auth/login-cpf (segunda forma de login)"| APIGW
+    Cliente -->|"POST /auth/login-cpf"| APIGW
     APIGW -->|"rota pública"| AuthFn
     AuthFn --> RDS
     AuthFn --> SSM
 
-    Usuario -->|"Bearer JWT, /api/*"| APIGW
+    Usuario -->|"Bearer JWT (Admin), /api/*"| APIGW
+    Cliente -->|"Bearer JWT (Cliente), rotas escopadas"| APIGW
     APIGW -->|"HTTP_PROXY p/ IP do node:30080 (sem authorizer no Gateway)"| Node
     Node --> Pods
     Pods --> RDS

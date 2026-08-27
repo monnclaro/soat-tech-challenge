@@ -19,6 +19,14 @@ public class AprovarOrcamentoUseCase : IUseCase
         var ordemServico = await _gateway.BuscarPorId(input.Id, ct);
         if (ordemServico is null) { _outputPort.NaoEncontrado(); return; }
 
+        // 404 (não 403) de propósito: não confirma pra um Cliente que uma OS de
+        // outro cliente existe.
+        if (input.CallerClienteId is { } callerClienteId && callerClienteId != ordemServico.IdCliente)
+        {
+            _outputPort.NaoEncontrado();
+            return;
+        }
+
         ordemServico.AprovarOrcamento();
         await _gateway.Atualizar(ordemServico, ct);
         _outputPort.Ok();

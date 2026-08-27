@@ -332,6 +332,35 @@ public class OrdemServicoUseCaseTests
         Assert.True(presenter.OkChamado);
     }
 
+    [Fact]
+    public async Task AprovarOrcamento_QuandoCallerClienteIdNaoBateComDonoDaOS_ChamaNaoEncontradoENaoAltera()
+    {
+        var os = CriarOrdemServicoAguardandoAprovacao();
+        var (useCase, presenter) = new EstadoUseCaseBuilder<AprovarOrcamentoUseCase, AprovarOrcamentoInput>()
+            .ComOS(os)
+            .Build((gw, p) => new AprovarOrcamentoUseCase(gw, p));
+
+        await useCase.Execute(new AprovarOrcamentoInput(os.Id, Guid.NewGuid()), CancellationToken.None);
+
+        Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status);
+        Assert.True(presenter.NaoEncontradoChamado);
+        Assert.False(presenter.OkChamado);
+    }
+
+    [Fact]
+    public async Task AprovarOrcamento_QuandoCallerClienteIdBateComDonoDaOS_Aprova()
+    {
+        var os = CriarOrdemServicoAguardandoAprovacao();
+        var (useCase, presenter) = new EstadoUseCaseBuilder<AprovarOrcamentoUseCase, AprovarOrcamentoInput>()
+            .ComOS(os)
+            .Build((gw, p) => new AprovarOrcamentoUseCase(gw, p));
+
+        await useCase.Execute(new AprovarOrcamentoInput(os.Id, os.IdCliente), CancellationToken.None);
+
+        Assert.Equal(StatusOrdemServico.EmExecucao, os.Status);
+        Assert.True(presenter.OkChamado);
+    }
+
     #endregion
 
     #region ReprovarOrcamento
@@ -356,6 +385,35 @@ public class OrdemServicoUseCaseTests
             .Build((gw, p) => new ReprovarOrcamentoUseCase(gw, p));
 
         await useCase.Execute(new ReprovarOrcamentoInput(os.Id), CancellationToken.None);
+
+        Assert.Equal(StatusOrdemServico.Finalizada, os.Status);
+        Assert.True(presenter.OkChamado);
+    }
+
+    [Fact]
+    public async Task ReprovarOrcamento_QuandoCallerClienteIdNaoBateComDonoDaOS_ChamaNaoEncontradoENaoAltera()
+    {
+        var os = CriarOrdemServicoAguardandoAprovacao();
+        var (useCase, presenter) = new EstadoUseCaseBuilder<ReprovarOrcamentoUseCase, ReprovarOrcamentoInput>()
+            .ComOS(os)
+            .Build((gw, p) => new ReprovarOrcamentoUseCase(gw, p));
+
+        await useCase.Execute(new ReprovarOrcamentoInput(os.Id, Guid.NewGuid()), CancellationToken.None);
+
+        Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status);
+        Assert.True(presenter.NaoEncontradoChamado);
+        Assert.False(presenter.OkChamado);
+    }
+
+    [Fact]
+    public async Task ReprovarOrcamento_QuandoCallerClienteIdBateComDonoDaOS_Reprova()
+    {
+        var os = CriarOrdemServicoAguardandoAprovacao();
+        var (useCase, presenter) = new EstadoUseCaseBuilder<ReprovarOrcamentoUseCase, ReprovarOrcamentoInput>()
+            .ComOS(os)
+            .Build((gw, p) => new ReprovarOrcamentoUseCase(gw, p));
+
+        await useCase.Execute(new ReprovarOrcamentoInput(os.Id, os.IdCliente), CancellationToken.None);
 
         Assert.Equal(StatusOrdemServico.Finalizada, os.Status);
         Assert.True(presenter.OkChamado);

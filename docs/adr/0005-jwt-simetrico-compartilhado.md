@@ -13,10 +13,10 @@ Manter HS256 (segredo simétrico compartilhado), como já era feito para os toke
 ## Alternativas descartadas
 
 - **RS256 com JWKS**: o emissor assina com chave privada, e qualquer validador busca a chave pública num endpoint `/.well-known/jwks.json` — é o padrão mais robusto para múltiplos consumidores e emissores desacoplados, e seria nativamente suportado pelo *JWT Authorizer* embutido do API Gateway (se este repositório usasse um). Foi descartado nesta fase porque exigiria: (1) expor um endpoint JWKS publicamente a partir de algum lugar (o app? o Lambda?), (2) reescrever `JwtTokenProvider`/`AddJwtAuthentication` do app (hoje simétrico) e (3) gerenciar rotação de chave assimétrica — trabalho desproporcional ao valor para o tamanho atual do sistema, ainda mais sem authorizer no Gateway pra se beneficiar do suporte nativo.
-- **Segredos diferentes por caminho de login** (um para email/senha, outro para CPF): obrigaria a API a saber, antes de validar, qual segredo tentar — complexidade sem benefício de segurança real, já que os dois caminhos emitem token para a mesma identidade (`Usuario`) e são ambos sistemas internos confiáveis (não há emissor de terceiros).
+- **Segredos diferentes por caminho de login** (um para `Usuario`, outro para `Cliente`): obrigaria a API a saber, antes de validar, qual segredo tentar — complexidade sem benefício de segurança real, já que ambos os emissores são sistemas internos confiáveis (não há emissor de terceiros), e a claim `Role` já diferencia as duas populações de token sem precisar de segredos separados.
 
 ## Consequências
 
-- Um único segredo comprometido invalida a confiança em **todos** os tokens de `Usuario`, emitidos por qualquer um dos dois caminhos de login — superfície de risco maior que RS256, onde vazar a chave pública não compromete nada.
+- Um único segredo comprometido invalida a confiança em **todos** os tokens (`Usuario` e `Cliente`, dos dois caminhos de login) — superfície de risco maior que RS256, onde vazar a chave pública não compromete nada.
 - Rotação do segredo exige coordenar o redeploy de três repositórios (`infra-k8s`, que o gera, e `app`/`lambda`, que o consomem) — não há automação de rotação nesta fase.
 - Caminho de evolução natural, se o sistema crescer para múltiplos consumidores externos de API: migrar para RS256/JWKS.
