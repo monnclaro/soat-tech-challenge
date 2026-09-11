@@ -64,6 +64,28 @@ Diagramas, ADRs e RFCs completos da Fase 3: [docs/](./docs).
 
 ---
 
+## Fase 4 — Migração para Microsserviços
+
+> ⚠️ **Este repositório passou a ser referência histórica das Fases 1-3.** A partir da Fase 4, o sistema foi dividido em 3 microsserviços independentes, cada um com seu próprio repositório, banco de dados e pipeline de CI/CD. Nenhum desenvolvimento novo acontece mais aqui.
+
+O monolito foi decomposto em 3 microsserviços, coordenados por uma **saga orquestrada** (o OS Service reage a domain events e publica comandos; os outros dois reagem a comandos e publicam eventos de volta — sem saga state machine separado, o próprio agregado `OrdemServico` guarda o estado da saga):
+
+| Repositório | Responsabilidade | Banco |
+|---|---|---|
+| [soat-tech-challenge-os-service](https://github.com/monnclaro/soat-tech-challenge-os-service) | Ordem de Serviço, orquestração da saga, catálogo (Cliente/Veículo/Produto/Serviço), autenticação do back-office | PostgreSQL |
+| [soat-tech-challenge-billing-service](https://github.com/monnclaro/soat-tech-challenge-billing-service) | Orçamento e pagamento, integração real com Mercado Pago (Checkout Pro + webhook) | PostgreSQL |
+| [soat-tech-challenge-execution-service](https://github.com/monnclaro/soat-tech-challenge-execution-service) | Fila de execução da oficina: diagnóstico e reparo item a item | MongoDB |
+
+O que mudou nesta fase:
+
+- **De 1 API para 3 microsserviços independentes** — cada um com seu próprio repositório, Clean Architecture própria, banco de dados isolado (nenhum serviço acessa o banco de outro diretamente) e pipeline de CI/CD independente.
+- **Comunicação assíncrona via RabbitMQ/MassTransit** entre os 3 serviços, com contratos de mensagem marcados explicitamente como comando (`ISagaCommand`) ou evento (`ISagaEvent`) — ver o README de cada serviço para o fluxo completo da saga e os passos de compensação (ex.: pagamento recusado cancela a OS).
+- **Banco não-relacional introduzido**: o Execução Service passou a usar MongoDB (auto-hospedado via StatefulSet no EKS) para a fila de execução — atendendo ao requisito de ao menos 1 banco SQL e 1 NoSQL na arquitetura.
+- **Mercado Pago real**: o conceito de Orçamento/Pagamento é novo desta fase — o monolito original não tinha pagamento algum.
+- Cada serviço ganhou seus próprios manifests Kubernetes (`k8s/`), pipeline CI/CD (build, testes com gate de cobertura ≥80%, SonarCloud, deploy) e branch `main` protegida exigindo PR.
+
+---
+
 ## Tech Stack
 
 O projeto foi desenvolvido com **C# / .NET 9** e **PostgreSQL 16** (Amazon RDS) como banco de dados principal.
